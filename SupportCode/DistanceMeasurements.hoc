@@ -1,0 +1,259 @@
+proc MeasureSegDist() { localobj Seg_Syn_Dist, fOut
+	////////////////////////////////////////////////////////////////////////
+	//Record distance of each inhibitory section from every segment
+	////////////////////////////////////////////////////////////////////////
+
+	Seg_Syn_Dist = new Matrix(numSegs,ncList.count())
+	SegCounter = 0
+	forall {													//Loop through each section
+		for n=1, nseg {											//Loop through each segment
+			midsec = 1/(2*nseg) + (n-1)/nseg 					//Find the middle of each segment
+			distance(0,midsec)									//Place the origin at the midpoint of each segment
+			//print "origin set at ", midsec, " of ", secname()
+			for inhSynNum=0, ncList.count()-1 { 				//Loop through each inhibitory synapse
+				{x = InhSyn_Array[inhSynNum].get_loc()			// Change the currently accessed section to the location of the inhibitory synape		
+				Seg_Syn_Dist.x[SegCounter][inhSynNum] = distance(x)										//Measure the distance from the current segment to the current inhibitory synapse
+				//print  secname()
+				pop_section()}									//Pop away the section associated with the current inhibitory synapse
+			}
+			SegCounter = SegCounter + 1
+		}
+	}
+
+	fOut = new File()
+	fOut.wopen($s1)
+	Seg_Syn_Dist.fprint(0,fOut)
+	fOut.close()
+}
+
+/*
+proc MeasureSegDist() { localobj IFile, IX, IY, IZ, Seg_Syn_Dist, SegNum, TestVector, fOut
+	TestVector = new Vector()
+	////////////////////////////////////////////////////////////////////////
+	//Read Inibitory Synapse X, Y and Z positions from file
+	////////////////////////////////////////////////////////////////////////
+	IFile = new File()
+	IX = new Vector()
+	IY = new Vector()
+	IZ = new Vector()
+
+	IFile.ropen($s1)
+
+	while (!IFile.eof()) { // continue until out of variables
+		IX.append(IFile.scanvar())
+		IY.append(IFile.scanvar())
+		IZ.append(IFile.scanvar())
+	}
+	IFile.close() // close file
+
+	////////////////////////////////////////////////////////////////////////
+	//Record distance of each inhibitory section from every segment
+	////////////////////////////////////////////////////////////////////////
+	SegNum = new Vector()
+
+	forsec "dend" {
+	SegNum.append(nseg)
+	}
+
+	 print SegNum.sum()
+
+	Seg_Syn_Dist = new Matrix(IX.size(),SegNum.sum())
+
+	for II=0, IX.size()-1 { 					//Loop through each inhibitory synapse location
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((IX.x(II) - x3d(PI))^2 + (IY.x(II) - y3d(PI))^2 + (IZ.x(II) - z3d(PI))^2) //Calculate the distance between the Inh_Syn and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Inh_Syn point match
+					distance(0,arc3d(PI)/L)		//Set the origin to the inhibitory synapse location
+					SegCounter = 0
+					forsec "dend" {					//Loop though every section
+						for n=1, nseg {			//Loop though every segment in the section
+							TestVector.append(SegCounter)
+							Seg_Syn_Dist.x[II][SegCounter] = distance(arc3d(1/(2*nseg) + (n-1)/nseg))
+							SegCounter = SegCounter + 1
+						}
+					}
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+
+	fOut = new File()
+	fOut.wopen($s2)
+	Seg_Syn_Dist.fprint(0,fOut)
+	fOut.close()
+}
+*/
+
+proc RtoStalk_Distance() { localobj RFile, RX, RY, RZ, R2S_Distance, fOut
+	////////////////////////////////////////////////////////////////////////
+	//Read Ribbon X, Y and Z positions from file
+	////////////////////////////////////////////////////////////////////////
+	RFile = new File()
+	RX = new Vector()
+	RY = new Vector()
+	RZ = new Vector()
+
+	RFile.ropen($s1)
+
+	while (!RFile.eof()) { // continue until out of variables
+		RX.append(RFile.scanvar())
+		RY.append(RFile.scanvar())
+		RZ.append(RFile.scanvar())
+	}
+	RFile.close() // close file
+
+	////////////////////////////////////////////////////////////////////////
+	//Loop through all of ribbon locations, putting in Voltage recorders at each point
+	////////////////////////////////////////////////////////////////////////
+
+	distance(0,0)
+
+	R2S_Distance = new Vector()
+
+	for RI=0, RX.size()-1 { 					//Loop through each ribbon synapse location
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((RX.x(RI) - x3d(PI))^2 + (RY.x(RI) - y3d(PI))^2 + (RZ.x(RI) - z3d(PI))^2) //Calculate the distance between the ribbon and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Ribbon point match
+					R2S_Distance.append(distance(arc3d(PI)/L))
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+
+	fOut = new File()
+	fOut.wopen("OutputData/RtoStalk_Distance.txt")
+	R2S_Distance.printf(fOut)
+	fOut.close()
+}
+
+proc I2R_Distance() { localobj IFile, IX, IY, IZ, Seg_Syn_Dist, SegNum, TestVector, fOut
+	TestVector = new Vector()
+	////////////////////////////////////////////////////////////////////////
+	//Read Inibitory Synapse X, Y and Z positions from file
+	////////////////////////////////////////////////////////////////////////
+	IFile = new File()
+	IX = new Vector()
+	IY = new Vector()
+	IZ = new Vector()
+
+	IFile.ropen($s1)
+
+	while (!IFile.eof()) { // continue until out of variables
+		IX.append(IFile.scanvar())
+		IY.append(IFile.scanvar())
+		IZ.append(IFile.scanvar())
+	}
+	IFile.close() // close file
+
+	////////////////////////////////////////////////////////////////////////
+	//Record distance of each inhibitory section from every segment
+	////////////////////////////////////////////////////////////////////////
+	SegNum = new Vector()
+
+	forsec "dend" {
+	SegNum.append(nseg)
+	}
+
+	 print SegNum.sum()
+
+	Seg_Syn_Dist = new Matrix(IX.size(),SegNum.sum())
+
+	for II=0, IX.size()-1 { 					//Loop through each inhibitory synapse location
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((IX.x(II) - x3d(PI))^2 + (IY.x(II) - y3d(PI))^2 + (IZ.x(II) - z3d(PI))^2) //Calculate the distance between the Inh_Syn and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Inh_Syn point match
+					distance(0,arc3d(PI)/L)		//Set the origin to the inhibitory synapse location
+					SegCounter = 0
+					forsec "dend" {					//Loop though every section
+						for n=1, nseg {			//Loop though every segment in the section
+							TestVector.append(SegCounter)
+							Seg_Syn_Dist.x[II][SegCounter] = distance(arc3d(1/(2*nseg) + (n-1)/nseg))
+							SegCounter = SegCounter + 1
+						}
+					}
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+
+	fOut = new File()
+	fOut.wopen("OutputData/SynToSeg_Distances")
+	Seg_Syn_Dist.fprint(0,fOut)
+	fOut.close()
+}
+
+proc Branch() { localobj RFile, RX, RY, RZ, tmpvec, Branches, fOut
+	////////////////////////////////////////////////////////////////////////
+	//Read Ribbon X, Y and Z positions from file
+	////////////////////////////////////////////////////////////////////////
+	RFile = new File()
+	RX = new Vector()
+	RY = new Vector()
+	RZ = new Vector()
+
+	RFile.ropen($s1)
+
+	while (!RFile.eof()) { // continue until out of variables
+		RX.append(RFile.scanvar())
+		RY.append(RFile.scanvar())
+		RZ.append(RFile.scanvar())
+	}
+	RFile.close() // close file
+
+	////////////////////////////////////////////////////////////////////////
+	//Loop through all of ribbon locations, putting in Voltage recorders at each point
+	////////////////////////////////////////////////////////////////////////
+	Branches = new Vector()
+	for RI=0, RX.size()-1 { 					//Loop through each ribbon synapse location
+		tmpvec = new Vector()
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((RX.x(RI) - x3d(PI))^2 + (RY.x(RI) - y3d(PI))^2 + (RZ.x(RI) - z3d(PI))^2) //Calculate the distance between the ribbon and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Ribbon point match
+					Branches.append(branchorder())
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+
+	fOut = new File()
+	fOut.wopen("OutputData/BranchOrder.txt")
+	Branches.printf(fOut)
+	fOut.close()
+}
+
+func branchorder() { local order  localobj sr
+  order = 0
+  sr = new SectionRef()
+  if (sr.has_parent) {
+    sr.parent order = 1 + branchorder()
+  }
+  return order
+}

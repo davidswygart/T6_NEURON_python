@@ -1,0 +1,176 @@
+proc LoopedRun() {localobj RVout, SVout, ncList, RibbonRec, SegRec, tmpvec, RfOut, SfOut, RibRec_WInh, RVout_WI, MarkerList
+	ncList = $o1
+	RibbonRec = $o2
+	SegRec = $o3
+	RibRec_WInh = $o4
+
+	RVout = new Matrix(ncList.count(),RibbonRec.count())
+	SVout = new Matrix(ncList.count(),SegRec.count())
+	RVout_WI = new Matrix(ncList.count(),RibRec_WInh.count())
+
+	print "Will loop run ", ncList.count(), "times"
+
+	for Syndex=0, ncList.count()-1 {
+		ncList.o(Syndex).weight = SynWeight_Change
+
+		// Run Simulation
+		print "Run #", Syndex
+		finitialize(v_init)
+		frecord_init()
+		continuerun(tstop)
+		
+
+		ncList.o(Syndex).weight = SynWeight_Initial
+
+		for i=0, RibbonRec.count()-1 {
+			tmpvec = new Vector()
+			tmpvec = RibbonRec.o(i)
+			RVout.x[Syndex][i] = tmpvec.min()
+		}
+		for i=0, SegRec.count()-1 {
+			tmpvec = new Vector()
+			tmpvec = SegRec.o(i)
+			SVout.x[Syndex][i] = tmpvec.min()
+		}
+
+		for i=0, RibRec_WInh.count()-1 {
+			tmpvec = new Vector()
+			tmpvec = RibRec_WInh.o(i)
+			RVout_WI.x[Syndex][i] = tmpvec.min()
+		}
+	}
+
+	RfOut = new File()
+	RfOut.wopen("OutputData/Looped_maxRibbonVoltages.txt")
+	RVout.fprint(0,RfOut)
+	RfOut.close()
+
+	SfOut = new File()
+	SfOut.wopen("OutputData/Looped_maxSegmentVoltages.txt")
+	SVout.fprint(0,SfOut)
+	SfOut.close()
+
+	RfOut = new File()
+	RfOut.wopen("OutputData/Looped_maxRibbonVoltages_WithInh.txt")
+	RVout_WI.fprint(0,RfOut)
+	RfOut.close()
+}
+
+proc SingleRun() {localobj RVout, SVout, RibbonRec, SegRec, tmpvec, RfOut, SfOut, RibRec_WInh, RVout_WI
+	RibbonRec = $o1
+	SegRec = $o2
+	RibRec_WInh = $o3
+
+
+	// Run Simulation
+	finitialize(v_init)
+	frecord_init()
+	continuerun(tstop)
+	printf("\t...done.\n")
+
+	RVout = new Matrix(1,RibbonRec.count())
+	SVout = new Matrix(1,SegRec.count())
+	RVout_WI = new Matrix(1,RibRec_WInh.count())
+
+	for i=0, RibbonRec.count()-1 {
+		tmpvec = new Vector()
+		tmpvec = RibbonRec.o(i)
+		RVout.x[Syndex][i] = tmpvec.x(tmpvec.size()-1)
+	}
+	for i=0, SegRec.count()-1 {
+		tmpvec = new Vector()
+		tmpvec = SegRec.o(i)
+		SVout.x[Syndex][i] = tmpvec.x(tmpvec.size()-1)
+	}
+	for i=0, RibRec_WInh.count()-1 {
+		tmpvec = new Vector()
+		tmpvec = RibRec_WInh.o(i)
+		RVout_WI.x[Syndex][i] = tmpvec.x(tmpvec.size()-1)
+	}
+
+	RfOut = new File()
+	RfOut.wopen("OutputData/single_maxRibbonVoltages.txt")
+	RVout.fprint(0,RfOut)
+	RfOut.close()
+
+	SfOut = new File()
+	SfOut.wopen("OutputData/single_maxSegmentVoltages.txt")
+	SVout.fprint(0,SfOut)
+	SfOut.close()
+
+	RfOut = new File()
+	RfOut.wopen("OutputData/single_maxRibbonVoltages_WithInh.txt")
+	RVout_WI.fprint(0,RfOut)
+	RfOut.close()
+}
+
+proc SingleSynapseRun() {localobj RVout, SVout, RibbonRec, SegRec, tmpvec, RfOut, SfOut, RibRec_WInh, RVout_WI
+	RibbonRec = $o1
+	SegRec = $o2
+	RibRec_WInh = $o3
+
+	for Syndex=0, ncList.count()-1 {
+	ncList.o(Syndex).weight = SynWeight_Initial	
+	}
+	ncList.o(SynNum).weight = SynWeight_Change
+
+	// Run Simulation
+	finitialize(v_init)
+	frecord_init()
+	continuerun(tstop)
+	printf("\t...done with single synapse run.\n")
+}
+
+proc WriteTrace() {localobj RVout, SVout, RibbonRec, SegRec, tmpvec, RfOut, SfOut, RibRec_WInh, RVout_WI
+	RibbonRec = $o1
+	SegRec = $o2
+	RibRec_WInh = $o3
+
+
+	// Run Simulation
+	finitialize(v_init)
+	frecord_init()
+	continuerun(tstop)
+	printf("\t...done.\n")
+
+	tmpvec = new Vector()
+	tmpvec = RibbonRec.o(1)
+
+	RVout = new Matrix(tmpvec.size(),RibbonRec.count())
+	SVout = new Matrix(tmpvec.size(),SegRec.count())
+	RVout_WI = new Matrix(tmpvec.size(),RibRec_WInh.count())
+
+	for i=0, RibbonRec.count()-1 {
+		tmpvec = new Vector()
+		tmpvec = RibbonRec.o(i)
+		RVout.setcol(i,tmpvec)
+	//	RVout.x[Syndex][i] = tmpvec.x(tmpvec.size()-1)
+	}
+	for i=0, SegRec.count()-1 {
+		tmpvec = new Vector()
+		tmpvec = SegRec.o(i)
+		SVout.setcol(i,tmpvec)
+		//SVout.x[Syndex][i] = tmpvec.x(tmpvec.size()-1)
+	}
+	for i=0, RibRec_WInh.count()-1 {
+		tmpvec = new Vector()
+		tmpvec = RibRec_WInh.o(i)
+		RVout_WI.setcol(i,tmpvec)
+		//RVout_WI.x[Syndex][i] = tmpvec.x(tmpvec.size()-1)
+	}
+
+	RfOut = new File()
+	RfOut.wopen("OutputData/RibbonVoltages_Trace.txt")
+	RVout.fprint(0,RfOut)
+	RfOut.close()
+
+	SfOut = new File()
+	SfOut.wopen("OutputData/SegmentVoltages_Trace.txt")
+	SVout.fprint(0,SfOut)
+	SfOut.close()
+
+	RfOut = new File()
+	RfOut.wopen("OutputData/RibbonVoltages_WithInh_Trace.txt")
+	RVout_WI.fprint(0,RfOut)
+	RfOut.close()
+}

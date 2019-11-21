@@ -1,0 +1,27 @@
+objref stim, VolCla
+
+obfunc CurrentClamp() { localobj stim
+stim = new IClamp(0)
+	stim.del = 0
+	stim.dur = tstop
+	stim.amp = BaselineExc/1000
+return stim
+}
+
+obfunc CurrentClamp2() { localobj stim2
+stim2 = new IClamp(0)
+	stim2.del = ExcStart
+	stim2.dur = ExcDur
+	stim2.amp = ExcAmp/1000
+return stim2
+}
+
+obfunc VoltageClamp() { localobj VolCla
+	VolCla = new SEClamp(0)
+	VolCla.dur1  = Dur1_VolCla
+	VolCla.dur2  = Dur2_VolCla
+	VolCla.amp1  = Hold1_VolCla
+	VolCla.amp2  = Hold2_VolCla
+	//VolCla.vc = -30
+	return VolCla
+}

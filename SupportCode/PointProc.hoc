@@ -1,0 +1,228 @@
+create Ribbon_WInh_Bouton[2]
+create RibbonOnly_Bouton[2]
+
+obfunc RecordSegments() { localobj tmpvec, SegRec
+	////////////////////////////////////////////////////////////////////////
+	// Loop through every segment and put a voltage recorder in each one
+	////////////////////////////////////////////////////////////////////////
+	SegRec = new List()
+	forall {				//Loop though every section
+		for n=1, nseg {		//Loop though every segment in the section
+			tmpvec = new Vector()
+			tmpvec.record(&v(1/(2*nseg) + (n-1)/nseg)) //Record the voltage in the middle of every segment (Credit. Nolan Adams)
+			SegRec.append(tmpvec) //Append the voltage recording to a list
+		}
+	}
+	return SegRec
+}
+
+obfunc AddRibbonsWithInh() {localobj RibRec_WInh, tmpvec, X, Y, Z
+	////////////////////////////////////////////////////////////////////////////////////
+	//Create a bunch of segments for each ribbon and add voltage recorders to each of them
+	///////////////////////////////////////////////////////////////////////////////////
+	X = $o1.o[0]
+	Y = $o1.o[1]
+	Z = $o1.o[2]
+
+	RibRec_WInh = new List()
+
+	create Ribbon_WInh_Bouton[X.size()] // Create a bunch of segments for each ribbon
+	objref Istim_Dyad[X.size()] // Set size of inhibitory stimulation array
+	
+	i = 0
+	forsec "Ribbon_WInh_Bouton" {
+		L = 0.1211
+		diam = 1
+		Ra = RA
+		cm = CM
+		insert pas
+			g_pas = G_PAS
+			e_pas = EPAS
+		nseg = int((L/(0.01*lambda_f(100))+.999)/2)*2 + 1
+
+
+		insert CaL
+			gcal_CaL = GCAL
+			ki_CaL	= KI
+			et_CaL = ET
+			ct_CaL = CT
+			mt_CaL = MT
+			vhfa_CaL = VHFA
+			slpa_CaL = SLPA
+			vhfi_CaL = VHFI
+			slpi_CaL = SLPI
+
+		tmpvec = new Vector()
+		tmpvec.record(&v(1))//Record Voltage this point
+		RibRec_WInh.append(tmpvec) 	//Append this voltage recording onto the voltage recording list
+
+
+	    InhSyn_Array[i] = new ExpSyn(1) //Place inhibitory synapse at this point
+	    	//print "created synapse #",i
+	      InhSyn_Array[i].e = RevPot_Dyad
+	      InhSyn_Array[i].i = 1
+	      InhSyn_Array[i].tau = inhDecay
+		Istim_Dyad[i] = InhStim() // Create inhibitory spike train
+	    ncList.append(new NetCon(Istim_Dyad[i], InhSyn_Array[i],10,1,SynWeight_Initial_Dyad)) //Connect the spike train to each synapse
+		i = i+1
+	}
+
+
+
+
+	////////////////////////////////////////////////////////////////////////
+	//Loop through all of ribbon locations, connecting our new section to those locations
+	////////////////////////////////////////////////////////////////////////
+
+	for RI=0, X.size()-1 { 					//Loop through each ribbon synapse location
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((X.x(RI) - x3d(PI))^2 + (Y.x(RI) - y3d(PI))^2 + (Z.x(RI) - z3d(PI))^2) //Calculate the distance between the ribbon and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Ribbon point match
+	        		D = (arc3d(PI)/L)
+					connect Ribbon_WInh_Bouton[RI](0), D
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+
+	return RibRec_WInh
+}
+
+obfunc AddRibbonsNoInh() {localobj RibRec_NoInh,tmpvec,X,Y,Z
+	////////////////////////////////////////////////////////////////////////////////////
+	//Create a bunch of segments for each ribbon and add voltage recorders to each of them
+	///////////////////////////////////////////////////////////////////////////////////
+	X = $o1.o[0]
+	Y = $o1.o[1]
+	Z = $o1.o[2]
+	RibRec_NoInh = new List()
+	create RibbonOnly_Bouton[X.size] // Create a bunch of segments for each ribbon
+
+	forsec "RibbonOnly_Bouton" {
+		L = 0.1566
+		diam = 1
+		Ra = RA
+		cm = CM
+		insert pas
+			g_pas = G_PAS
+			e_pas = EPAS
+		nseg = int((L/(0.01*lambda_f(100))+.999)/2)*2 + 1
+
+	  insert CaL
+	  gcal_CaL = GCAL
+	  ki_CaL	= KI
+	  et_CaL = ET
+	  ct_CaL = CT
+	  mt_CaL = MT
+	  vhfa_CaL = VHFA
+	  slpa_CaL = SLPA
+	  vhfi_CaL = VHFI
+	  slpi_CaL = SLPI
+
+
+		tmpvec = new Vector()
+		tmpvec.record(&v(1))//Record Voltage this point
+		RibRec_NoInh.append(tmpvec) 	//Append this voltage recording onto the voltage recording list
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	//Loop through all of ribbon sections, connecting them to the main model
+	////////////////////////////////////////////////////////////////////////
+
+	for RI=0, X.size()-1 { 					//Loop through each ribbon synapse location
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((X.x(RI) - x3d(PI))^2 + (Y.x(RI) - y3d(PI))^2 + (Z.x(RI) - z3d(PI))^2) //Calculate the distance between the ribbon and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Ribbon point match
+	        D  = (arc3d(PI)/L)
+					connect RibbonOnly_Bouton[RI](0), D
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+	return RibRec_NoInh
+}
+
+proc AddnonDyadInh () {localobj X,Y,Z
+	////////////////////////////////////////////////////////////////////////
+	//Loop through all of inhibitory synapse locations, putting in synapses at each point.
+	////////////////////////////////////////////////////////////////////////
+	X = $o1.o[0]
+	Y = $o1.o[1]
+	Z = $o1.o[2]
+	objref Istim[X.size()] // Set size of inhibitory stimulation array
+	startNum = XYZ_both.o[0].size()
+	print "There are ", X.size(), "inhibitory synapses outside the dyad"
+	for II=0, X.size()-1 { 					//Loop through each inhibitory synapse location
+		flag = 0
+		forsec "dend" { 								//Loop through each section
+			for PI=0, n3d()-1 { 				//Loop through all points contained in that section
+				dist = sqrt((X.x(II) - x3d(PI))^2 + (Y.x(II) - y3d(PI))^2 + (Z.x(II) - z3d(PI))^2) //Calculate the distance between the Inh_Syn and the cell point
+				if(dist < 0.001) { 				//Check to see if the Section point and Inh_Syn point match
+					InhSyn_Array[II+startNum] = new ExpSyn(arc3d(PI)/L) //Place inhibitory synapse at this point
+						//print "created synapse #", II+startNum
+						InhSyn_Array[II+startNum].e = RevPot
+						InhSyn_Array[II+startNum].i = 1
+						InhSyn_Array[II+startNum].tau = inhDecay
+					Istim[II] = InhStim() // Create inhibitory spike train
+					ncList.append(new NetCon(Istim[II], InhSyn_Array[II+startNum],10,1,SynWeight_Initial)) //Connect the spike train to each synapse
+					flag = 1					// Once a match is found, switch the breakage flag
+					break						//Break out of the loop once you find the first matching point
+				}
+			}
+			if (flag) {							//Break out of the loop once you find the first matching point
+			break
+			}
+		}
+	}
+}
+
+obfunc InhStim() {localobj stim
+	stim = new NetStim()
+		stim.interval = 1000/SpikeFreq
+		stim.number = SpikeDur*SpikeFreq/1000
+		stim.start = SpikeStart
+		stim.noise = StimNoise //0 deterministic, 1 intervals have negexp distribution.
+	return stim
+}
+
+obfunc ReadLocation(){localobj LocationFile, XYZ, X, Y ,Z
+	////////////////////////////////////////////////////////////////////////
+	//Read Ribbon X, Y and Z positions from file
+	////////////////////////////////////////////////////////////////////////
+	XYZ = new List()
+
+	LocationFile = new File()
+	X = new Vector()
+	Y = new Vector()
+	Z = new Vector()
+
+	LocationFile.ropen($s1)
+	//RFile.ropen("InputData/BothLocations.txt")
+
+	while (!LocationFile.eof()) { // continue until out of variables
+		X.append(LocationFile.scanvar())
+		Y.append(LocationFile.scanvar())
+		Z.append(LocationFile.scanvar())
+	}
+
+	XYZ.append(X)
+	XYZ.append(Y)
+	XYZ.append(Z)
+
+	LocationFile.close() // close file
+	return XYZ
+}
