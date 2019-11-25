@@ -1,0 +1,97 @@
+load_file("nrngui.hoc")
+
+create soma
+
+
+soma {
+	L = 200
+	diam = 6
+	Ra = 183
+	cm = 1
+	nseg=111
+	//Area = PI*soma.diam*soma.L*1e-8
+	}
+
+access soma
+	
+	insert pas
+	    e_pas = -50
+        g_pas = 1/138000
+	                           
+    insert CaT      // T-type Calcium channel
+	insert CaL      // L-type Calcium channel
+	insert CAD      // Inward Calcium flow based Calcium dynamics
+	insert IH       // Inward-rectifying channel
+	insert BKCAm    // Large-conductance (BK) Calcium activated Potassium channel
+	insert IKCA     // Medium-conductance(IK) Calcium activated Potassium channel
+	insert SKCA     // Small-conductance(SK) Calcium activated Potassium channel
+	insert KCNQ     // Voltage activated (KCNQ)Potassium channel	
+	insert KV2      // Voltage activated (Kv) Potassium channel
+	insert KATP     // ATP activated Potassium channel
+	
+	
+	
+	
+
+tstop = 1000
+
+objref stim
+soma stim = new IClamp(0.5)
+stim.del = 30
+stim.dur = 5
+stim.amp = 0
+
+objref stim1
+soma stim1 = new Exp2Delay(0.5)
+
+
+gkbar_BKCAm  = 0.024
+kon_BKCAm  = 40633
+kcoff_BKCAm  = 11
+kooff_BKCAm  = 1.1
+c0o0c_BKCAm  = 0.02162
+c0c1c_BKCAm  = 4
+o0c0c_BKCAm  = 318.11
+o4c4c_BKCAm  = 0.35
+hva_BKCAm  = 35
+hvi_BKCAm  = 15.776
+sla_BKCAm  = 380
+sli_BKCAm  = 330
+
+
+gcal_CaL = 0.0004
+vhfa_CaL = -3.4
+slpa_CaL = 8
+vhfi_CaL  = 30
+slpi_CaL = 13
+gcat_CaT = 0.0002
+ht_CaT = 0.5
+vhfa_CaT = -36.9
+sla_CaT = 6.6
+vhfi_CaT = -74.8
+sli_CaT = 50
+taur_CAD = 1100
+depth_CAD = 0.41
+cainf_CAD = 0.0015
+
+
+gbar_SKCA = 0.01
+mt_SKCA = 10
+gkbar_IKCA  = 0.008
+mt_IKCA  = 10
+pm_IKCA  = 2
+slp_IKCA  = 15
+ghbar_IH = 0.00013
+rt_IH = 10
+slp_IH = 18
+gbar_KCNQ = 0.009
+mt_KCNQ = 5
+ht_KCNQ = 10
+gkbar_KV2 = 0.007
+pt_KV2 = 150
+qt_KV2 = 0.1
+
+
+
+
+xopen("synapse.ses")

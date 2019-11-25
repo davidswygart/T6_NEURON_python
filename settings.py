@@ -3,10 +3,10 @@ class Settings ():
     
     def __init__(self):
         """Initialize all settings and parameters for the simulation"""
-        self.initialize_experimental_parameters
-        self.initialize_passive_properties
-        self.initialize_excitation_inhibition
-        self.initialize_active_conductances
+        self.initialize_experimental_parameters()
+        self.initialize_passive_properties()
+        self.initialize_excitation_inhibition()
+        self.initialize_active_conductances()
         
     def initialize_experimental_parameters(self):
         """Initialize settings related to experimental setup"""
