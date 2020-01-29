@@ -89,14 +89,10 @@ def findSectionForLocation(location):
     
 def runSim(settings, inhSyns):
     
-#    case settings.RunMode
-#    
-#    1
-#    singleRun(settings)
-#    
-#    2
-    for inhSyn in inhSyns.inhSyn:
-        inhSyn
+    singleRun(settings)
+    
+    # for inhSyn in inhSyns.inhSyn:
+    #     inhSyn
         
     
 
