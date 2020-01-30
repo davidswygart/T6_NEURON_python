@@ -11,32 +11,22 @@ class Settings ():
     def initialize_experimental_parameters(self):
         """Initialize settings related to experimental setup"""
         #Timing
-        self.ExcStart = 200                                           # When to start stimulation of Stem (ms)
-        self.ExcDur = 400                                         # How long to stimulate stem (ms)
+        self.tstop = 200                                            # How long to Run the simulation (ms)
+        self.ExcStart = 10                                           # When to start stimulation of Stem (ms)
+        self.ExcEnd = self.tstop                                         # How long to stimulate stem (ms)
         
         
-        # self.SpikeStart = 400                                        # When the inhibitory synapses begin to be stimulated (ms)
-        # self.SpikeDur = 	100                                          # How long to stimulate the inhibitory synapes (ms)
-        # self.SpikeStart_Dyad = self.SpikeStart                               # When the inhibitory synapses begin to be stimulated (ms)
-        # self.SpikeDur_Dyad = self.SpikeDur                                   # How long to stimulate the inhibitory synapes (ms)
+        self.InhStart = 400                                        # When the inhibitory synapses begin to be stimulated (ms)
+        self.InhEnd = 	100                                          # How long to stimulate the inhibitory synapes (ms)
         
-        self.tstop = 800                                            # How long to Run the simulation (ms)
         
         #Voltage Clamp Mode (optional)
         self.DoVClamp = 0                                               # Set to 1 to run in voltage clamp configuration
         
-        self.Hold1_VolCla = 0                                      # Initial holding potential (mV)
-        self.Dur1_VolCla = 100                                       # Duration to hold at this potential (ms)
+        self.Hold1 = 0                                      # Initial holding potential (mV)      
+        self.Hold2 = 	self.Hold1                                       # Step holding potential (mV)
+        self.ChangeClamp = self.tstop                                       # What time to change from hold1 to hold2 (ms)
         
-        self.Hold2_VolCla = 	0                                       # Step holding potential (mV)
-        self.Dur2_VolCla = 	0                                       # Duration to hold at second potential
-        
-        #Graphs
-        # self.Vmin = -70                                             # Minimum voltage shown on graph (mV)
-        # self.Vmax = 20                                               # Maximum voltage shown on graph (mV)
-        
-        # self.Imin = 	5                                                  # Minimum current shown on graph (pA) # Only aplicable if in voltage clamp mode
-        # self.Imax = 	25                                                 # Maximum current shown on graph (pA) # Only aplicable if in voltage clamp mode
         
         # Individual Synapse Voltage (optional)
         # self.DoIndSyn = 1                                               # Set to 1 to examine an individual synapse
