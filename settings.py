@@ -16,8 +16,8 @@ class Settings ():
         self.ExcEnd = self.tstop                                         # How long to stimulate stem (ms)
         
         
-        self.InhStart = 400                                        # When the inhibitory synapses begin to be stimulated (ms)
-        self.InhEnd = 	100                                          # How long to stimulate the inhibitory synapes (ms)
+        self.InhStart = 100                                        # When the inhibitory synapses begin to be stimulated (ms)
+        self.InhEnd = 	self.tstop                                          # How long to stimulate the inhibitory synapes (ms)
         
         
         #Voltage Clamp Mode (optional)
@@ -50,13 +50,12 @@ class Settings ():
         #Excitatory input
         self.ExcAmp = 3 / 1000                                                # How much current to inject (pA)
         
-        # Inhibition to non-dyad sites
-        # self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
-        # self.SpikeFreq = 10                                              # Frequency of inhibitory spiking (hZ)
-        # self.StimNoise = 0                                               # 0 deterministic, 1 intervals have negexp distribution.
-        # self.SynWeight = 0.0001                                  # Initial weight set for each inhibitory synapse
+        self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
+        self.InhSpikeFreq = 100                                              # Frequency of inhibitory spiking (hZ)
+        self.InhNoise = 0                                               # 0 deterministic, 1 intervals have negexp distribution.
+        self.inhSynWeight = 0.0001                                  # Initial weight set for each inhibitory synapse
         # self.SynWeight_MultiRun = 0.0001                                   # Weight each synapse is changed to 1 by 1 (Only applicable for LoopedRun)
-        # self.RevPot = -60                                                # Reversal Potential of each inhibitory synapse (mV)
+        self.inhRevPot = -60                                                # Reversal Potential of each inhibitory synapse (mV)
         
         
     def initialize_active_conductances(self):
