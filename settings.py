@@ -12,11 +12,11 @@ class Settings ():
         """Initialize settings related to experimental setup"""
         #Timing
         self.tstop = 200                                            # How long to Run the simulation (ms)
-        self.ExcStart = 10                                           # When to start stimulation of Stem (ms)
+        self.ExcStart = 0                                           # When to start stimulation of Stem (ms)
         self.ExcEnd = self.tstop                                         # How long to stimulate stem (ms)
         
         
-        self.InhStart = 100                                        # When the inhibitory synapses begin to be stimulated (ms)
+        self.InhStart = 0                                        # When the inhibitory synapses begin to be stimulated (ms)
         self.InhEnd = 	self.tstop                                          # How long to stimulate the inhibitory synapes (ms)
         
         
@@ -33,12 +33,12 @@ class Settings ():
         # self.SynNum = 0                                                 #Index number of the 
         
         # Set the run mode (single run, multi run, ect.)
-        # self.RunMode = 1
+        self.RunMode = 2                                                #Run mode, 1 = single run, 2 = multiRun
         
     def initialize_passive_properties(self):
         """Initialize settings for passive properties"""
         # self.celcius = 32
-        self.v_init = -37 #(after excitation)-46.7                    # What voltage to start the cell at (mV)
+        self.v_init = -60#-37 #(after excitation)-46.7                    # What voltage to start the cell at (mV)
         # self.CM = 1.18                                                   # Membrance capacitance (uF/Cm2)
         # self.RA = 132                                                    # Axial resistance (Ohm cm2)
         # self.EPAS = -60                                                  # Equilibrium potential of passive conductances (mV)
@@ -53,7 +53,7 @@ class Settings ():
         self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
         self.InhSpikeFreq = 100                                              # Frequency of inhibitory spiking (hZ)
         self.InhNoise = 0                                               # 0 deterministic, 1 intervals have negexp distribution.
-        self.inhSynWeight = 0.0001                                  # Initial weight set for each inhibitory synapse
+        self.inhSynWeight = 1#0.0001                                  # Initial weight set for each inhibitory synapse
         # self.SynWeight_MultiRun = 0.0001                                   # Weight each synapse is changed to 1 by 1 (Only applicable for LoopedRun)
         self.inhRevPot = -60                                                # Reversal Potential of each inhibitory synapse (mV)
         

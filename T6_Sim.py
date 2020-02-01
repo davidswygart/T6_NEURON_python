@@ -22,11 +22,9 @@ def main():
         settings.v_init = settings.Hold1
         volClamp = placeVoltageClamp(h, axons[0], 0, settings)
         iRecord = h.Vector().record(volClamp._ref_i)
-        f.runSim(h, settings, inhSyns)
+        f.runSim(h, settings, inhSyns, segRec, ribRec)
         f.makePlot(np.linspace(0, settings.tstop, len(segRec[0])), iRecord)
     else:
-        f.runSim(h, settings, inhSyns)
-        f.makePlot(np.linspace(0, settings.tstop, len(segRec[0])), segRec[0])
-        f.saveSingleRun(ribRec, 'singleRun.txt')
+        f.runSim(h, settings, inhSyns, segRec, ribRec)
 
 main()
