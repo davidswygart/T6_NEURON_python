@@ -36,17 +36,7 @@ def loadMorph(h, hocFile):
     for sec in h.allsec():
         secList.append(sec)
     return secList
-        
 
-
-
-def recordSegments(h):
-    segRec = []
-    for sec in h.allsec():
-        for n in range(sec.nseg):
-            D = 1/(2*sec.nseg) + n/sec.nseg
-            segRec.append(h.Vector().record(sec(D)._ref_v))
-    return segRec
         
 def runSim(h, settings, inhSyns, segRec, ribRec):
     if settings.RunMode == 2:
