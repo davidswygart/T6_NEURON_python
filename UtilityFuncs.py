@@ -38,14 +38,7 @@ def loadMorph(h, hocFile):
     return secList
         
 
-def recordRibbons(h, XYZ_file):
-    XYZ = readLocation(XYZ_file)
-    ribRec = []
-    for ribNum in range(len(XYZ)):
-        [sec,D] = findSectionForLocation(h, XYZ[ribNum,:])
-        ribRec.append(h.Vector().record(sec(D)._ref_v ))
-        
-    return ribRec
+
 
 def recordSegments(h):
     segRec = []
