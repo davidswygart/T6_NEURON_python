@@ -33,7 +33,7 @@ class Settings ():
         # self.SynNum = 0                                                 #Index number of the 
         
         # Set the run mode (single run, multi run, ect.)
-        self.RunMode = 2                                                #Run mode, 1 = single run, 2 = multiRun
+        self.RunMode = 1                                                #Run mode, 1 = single run, 2 = multiRun
         
     def initialize_passive_properties(self):
         """Initialize settings for passive properties"""

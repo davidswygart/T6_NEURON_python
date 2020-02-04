@@ -10,7 +10,7 @@ from Electrodes import placeCurrentClamp
 from Electrodes import placeVoltageClamp
 
 
-class model():  
+class Model():  
     def __init__(self):
         #cd C:/Users/david/Box/T6_BP_NEURON_SIM/T6_NEURON_python
         self.settings = Settings()                                                       #Load settings (eg. experimental setup, physiology parameters, display settings)    
@@ -30,9 +30,20 @@ class model():
         else:
             f.runSim(h, self.settings, self.inhSyns, self.segments.recording, self.ribbons.recording)
 
-T6 = model()
+def calcDistances(locations1, locations2, fileName):
+    distMatrix = np.zeros([len(locations1), len(locations2)])
+    
+    for num1, loc1 in enumerate(locations1):
+        for num2, loc2 in enumerate(locations2):
+            dist = h.distance(loc1[0](loc1[1]), loc2[0](loc2[1]))
+            distMatrix[num1, num2] = dist
+    
+    np.savetxt(fileName, distMatrix)
+                
 
 
+T6 = Model()
+calcDistances(T6.segments.location, T6.segments.location, "segDistances.txt")
 
-#def calcDistances(secList1,secList2):
+
     
