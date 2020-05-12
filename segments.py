@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 class Segments():
     """A class for containing all of the segments in the model"""
     

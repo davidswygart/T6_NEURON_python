@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from UtilityFuncs import readLocation
 from UtilityFuncs import findSectionForLocation
 

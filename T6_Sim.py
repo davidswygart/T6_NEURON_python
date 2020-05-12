@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*- 
 import numpy as np
 from neuron import h, gui, units
 import UtilityFuncs as f

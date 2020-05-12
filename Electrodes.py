@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 30 09:27:16 2020
-
-@author: david
-"""
-
 def placeCurrentClamp(h, sec, D, delay, dur, amp):
     iClamp = h.IClamp(sec(D))
     iClamp.delay = delay
