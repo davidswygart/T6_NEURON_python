@@ -13,8 +13,7 @@ def findSectionForLocation(h, location):
     
     
 def readLocation(fileName):
-    fileName = 'RibbonLocations.txt'
-    with open('InputData/'+fileName) as file_object:
+    with open(fileName) as file_object:
         lines = file_object.readlines()
 
     XYZ = np.zeros([len(lines), 3])
@@ -24,8 +23,11 @@ def readLocation(fileName):
         
     return XYZ
 
-def loadMorph(h, hocFile):
-    h.load_file(hocFile) #Load neuron morphology (created in Cell Builder)
+def loadMorph(h):
+    h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
+    h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
+    
+    h.dend_0[0].connect(h.axon[0], 0, 0)
     secList = []
     for sec in h.allsec():
         secList.append(sec)
@@ -43,7 +45,7 @@ def singleRun(h, settings, segRec, ribRec):
     h.frecord_init()
     h.continuerun(settings.tstop)
     makePlot(np.linspace(0, settings.tstop, len(segRec[0])), segRec[0])
-    saveSingleRun(ribRec, 'singleRun.txt')
+    saveSingleRun(ribRec, 'results/singleRun.txt')
     
 def multiRun(h, settings, inhSyns, segRec, ribRec):
     for con in inhSyns.inhNetCon:
@@ -62,7 +64,7 @@ def multiRun(h, settings, inhSyns, segRec, ribRec):
             
         inhSyns.inhNetCon[inhNum].weight[0] = 0
         
-    np.savetxt('multiRun.txt', maxVoltages)
+    np.savetxt('results/multiRun.txt', maxVoltages)
         
  
 def saveSingleRun(ribRec, saveName):
