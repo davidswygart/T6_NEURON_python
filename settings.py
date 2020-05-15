@@ -1,14 +1,14 @@
 class Settings ():
     """A class to store settings and parameters for the simulation"""
     
-    def __init__(self):
+    def __init__(self, h):
         """Initialize all settings and parameters for the simulation"""
-        self.initialize_experimental_parameters()
+        self.initialize_experimental_parameters(h)
         self.initialize_passive_properties()
         self.initialize_excitation_inhibition()
         self.initialize_active_conductances()
         
-    def initialize_experimental_parameters(self):
+    def initialize_experimental_parameters(self, h):
         """Initialize settings related to experimental setup"""
         #Timing
         self.tstop = 200                                            # How long to Run the simulation (ms)
@@ -21,7 +21,7 @@ class Settings ():
         
         
         #Voltage Clamp Mode (optional)
-        self.DoVClamp = 0                                               # Set to 1 to run in voltage clamp configuration
+        self.DoVClamp = 1                                               # Set to 1 to run in voltage clamp configuration
         
         self.Hold1 = 0                                      # Initial holding potential (mV)      
         self.Hold2 = 	self.Hold1                                       # Step holding potential (mV)
@@ -34,6 +34,8 @@ class Settings ():
         
         # Set the run mode (single run, multi run, ect.)
         self.RunMode = 1                                                #Run mode, 1 = single run, 2 = multiRun
+        h.celsius = 32
+        
         
     def initialize_passive_properties(self):
         """Initialize settings for passive properties"""

@@ -12,7 +12,7 @@ from Electrodes import placeVoltageClamp
 class Model():  
     def __init__(self):
         #cd C:/Users/david/Box/T6_BP_NEURON_SIM/T6_NEURON_python
-        self.settings = Settings()                                                       #Load settings (eg. experimental setup, physiology parameters, display settings)    
+        self.settings = Settings(h)                                                       #Load settings (eg. experimental setup, physiology parameters, display settings)    
         self.sections = f.loadMorph(h)                                         #Load axon morphology
         self.ribbons = Ribbons(h, "morphology/RibbonLocations.txt")                #A list of voltage recording vectors at each ribbon
         self.segments = Segments(h)                                                #A list of voltage recording vectors at each segment
@@ -42,7 +42,7 @@ def calcDistances(locations1, locations2, fileName):
 
 
 T6 = Model()
-calcDistances(T6.segments.location, T6.segments.location, "results/segDistances.txt")
+#calcDistances(T6.segments.location, T6.segments.location, "results/segDistances.txt")
 
 
     
