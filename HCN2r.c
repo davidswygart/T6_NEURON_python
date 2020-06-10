@@ -47,14 +47,15 @@ extern double hoc_Exp(double);
 #define dt _nt->_dt
 #define gpeak _p[0]
 #define vhakt _p[1]
-#define i _p[2]
-#define l _p[3]
-#define Dl _p[4]
-#define linf _p[5]
-#define taul _p[6]
-#define ghd _p[7]
-#define v _p[8]
-#define _g _p[9]
+#define a0t _p[2]
+#define i _p[3]
+#define l _p[4]
+#define Dl _p[5]
+#define linf _p[6]
+#define taul _p[7]
+#define ghd _p[8]
+#define v _p[9]
+#define _g _p[10]
  
 #if MAC
 #if !defined(v)
@@ -118,8 +119,6 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  /* declare global and static user variables */
 #define Vrev Vrev_hcn2
  double Vrev = -40;
-#define a0t a0t_hcn2
- double a0t = 0.00372;
 #define gmt gmt_hcn2
  double gmt = 0.561;
 #define k k_hcn2
@@ -143,7 +142,6 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "Vrev_hcn2", "mV",
  "k_hcn2", "mV",
  "vhtau_hcn2", "mV",
- "a0t_hcn2", "/ms",
  "zetat_hcn2", "/mV",
  "gmt_hcn2", "1",
  "temp_hcn2", "degC",
@@ -151,6 +149,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "qtl_hcn2", "1",
  "gpeak_hcn2", "mho/cm2",
  "vhakt_hcn2", "mV",
+ "a0t_hcn2", "/ms",
  "i_hcn2", "mA/cm2",
  0,0
 };
@@ -161,7 +160,6 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "Vrev_hcn2", &Vrev_hcn2,
  "k_hcn2", &k_hcn2,
  "vhtau_hcn2", &vhtau_hcn2,
- "a0t_hcn2", &a0t_hcn2,
  "zetat_hcn2", &zetat_hcn2,
  "gmt_hcn2", &gmt_hcn2,
  "temp_hcn2", &temp_hcn2,
@@ -192,6 +190,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
 "hcn2",
  "gpeak_hcn2",
  "vhakt_hcn2",
+ "a0t_hcn2",
  0,
  "i_hcn2",
  0,
@@ -204,12 +203,13 @@ extern Prop* need_memb(Symbol*);
 static void nrn_alloc(Prop* _prop) {
 	Prop *prop_ion;
 	double *_p; Datum *_ppvar;
- 	_p = nrn_prop_data_alloc(_mechtype, 10, _prop);
+ 	_p = nrn_prop_data_alloc(_mechtype, 11, _prop);
  	/*initialize range parameters*/
  	gpeak = 0.00015;
  	vhakt = -93.6;
+ 	a0t = 0.00372;
  	_prop->param = _p;
- 	_prop->param_size = 10;
+ 	_prop->param_size = 11;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 1, _prop);
  	_prop->dparam = _ppvar;
  	/*connect ionic variables to this model*/
@@ -237,12 +237,12 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
-  hoc_register_prop_size(_mechtype, 10, 1);
+  hoc_register_prop_size(_mechtype, 11, 1);
   hoc_register_dparam_semantics(_mechtype, 0, "cvodeieq");
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 hcn2 C:/Users/tarry5726user/Desktop/modFiles/HCN2r.mod\n");
+ 	ivoc_help("help ?1 hcn2 C:/Users/david/Documents/Code/Github/T6_NEURON_python/HCN2r.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -524,38 +524,38 @@ static const char* nmodl_filename = "HCN2r.mod";
 static const char* nmodl_file_text = 
   "TITLE HCN2 with one time constant\n"
   ": Konstantin Stadler 2009\n"
-  "    \n"
+  "\n"
   "UNITS {\n"
   "	(mA) = (milliamp)\n"
   "	(mV) = (millivolt)\n"
   "\n"
   "}\n"
   "\n"
-  "PARAMETER {	\n"
-  "    	v 		(mV)		\n"
+  "PARAMETER {\n"
+  "    	v 		(mV)\n"
   "    	Vrev  = -40	(mV)\n"
   "    	gpeak = 0.00015	(mho/cm2) <0, 1e9>\n"
-  "		\n"
+  "\n"
   "    	vhakt = -93.6		(mV)\n"
   "    	k     = -11.9		(mV)\n"
-  "		\n"
+  "\n"
   "    	vhtau = -84.6		(mV)\n"
   "    	a0t   = 0.00372		(/ms)\n"
   "    	zetat = 1.5		(/mV)\n"
   "    	gmt   = .561	(1)\n"
-  "	\n"
-  "    	celsius		(degC)			\n"
+  "\n"
+  "    	celsius		(degC)\n"
   "    	temp  = 23	(degC)\n"
   "    	q10   = 4.5		(1)\n"
   "    	qtl   = 1		(1)\n"
-  "}			\n"
+  "}\n"
   "\n"
   "\n"
   "NEURON {\n"
   "	SUFFIX hcn2\n"
   "	NONSPECIFIC_CURRENT i\n"
-  "    	RANGE gpeak, vhakt		\n"
-  "}				\n"
+  "    	RANGE gpeak, vhakt, a0t		\n"
+  "}\n"
   "\n"
   "STATE {\n"
   "        l\n"
@@ -563,7 +563,7 @@ static const char* nmodl_file_text =
   "\n"
   "ASSIGNED {\n"
   "	i (mA/cm2)\n"
-  "    	linf (1)     \n"
+  "    	linf (1)\n"
   "    	taul (ms)\n"
   "    	ghd (mho/cm2)\n"
   "}\n"
@@ -576,41 +576,33 @@ static const char* nmodl_file_text =
   "\n"
   "BREAKPOINT {\n"
   "	SOLVE states METHOD cnexp\n"
-  "	ghd = gpeak*l	\n"
-  "	i = ghd*(v-Vrev)			\n"
+  "	ghd = gpeak*l\n"
+  "	i = ghd*(v-Vrev)\n"
   "\n"
   "}\n"
   "\n"
   "\n"
-  "FUNCTION alpt(v(mV)) (1) {	\n"
-  "  alpt = exp(0.0378*zetat*(v-vhtau)) \n"
+  "FUNCTION alpt(v(mV)) (1) {\n"
+  "  alpt = exp(0.0378*zetat*(v-vhtau))\n"
   "}\n"
   "\n"
-  "FUNCTION bett(v(mV)) (1) {	\n"
-  "  bett = exp(0.0378*zetat*gmt*(v-vhtau)) \n"
+  "FUNCTION bett(v(mV)) (1) {\n"
+  "  bett = exp(0.0378*zetat*gmt*(v-vhtau))\n"
   "}\n"
   "\n"
-  "DERIVATIVE states {     \n"
+  "DERIVATIVE states {\n"
   "        rate(v)\n"
   "        l' =  (linf - l)/taul\n"
   "}\n"
   "\n"
   "PROCEDURE rate(v (mV)) {\n"
   "        LOCAL a,b,qt\n"
-  "        \n"
-  "        qt=q10^((celsius-temp)/10(degC))	\n"
+  "\n"
+  "        qt=q10^((celsius-temp)/10(degC))\n"
   "        a = alpt(v)			:a und b fuer tau\n"
   "        b = bett(v)\n"
-  "        linf = 1/(1 + exp(-(v-vhakt)/k))	\n"
-  "        taul = b/(qtl*qt*a0t*(1+a))		\n"
+  "        linf = 1/(1 + exp(-(v-vhakt)/k))\n"
+  "        taul = b/(qtl*qt*a0t*(1+a))\n"
   "}\n"
-  "\n"
-  "\n"
-  "\n"
-  "\n"
-  "\n"
-  "\n"
-  "\n"
-  "\n"
   ;
 #endif

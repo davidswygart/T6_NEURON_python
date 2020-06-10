@@ -11,7 +11,7 @@ class Settings ():
     def initialize_experimental_parameters(self, h):
         """Initialize settings related to experimental setup"""
         #Timing
-        self.tstop = 200                                            # How long to Run the simulation (ms)
+        self.tstop = 400                                            # How long to Run the simulation (ms)
         self.ExcStart = 0                                           # When to start stimulation of Stem (ms)
         self.ExcEnd = self.tstop                                         # How long to stimulate stem (ms)
         
@@ -23,12 +23,12 @@ class Settings ():
         #Voltage Clamp Mode (optional)
         self.DoVClamp = 1                                               # Set to 1 to run in voltage clamp configuration
         
-        self.Hold1 = -60                                      # Initial holding potential (mV)      
-        self.Hold2 = 	self.Hold1                                       # Step holding potential (mV)
-        self.ChangeClamp = self.tstop                                       # What time to change from hold1 to hold2 (ms)
+        self.Hold1 = -60                                     # Initial holding potential (mV)      
+        self.Hold2 = 	-125                                       # Step holding potential (mV)
+        self.ChangeClamp = 100                                       # What time to change from hold1 to hold2 (ms)
 
         self.RunMode = 1                                                #Run mode, 1 = single run, 2 = multiRun
-        h.celsius = 32
+        h.celsius = 22
         
         
     def initialize_passive_properties(self):
@@ -55,6 +55,10 @@ class Settings ():
         
     def initialize_active_conductances(self):
         """Initialize settings for active conductances"""
+        self.hcn2_gpeak = 0.00094
+        self.hcn2_tau = 0.00372
+        
+        
         #L-type voltage gated calcium channels
         # self.GCAL = 0#0.0025 #Gives 30 pA calcium current when stepped from -70 to -35
         # self.KI = .001 #

@@ -10,36 +10,30 @@ def findSectionForLocation(h, location):
                 D = sec.arc3d(pointNum)/sec.L
                 return [sec,D]
     raise Exception('Could not find a matching point in the model')
-    
-    
+
 def readLocation(fileName):
     with open(fileName) as file_object:
         lines = file_object.readlines()
-
     XYZ = np.zeros([len(lines), 3])
-    
     for lineNum in range(len(lines)):
         XYZ[lineNum,:] = lines[lineNum].split()
-        
     return XYZ
 
-def loadMorph(h):
-    h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
-    h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
-    
-    h.dend_0[0].connect(h.axon[0], 0, 0)
-    secList = []
-    for sec in h.allsec():
-        secList.append(sec)
-    return secList
 
-        
+def insertActiveChannels(h, sections, settings):
+    for sec in sections:
+        sec.insert('hcn2')
+        for seg in sec:
+            seg.hcn2.gpeak = settings.hcn2_gpeak
+            seg.hcn2.a0t = settings.hcn2_tau
+    return
+
 def runSim(h, settings, inhSyns, segRec, ribRec):
     if settings.RunMode == 2:
         multiRun(h, settings, inhSyns, segRec, ribRec)
     else:
         singleRun(h, settings, segRec, ribRec)
-    
+
 def singleRun(h, settings, segRec, ribRec):
     h.finitialize(settings.v_init)
     h.frecord_init()
@@ -65,8 +59,7 @@ def multiRun(h, settings, inhSyns, segRec, ribRec):
         inhSyns.inhNetCon[inhNum].weight[0] = 0
         
     np.savetxt('results/multiRun.txt', maxVoltages)
-        
- 
+
 def saveSingleRun(ribRec, saveName):
     data = np.zeros([len(ribRec), len(ribRec[0])])
     for r_num in range(len(ribRec)):
