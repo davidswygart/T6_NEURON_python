@@ -5,6 +5,7 @@ from UtilityFuncs import updateRun
 
 T6 = Type6_Model()
 updateRun(T6)
+        
 #saveRecordingData(T6.segment_recording, 'results/segmentVoltages.txt')
 
 # def multiRun(h, settings, inhSyns, segRec, ribRec):

@@ -28,7 +28,7 @@ class Type6_Model():
         self.iClamp_baselineExc = self.placeCurrentClamp(h.dend_0[31], 0, 0, self.settings.tstop, self.settings.BaselineExc) #section, location on the section, delay, duration, amplitude
         self.iClamp_visExc = self.placeCurrentClamp(h.dend_0[31], 0, self.settings.ExcStart, self.settings.ExcEnd - self.settings.ExcStart, self.settings.ExcAmp) #section, location on the section, delay, duration, amplitude
         if self.settings.DoVClamp:
-            self.placeVoltageClamp(h.dend_0[2], 1)
+            self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
         
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""

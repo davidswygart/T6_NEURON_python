@@ -48,4 +48,4 @@ def updateRun(T6):
     T6.run()
     makePlot(T6.time, T6.segment_recording[0])
     if T6.settings.DoVClamp:
-        makePlot(T6.time, T6.current_recording, title = 'Current Graph', ymin = -.06)
+        makePlot(T6.time, T6.current_recording, title = 'Current Graph', ymin = -.1)

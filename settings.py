@@ -54,7 +54,7 @@ class Settings ():
         
     def initialize_active_conductances(self):
         """Initialize settings for active conductances"""
-        self.hcn2_gpeak = 0.000015
+        self.hcn2_gpeak = 0.00005
         self.hcn2_tau = 0.00372
         
         
