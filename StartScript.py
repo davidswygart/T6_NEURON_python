@@ -1,14 +1,12 @@
 from T6_Sim import Type6_Model
+from UtilityFuncs import makePlot
+from UtilityFuncs import saveRecordingData
+from UtilityFuncs import updateRun
 
 T6 = Type6_Model()
-T6.run()
+updateRun(T6)
+#saveRecordingData(T6.segment_recording, 'results/segmentVoltages.txt')
 
-# f.makePlot(np.linspace(0, self.settings.tstop, len(self.segments.recording[0])), self.iRecord)
-#                 makePlot(np.linspace(0, settings.tstop, len(segRec[0])), segRec[0])
-#     saveSingleRun(ribRec, 'results/singleRun.txt')
-        
-        
-        
 # def multiRun(h, settings, inhSyns, segRec, ribRec):
 #     for con in inhSyns.inhNetCon:
 #         con.weight[0] = 0
@@ -28,11 +26,6 @@ T6.run()
         
 #     np.savetxt('results/multiRun.txt', maxVoltages)
 
-# def saveSingleRun(ribRec, saveName):
-#     data = np.zeros([len(ribRec), len(ribRec[0])])
-#     for r_num in range(len(ribRec)):
-#         data[r_num,:] = ribRec[r_num]
-#     np.savetxt(saveName, data)
-#     return 
+
 
 #calcDistances(T6.segments.location, T6.segments.location, "results/segDistances.txt")

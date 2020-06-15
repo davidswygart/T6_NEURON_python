@@ -7,20 +7,29 @@ from inhSyns import InhSyns
 
 class Type6_Model():  
     def __init__(self):
-        """Build the model cell."""
+        """Initialize the model cell."""
         self.h = h
-        self.settings = Settings(h)                                                       #Load settings (eg. experimental setup, physiology parameters, display settings)    
+        self.updateSettings()
+        self.buildCell()
+        self.addElectrodes()
+    
+    def updateSettings(self):
+        """Load settings from the settings file"""
+        self.settings = Settings(h)    
+    
+    def buildCell(self):
+        """Build the model cell""" 
         self.loadMorphology()          
         self.inhSyns = InhSyns(h, "morphology/InhSynLocations.txt", self.settings)             #An object containing all inhibitory synapses, their presynaptic stimulation, and their connector
         self.insertActiveChannels()
         self.setRecordingPoints()
+        
+    def addElectrodes(self):
         self.iClamp_baselineExc = self.placeCurrentClamp(h.dend_0[31], 0, 0, self.settings.tstop, self.settings.BaselineExc) #section, location on the section, delay, duration, amplitude
         self.iClamp_visExc = self.placeCurrentClamp(h.dend_0[31], 0, self.settings.ExcStart, self.settings.ExcEnd - self.settings.ExcStart, self.settings.ExcAmp) #section, location on the section, delay, duration, amplitude
-        
         if self.settings.DoVClamp:
             self.placeVoltageClamp(h.dend_0[2], 1)
-            
-
+        
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
@@ -35,8 +44,7 @@ class Type6_Model():
                 seg.hcn2.a0t = self.settings.hcn2_tau
 
     def setRecordingPoints(self):
-        """Set recording points at each ribbon and segment"""
-        
+        """Set recording points at each ribbon and segment"""        
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
         self.ribbon_recording = []
         self.ribbon_location = []

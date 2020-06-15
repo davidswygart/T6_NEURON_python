@@ -11,7 +11,7 @@ class Settings ():
     def initialize_experimental_parameters(self, h):
         """Initialize settings related to experimental setup"""
         #Timing
-        self.tstop = 400                                            # How long to Run the simulation (ms)
+        self.tstop = 700                                            # How long to Run the simulation (ms)
         self.ExcStart = 0                                           # When to start stimulation of Stem (ms)
         self.ExcEnd = self.tstop                                         # How long to stimulate stem (ms)
         
@@ -33,7 +33,7 @@ class Settings ():
         
     def initialize_passive_properties(self):
         """Initialize settings for passive properties"""
-        self.v_init = -60#-37 #(after excitation)-46.7                    # What voltage to start the cell at (mV)
+        self.v_init = -37 #(after excitation)-46.7                    # What voltage to start the cell at (mV)
         # self.CM = 1.18                                                   # Membrance capacitance (uF/Cm2)
         # self.RA = 132                                                    # Axial resistance (Ohm cm2)
         # self.EPAS = -60                                                  # Equilibrium potential of passive conductances (mV)
@@ -49,13 +49,12 @@ class Settings ():
         self.InhSpikeFreq = 100                                              # Frequency of inhibitory spiking (hZ)
         self.InhNoise = 0                                               # 0 deterministic, 1 intervals have negexp distribution.
         self.inhSynWeight = 0                                  # Initial weight set for each inhibitory synapse
-        # self.SynWeight_MultiRun = 0.0001                                   # Weight each synapse is changed to 1 by 1 (Only applicable for LoopedRun)
         self.inhRevPot = -60                                                # Reversal Potential of each inhibitory synapse (mV)
         
         
     def initialize_active_conductances(self):
         """Initialize settings for active conductances"""
-        self.hcn2_gpeak = 0.00094
+        self.hcn2_gpeak = 0.000015
         self.hcn2_tau = 0.00372
         
         

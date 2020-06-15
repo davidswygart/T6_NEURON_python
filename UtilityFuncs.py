@@ -15,11 +15,37 @@ def readLocation(fileName):
     with open(fileName) as file_object:
         lines = file_object.readlines()
     XYZ = np.zeros([len(lines), 3])
-    for lineNum in range(len(lines)):
-        XYZ[lineNum,:] = lines[lineNum].split()
+    for lineNum, line in enumerate(lines):
+        XYZ[lineNum,:] = line.split()
     return XYZ
 
-def makePlot(x,y):
+def makePlot(x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = 'calc', xmin = 'calc', xmax = 'calc'):
     fig, ax = plt.subplots()
     ax.plot(x,y)
+    plt.title(title)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+    
+    if ymin == 'calc': ymin = min(y)
+    if ymax == 'calc': ymax = max(y)
+    if xmin == 'calc': xmin = min(x)
+    if xmax == 'calc': xmax = max(x)
+    
+    plt.ylim(ymin, ymax)
+    plt.xlim(xmin, xmax)
     plt.show()
+    
+def saveRecordingData(dataList, saveName):
+    dataArray = np.zeros([len(dataList), len(dataList[0])])
+    for count, Hoc_Vector in enumerate(dataList):
+        dataArray[count,:] = Hoc_Vector
+    np.savetxt(saveName, dataArray)
+    
+def updateRun(T6):
+    T6.updateSettings()
+    T6.insertActiveChannels()
+    T6.addElectrodes()
+    T6.run()
+    makePlot(T6.time, T6.segment_recording[0])
+    if T6.settings.DoVClamp:
+        makePlot(T6.time, T6.current_recording, title = 'Current Graph', ymin = -.06)
