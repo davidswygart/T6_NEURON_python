@@ -33,7 +33,7 @@ class Type6_Model():
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
             syn = Synapse(self.h, sec, D)
-            syn.updateSettings(self.settings.inhStart, self.settings.inhStop, self.settings.inhSpikeFreq, self.settings.inhWeight, -60)
+            syn.updateSettings(self.settings.inhSyn)
             self.inhSyns.append(syn)
             
     def add_excitatory_input(self):  
@@ -42,7 +42,7 @@ class Type6_Model():
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
             syn = Synapse(self.h, sec, D)
-            syn.updateSettings(self.settings.excStart, self.settings.excEnd, self.settings.visExc_SpikeFreq, self.settings.visExc_Weight, 0)
+            syn.updateSettings(self.settings.darkExc)
             self.inhSyns.append(syn)
     
     def loadMorphology(self):

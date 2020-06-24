@@ -12,12 +12,9 @@ class Settings ():
         """Initialize settings related to experimental setup"""
         #Timing
         self.tstop = 500                                            # How long to Run the simulation (ms)
-        self.excStart = 200                                           # When to start stimulation of Stem (ms)
-        self.excEnd = self.tstop                                         # How long to stimulate stem (ms)
 
 
-        self.inhStart = 300                                        # When the inhibitory synapses begin to be stimulated (ms)
-        self.inhStop = 	self.tstop                                          # How long to stimulate the inhibitory synapes (ms)
+
 
 
         #Voltage Clamp Mode (optional)
@@ -41,11 +38,21 @@ class Settings ():
     def initialize_excitation_inhibition(self):
         """Initialize settings for excitation and inhibition"""
         #self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
-        self.inhSpikeFreq = 100                                              # Frequency of inhibitory spiking (hZ)
-        self.inhWeight = 0                                              # Initial weight set for each inhibitory synapse
-
-        self.visExc_SpikeFreq = 100
-        self.visExc_Weight = .1
+        self.inhSyn = {
+        'start' : 300,
+        'stop' : self.tstop,
+        'spikeFreq' : 100,
+        'weight' : 0,
+        'e' : -60
+        }
+        
+        self.darkExc = {
+        'start' : 200,
+        'stop' : self.tstop,
+        'spikeFreq' : 100,
+        'weight' : 0.1,
+        'e' : 10
+        }
 
 
     def initialize_active_conductances(self):
@@ -54,7 +61,6 @@ class Settings ():
         self.hcn2_tau = 0.00372
         self.Kv1_2_gpeak = 0.0005
         self.Kv1_3_gpeak = 0.0005
-
 
         #L-type voltage gated calcium channels
         # self.GCAL = 0#0.0025 #Gives 30 pA calcium current when stepped from -70 to -35
