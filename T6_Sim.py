@@ -17,13 +17,13 @@ class Type6_Model():
         """Build the model cell""" 
         self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
-        self.excSyns_dark = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
-        #self.ExcSyns_light = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.lightExc)
+        self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
+        for syn in self.excSyns:
+            syn.addStim2(self.h, self.settings.lightExc)
         self.insertChannels()
         self.setRecordingPoints()
         
     def addElectrodes(self):
-
         if self.settings.DoVClamp:
             self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
     
@@ -32,10 +32,9 @@ class Type6_Model():
         XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
-            syn = Synapse(self.h, sec, D)
-            syn.updateSettings(settings)
+            syn = Synapse(self.h, sec, D, settings)
             synapseList.append(syn)
-        return synapseList
+        return synapseList            
     
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
@@ -114,10 +113,10 @@ class Type6_Model():
         self.addElectrodes()
         
         for syn in self.inhSyns:
-            syn.updateSettings(self.settings.inhSyn)
-        for syn in self.excSyns_dark:
-            syn.updateSettings(self.settings.darkExc)
-        
+            syn.updateSettings(syn.stim, syn.con, self.settings.inhSyn)
+        for syn in self.excSyns:
+            syn.updateSettings(syn.stim, syn.con, self.settings.darkExc)
+            syn.updateSettings(syn.stim2, syn.con2, self.settings.lightExc)        
         self.run()
         
 

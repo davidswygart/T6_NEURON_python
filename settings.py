@@ -13,10 +13,6 @@ class Settings ():
         #Timing
         self.tstop = 500                                            # How long to Run the simulation (ms)
 
-
-
-
-
         #Voltage Clamp Mode (optional)
         self.DoVClamp = 0                                               # Set to 1 to run in voltage clamp configuration
 
@@ -39,19 +35,27 @@ class Settings ():
         """Initialize settings for excitation and inhibition"""
         #self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
         self.inhSyn = {
-        'start' : 300,
+        'start' : 400,
         'stop' : self.tstop,
         'spikeFreq' : 100,
-        'weight' : .1,
+        'weight' : .2,
         'e' : -60
         }
         
         self.darkExc = {
+        'start' : 0,
+        'stop' : self.tstop,
+        'spikeFreq' : 1000,
+        'weight' : 0.001,
+        'e' : 10
+        }
+        
+        self.lightExc = {
         'start' : 200,
         'stop' : self.tstop,
-        'spikeFreq' : 100,
-        'weight' : 0.1,
-        'e' : 10
+        'spikeFreq' : 1000,
+        'weight' : 0.01,
+        'e' : self.darkExc['e']
         }
 
 
