@@ -95,6 +95,7 @@ class Type6_Model():
         
         
     def updateAndRun(self):
+        """Update settings and run simulaltion, then plot"""
         self.settings = Settings()
         self.insertChannels()
         if self.settings.DoVClamp:

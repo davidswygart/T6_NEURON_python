@@ -3,37 +3,24 @@ class Settings ():
 
     def __init__(self):
         """Initialize all settings and parameters for the simulation"""
-        self.initialize_experimental_parameters()
-        self.initialize_passive_properties()
-        self.initialize_excitation_inhibition()
-        self.initialize_active_conductances()
+        self.experimental_parameters()
+        self.passive_properties()
+        self.synaptic_inputs()
+        self.active_conductances()
 
-    def initialize_experimental_parameters(self):
+    def experimental_parameters(self):
         """Initialize settings related to experimental setup"""
-        #Timing
         self.tstop = 500                                            # How long to Run the simulation (ms)
+        
+        self.temp = 32
 
-        #Voltage Clamp Mode (optional)
         self.DoVClamp = 1                                               # Set to 1 to run in voltage clamp configuration
-
         self.Hold1 = -60                                     # Initial holding potential (mV)
         self.Hold2 = 	30                                       # Step holding potential (mV)
         self.ChangeClamp = 250                                       # What time to change from hold1 to hold2 (ms)
 
-        self.temp = 32
-
-
-    def initialize_passive_properties(self):
-        """Initialize settings for passive properties"""
-        self.v_init = -37 #(after excitation)-46.7                    # What voltage to start the cell at (mV)
-        self.cm = 1.1                                                  # Membrance capacitance (uF/Cm2)
-        self.Ra = 130                                                    # Axial resistance (Ohm cm2)
-        self.e_pas = -60                                                  # Equilibrium potential of passive conductances (mV)
-        self.g_pas = 4.17e-005                                         # Passive membrane conductance (mho cm2)
-
-    def initialize_excitation_inhibition(self):
-        """Initialize settings for excitation and inhibition"""
-        #self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
+    def synaptic_inputs(self):
+        """Initialize settings for excitatory and inhibitory inputs"""
         self.inhSyn = {
         'start' : 400,
         'stop' : self.tstop,
@@ -57,9 +44,16 @@ class Settings ():
         'weight' : 0.01,
         'e' : self.darkExc['e']
         }
+        
+    def passive_properties(self):
+        """Initialize settings for passive properties"""
+        self.v_init = -37 #(after excitation)-46.7                    # What voltage to start the cell at (mV)
+        self.cm = 1.1                                                  # Membrance capacitance (uF/Cm2)
+        self.Ra = 130                                                    # Axial resistance (Ohm cm2)
+        self.e_pas = -60                                                  # Equilibrium potential of passive conductances (mV)
+        self.g_pas = 4.17e-005                                         # Passive membrane conductance (mho cm2)
 
-
-    def initialize_active_conductances(self):
+    def active_conductances(self):
         """Initialize settings for active conductances"""
         self.hcn2_gpeak = 0.00005
         self.hcn2_tau = 0.00372
