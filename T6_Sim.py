@@ -17,7 +17,8 @@ class Type6_Model():
         """Build the model cell""" 
         self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
-        self.ExcSyns_dark = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
+        self.excSyns_dark = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
+        #self.ExcSyns_light = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.lightExc)
         self.insertChannels()
         self.setRecordingPoints()
         
@@ -111,7 +112,16 @@ class Type6_Model():
         self.settings = Settings()
         self.insertChannels()
         self.addElectrodes()
+        
+        for syn in self.inhSyns:
+            syn.updateSettings(self.settings.inhSyn)
+        for syn in self.excSyns_dark:
+            syn.updateSettings(self.settings.darkExc)
+        
         self.run()
+        
+
+            
         f.makePlot(self.time, self.segment_recording[0])
         if self.settings.DoVClamp:
             f.makePlot(self.time, self.current_recording, title = 'Current Graph', ymax = 2)
