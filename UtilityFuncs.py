@@ -42,12 +42,3 @@ def saveRecordingData(dataList, saveName):
     for count, Hoc_Vector in enumerate(dataList):
         dataArray[count,:] = Hoc_Vector
     np.savetxt(saveName, dataArray)
-    
-def updateRun(T6):
-    T6.updateSettings()
-    T6.insertChannels()
-    T6.addElectrodes()
-    T6.run()
-    makePlot(T6.time, T6.segment_recording[0])
-    if T6.settings.DoVClamp:
-        makePlot(T6.time, T6.current_recording, title = 'Current Graph', ymax = 2)

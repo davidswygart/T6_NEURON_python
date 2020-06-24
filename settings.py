@@ -37,12 +37,9 @@ class Settings ():
         self.Ra = 130                                                    # Axial resistance (Ohm cm2)
         self.e_pas = -60                                                  # Equilibrium potential of passive conductances (mV)
         self.g_pas = 4.17e-005                                         # Passive membrane conductance (mho cm2)
-        self.BaselineExc = .1                                         # How much current to inject (pA), push to restin membrane potential of -46.7 mV (3.5 &)
 
     def initialize_excitation_inhibition(self):
         """Initialize settings for excitation and inhibition"""
-        self.ExcAmp = 0                                                # How much current to inject (pA)
-
         #self.inhDecay = 2 #19.2                                           # decays time on inhibitory synapse (ms)
         self.inhSpikeFreq = 100                                              # Frequency of inhibitory spiking (hZ)
         self.inhWeight = 0                                              # Initial weight set for each inhibitory synapse

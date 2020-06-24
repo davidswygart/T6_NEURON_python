@@ -9,13 +9,9 @@ class Type6_Model():
     def __init__(self):
         """Initialize the model cell."""
         self.h = h
-        self.updateSettings()
+        self.settings = Settings() 
         self.buildCell()
         self.addElectrodes()
-    
-    def updateSettings(self):
-        """Load settings from the settings file"""
-        self.settings = Settings()    
     
     def buildCell(self):
         """Build the model cell""" 
@@ -36,8 +32,8 @@ class Type6_Model():
         XYZ = f.readLocation("morphology/InhSynLocations.txt")
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
-            syn = Synapse(self.h, sec, D, -60)
-            syn.connectStimToSyn(self.h, self.settings.inhStart, self.settings.inhStop, self.settings.inhSpikeFreq, self.settings.inhWeight)
+            syn = Synapse(self.h, sec, D)
+            syn.updateSettings(self.settings.inhStart, self.settings.inhStop, self.settings.inhSpikeFreq, self.settings.inhWeight, -60)
             self.inhSyns.append(syn)
             
     def add_excitatory_input(self):  
@@ -45,8 +41,8 @@ class Type6_Model():
         XYZ = f.readLocation("morphology/InputRibbonLocations.txt")
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
-            syn = Synapse(self.h, sec, D, 10)
-            syn.connectStimToSyn(self.h, self.settings.excStart, self.settings.excEnd, self.settings.visExc_SpikeFreq, self.settings.visExc_Weight)
+            syn = Synapse(self.h, sec, D)
+            syn.updateSettings(self.settings.excStart, self.settings.excEnd, self.settings.visExc_SpikeFreq, self.settings.visExc_Weight, 0)
             self.inhSyns.append(syn)
     
     def loadMorphology(self):
@@ -118,6 +114,16 @@ class Type6_Model():
         self.h.frecord_init()
         self.h.continuerun(self.settings.tstop)
         self.time = np.linspace(0, self.settings.tstop, len(self.segment_recording[0]))
+        
+        
+    def updateAndRun(self):
+        self.settings = Settings()
+        self.insertChannels()
+        self.addElectrodes()
+        self.run()
+        f.makePlot(self.time, self.segment_recording[0])
+        if self.settings.DoVClamp:
+            f.makePlot(self.time, self.current_recording, title = 'Current Graph', ymax = 2)
 
        
     def calcDistances(locations1, locations2, fileName):

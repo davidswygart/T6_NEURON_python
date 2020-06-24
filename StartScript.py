@@ -1,10 +1,9 @@
 from T6_Sim import Type6_Model
 from UtilityFuncs import makePlot
 from UtilityFuncs import saveRecordingData
-from UtilityFuncs import updateRun
 
 T6 = Type6_Model()
-updateRun(T6)
+T6.updateAndRun()
         
 #saveRecordingData(T6.segment_recording, 'results/segmentVoltages.txt')
 
