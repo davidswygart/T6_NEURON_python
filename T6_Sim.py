@@ -2,7 +2,7 @@ import numpy as np
 from neuron import h, gui, units
 import UtilityFuncs as f
 from settings import Settings
-from inhSyns import InhSyns
+from synapse import Synapse
 
 
 class Type6_Model():  
@@ -15,33 +15,65 @@ class Type6_Model():
     
     def updateSettings(self):
         """Load settings from the settings file"""
-        self.settings = Settings(h)    
+        self.settings = Settings()    
     
     def buildCell(self):
         """Build the model cell""" 
-        self.loadMorphology()          
-        self.inhSyns = InhSyns(h, "morphology/InhSynLocations.txt", self.settings)             #An object containing all inhibitory synapses, their presynaptic stimulation, and their connector
-        self.insertActiveChannels()
+        self.loadMorphology()
+        self.add_inhibitory_synapses()
+        self.add_excitatory_input()
+        self.insertChannels()
         self.setRecordingPoints()
         
     def addElectrodes(self):
-        self.iClamp_baselineExc = self.placeCurrentClamp(h.dend_0[31], 0, 0, self.settings.tstop, self.settings.BaselineExc) #section, location on the section, delay, duration, amplitude
-        self.iClamp_visExc = self.placeCurrentClamp(h.dend_0[31], 0, self.settings.ExcStart, self.settings.ExcEnd - self.settings.ExcStart, self.settings.ExcAmp) #section, location on the section, delay, duration, amplitude
+        #self.iClamp_baselineExc = self.placeCurrentClamp(h.dend_0[31], 0, 0, self.settings.tstop, self.settings.BaselineExc) #section, location on the section, delay, duration, amplitude
+        #self.iClamp_visExc = self.placeCurrentClamp(h.dend_0[31], 0, self.settings.ExcStart, self.settings.ExcEnd - self.settings.ExcStart, self.settings.ExcAmp) #section, location on the section, delay, duration, amplitude
         if self.settings.DoVClamp:
             self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
-        
+    
+    def add_inhibitory_synapses(self):  
+        self.inhSyns = []
+        XYZ = f.readLocation("morphology/InhSynLocations.txt")
+        for Num in range(len(XYZ)):
+            [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
+            syn = Synapse(self.h, sec, D, -60)
+            syn.connectStimToSyn(self.h, self.settings.inhStart, self.settings.inhStop, self.settings.inhSpikeFreq, self.settings.inhWeight)
+            self.inhSyns.append(syn)
+            
+    def add_excitatory_input(self):  
+        self.excSyns = []
+        XYZ = f.readLocation("morphology/InputRibbonLocations.txt")
+        for Num in range(len(XYZ)):
+            [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
+            syn = Synapse(self.h, sec, D, 10)
+            syn.connectStimToSyn(self.h, self.settings.excStart, self.settings.excEnd, self.settings.visExc_SpikeFreq, self.settings.visExc_Weight)
+            self.inhSyns.append(syn)
+    
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
         
-    def insertActiveChannels(self):
+    def insertChannels(self):
         for sec in h.allsec():
+            sec.Ra = self.settings.Ra
+            sec.insert('pas')
             sec.insert('hcn2')
+            sec.insert('Kv1_2')
+            sec.insert('Kv1_3')
+            #sec.insert('CaL')
             for seg in sec:
+                seg.cm = self.settings.cm
+                
+                seg.pas.e = self.settings.e_pas
+                seg.pas.g = self.settings.g_pas
+                
                 seg.hcn2.gpeak = self.settings.hcn2_gpeak
                 seg.hcn2.a0t = self.settings.hcn2_tau
+                
+                seg.Kv1_2.gKv1_2bar = self.settings.Kv1_2_gpeak
+                seg.Kv1_3.gKv1_3bar = self.settings.Kv1_3_gpeak
 
     def setRecordingPoints(self):
         """Set recording points at each ribbon and segment"""        
@@ -81,9 +113,10 @@ class Type6_Model():
 
     def run(self):
         """Run the simulation"""
-        h.finitialize(self.settings.v_init)
-        h.frecord_init()
-        h.continuerun(self.settings.tstop)
+        self.h.celsius = self.settings.temp
+        self.h.finitialize(self.settings.v_init)
+        self.h.frecord_init()
+        self.h.continuerun(self.settings.tstop)
         self.time = np.linspace(0, self.settings.tstop, len(self.segment_recording[0]))
 
        

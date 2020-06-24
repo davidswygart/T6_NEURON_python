@@ -3,13 +3,15 @@ import math
 import matplotlib.pyplot as plt
 
 def findSectionForLocation(h, location):
+    dists = []
     for sec in h.allsec():
         for pointNum in range(sec.n3d()):
             dist = math.sqrt( (location[0]-sec.x3d(pointNum))**2  + (location[1]-sec.y3d(pointNum))**2 + (location[2]-sec.z3d(pointNum))**2 )
-            if dist < 0.001:
+            if dist < 0.01:
                 D = sec.arc3d(pointNum)/sec.L
                 return [sec,D]
-    raise Exception('Could not find a matching point in the model')
+            dists.append(dist)
+    raise Exception('Could not find a matching point in the model for')
 
 def readLocation(fileName):
     with open(fileName) as file_object:
@@ -43,9 +45,9 @@ def saveRecordingData(dataList, saveName):
     
 def updateRun(T6):
     T6.updateSettings()
-    T6.insertActiveChannels()
+    T6.insertChannels()
     T6.addElectrodes()
     T6.run()
     makePlot(T6.time, T6.segment_recording[0])
     if T6.settings.DoVClamp:
-        makePlot(T6.time, T6.current_recording, title = 'Current Graph', ymin = -.1)
+        makePlot(T6.time, T6.current_recording, title = 'Current Graph', ymax = 2)
