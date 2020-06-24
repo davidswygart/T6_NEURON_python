@@ -7,14 +7,9 @@ from synapse import Synapse
 
 class Type6_Model():  
     def __init__(self):
-        """Initialize the model cell."""
+        """Build the model cell."""
         self.h = h
         self.settings = Settings() 
-        self.buildCell()
-        self.addElectrodes()
-    
-    def buildCell(self):
-        """Build the model cell""" 
         self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
         self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
@@ -22,12 +17,11 @@ class Type6_Model():
             syn.addStim2(self.h, self.settings.lightExc)
         self.insertChannels()
         self.setRecordingPoints()
-        
-    def addElectrodes(self):
         if self.settings.DoVClamp:
-            self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
+            self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)        
     
     def addSynapses(self, LocationFile, settings):
+        """Add synapses to the locations specified in LocationFile"""
         synapseList = []
         XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
@@ -81,13 +75,6 @@ class Type6_Model():
                     
                 self.segment_location.append([sec, D])
                 self.segment_recording.append(h.Vector().record(sec(D)._ref_v))
-
-    def placeCurrentClamp(self, sec, D, delay, dur, amp):
-        iClamp = h.IClamp(sec(D))
-        iClamp.delay = delay
-        iClamp.dur = dur
-        iClamp.amp = amp
-        return iClamp
     
     def placeVoltageClamp(self, sec, D):
         self.settings.v_init = self.settings.Hold1
@@ -110,7 +97,8 @@ class Type6_Model():
     def updateAndRun(self):
         self.settings = Settings()
         self.insertChannels()
-        self.addElectrodes()
+        if self.settings.DoVClamp:
+            self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
         
         for syn in self.inhSyns:
             syn.updateSettings(syn.stim, syn.con, self.settings.inhSyn)
@@ -118,9 +106,7 @@ class Type6_Model():
             syn.updateSettings(syn.stim, syn.con, self.settings.darkExc)
             syn.updateSettings(syn.stim2, syn.con2, self.settings.lightExc)        
         self.run()
-        
-
-            
+   
         f.makePlot(self.time, self.segment_recording[0])
         if self.settings.DoVClamp:
             f.makePlot(self.time, self.current_recording, title = 'Current Graph', ymax = 2)

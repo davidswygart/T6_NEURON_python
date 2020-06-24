@@ -14,13 +14,13 @@ class Settings ():
         self.tstop = 500                                            # How long to Run the simulation (ms)
 
         #Voltage Clamp Mode (optional)
-        self.DoVClamp = 0                                               # Set to 1 to run in voltage clamp configuration
+        self.DoVClamp = 1                                               # Set to 1 to run in voltage clamp configuration
 
         self.Hold1 = -60                                     # Initial holding potential (mV)
         self.Hold2 = 	30                                       # Step holding potential (mV)
         self.ChangeClamp = 250                                       # What time to change from hold1 to hold2 (ms)
 
-        self.temp = 22
+        self.temp = 32
 
 
     def initialize_passive_properties(self):
