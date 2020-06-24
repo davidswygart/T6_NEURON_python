@@ -16,34 +16,25 @@ class Type6_Model():
     def buildCell(self):
         """Build the model cell""" 
         self.loadMorphology()
-        self.add_inhibitory_synapses()
-        self.add_excitatory_input()
+        self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
+        self.ExcSyns_dark = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
         self.insertChannels()
         self.setRecordingPoints()
         
     def addElectrodes(self):
-        #self.iClamp_baselineExc = self.placeCurrentClamp(h.dend_0[31], 0, 0, self.settings.tstop, self.settings.BaselineExc) #section, location on the section, delay, duration, amplitude
-        #self.iClamp_visExc = self.placeCurrentClamp(h.dend_0[31], 0, self.settings.ExcStart, self.settings.ExcEnd - self.settings.ExcStart, self.settings.ExcAmp) #section, location on the section, delay, duration, amplitude
+
         if self.settings.DoVClamp:
             self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
     
-    def add_inhibitory_synapses(self):  
-        self.inhSyns = []
-        XYZ = f.readLocation("morphology/InhSynLocations.txt")
+    def addSynapses(self, LocationFile, settings):
+        synapseList = []
+        XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
             syn = Synapse(self.h, sec, D)
-            syn.updateSettings(self.settings.inhSyn)
-            self.inhSyns.append(syn)
-            
-    def add_excitatory_input(self):  
-        self.excSyns = []
-        XYZ = f.readLocation("morphology/InputRibbonLocations.txt")
-        for Num in range(len(XYZ)):
-            [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
-            syn = Synapse(self.h, sec, D)
-            syn.updateSettings(self.settings.darkExc)
-            self.inhSyns.append(syn)
+            syn.updateSettings(settings)
+            synapseList.append(syn)
+        return synapseList
     
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""

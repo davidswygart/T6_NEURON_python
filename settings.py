@@ -42,7 +42,7 @@ class Settings ():
         'start' : 300,
         'stop' : self.tstop,
         'spikeFreq' : 100,
-        'weight' : 0,
+        'weight' : .1,
         'e' : -60
         }
         
