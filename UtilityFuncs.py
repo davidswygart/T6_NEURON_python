@@ -28,8 +28,8 @@ def makePlot(x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = '
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     
-    if ymin == 'calc': ymin = min(y)
-    if ymax == 'calc': ymax = max(y)
+    if ymin == 'calc': ymin = np.average(y) - 2 * np.std(y)
+    if ymax == 'calc': ymax = np.average(y) + 2 * np.std(y)
     if xmin == 'calc': xmin = min(x)
     if xmax == 'calc': xmax = max(x)
     
@@ -42,3 +42,4 @@ def saveRecordingData(dataList, saveName):
     for count, Hoc_Vector in enumerate(dataList):
         dataArray[count,:] = Hoc_Vector
     np.savetxt(saveName, dataArray)
+    

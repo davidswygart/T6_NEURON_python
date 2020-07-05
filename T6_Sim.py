@@ -43,7 +43,8 @@ class Type6_Model():
             sec.insert('hcn2')
             sec.insert('Kv1_2')
             sec.insert('Kv1_3')
-            #sec.insert('CaL')
+            sec.insert('Cav3_1')
+            sec.insert('Cav1_4')
             for seg in sec:
                 seg.cm = self.settings.cm
                 
@@ -51,10 +52,12 @@ class Type6_Model():
                 seg.pas.g = self.settings.g_pas
                 
                 seg.hcn2.gpeak = self.settings.hcn2_gpeak
-                seg.hcn2.a0t = self.settings.hcn2_tau
                 
                 seg.Kv1_2.gKv1_2bar = self.settings.Kv1_2_gpeak
                 seg.Kv1_3.gKv1_3bar = self.settings.Kv1_3_gpeak
+                
+                seg.Cav3_1.gCav3_1bar = self.settings.Cav3_1_gpeak
+                seg.Cav1_4.gCabar = self.settings.Cav1_4_gpeak
 
     def setRecordingPoints(self):
         """Set recording points at each ribbon and segment"""        
@@ -110,9 +113,24 @@ class Type6_Model():
    
         f.makePlot(self.time, self.segment_recording[0])
         if self.settings.DoVClamp:
-            f.makePlot(self.time, self.current_recording, title = 'Current Graph', ymax = 2)
+            f.makePlot(self.time, self.current_recording, title = 'Current Graph')
+            
+    def runIV(self, sampleTime, minV = -90, maxV = 40, steps = 12):
+        Vs = np.linspace(minV, maxV, steps)
+        Is = []
+        for [n, v] in enumerate(Vs):
+            self.settings.Hold2 = v
+            self.placeVoltageClamp(self.h.dend_0[2], .9)
+            print('Running ', v, 'mV (', n+1, '/', steps, ')')
+            self.run()
+            f.makePlot(self.time, self.current_recording, title = 'Current Graph')
+            diff = abs(sampleTime - self.time)
+            ind = np.where(diff == min(diff))
+            Is.append(self.current_recording[ind[0][0]])
+        f.makePlot(Vs, Is, title = 'IV graph')    
+        return [Vs, Is]
+            
 
-       
     def calcDistances(locations1, locations2, fileName):
         distMatrix = np.zeros([len(locations1), len(locations2)])
         
