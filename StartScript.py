@@ -1,10 +1,13 @@
 from T6_Sim import Type6_Model
 from UtilityFuncs import makePlot
 from UtilityFuncs import saveRecordingData
+from UtilityFuncs import pullAvg
 
 T6 = Type6_Model()
 T6.updateAndRun()
-#T6.runIV(200)        
+#T6.runIV(200) 
+
+#T6.segment_location[252]    is soma    
 #saveRecordingData(T6.segment_recording, 'results/segmentVoltages.txt')
 
 # def multiRun(h, settings, inhSyns, segRec, ribRec):

@@ -1,6 +1,3 @@
-from UtilityFuncs import readLocation
-from UtilityFuncs import findSectionForLocation
-
 class Synapse():
     def __init__(self, h, sec, D, settings):
         """Make the Synapse (postsynaptic portion), a spike train (virtual presynaptic cell), and connect them together"""
@@ -23,7 +20,7 @@ class Synapse():
         spikeFreq = settings['spikeFreq']
         weight = settings['weight']
         
-        #self.syn.tau = Decay
+        self.syn.tau =  settings['decayTau']
         self.syn.e = settings['e']
         stim.start = start
         stim.interval = (1 / spikeFreq) * 1000

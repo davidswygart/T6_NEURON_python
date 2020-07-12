@@ -37,6 +37,7 @@ class Type6_Model():
         h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
         
     def insertChannels(self):
+        """Insert active channels"""
         for sec in h.allsec():
             sec.Ra = self.settings.Ra
             sec.insert('pas')
@@ -80,6 +81,7 @@ class Type6_Model():
                 self.segment_recording.append(h.Vector().record(sec(D)._ref_v))
     
     def placeVoltageClamp(self, sec, D):
+        """Put a voltage clamp at a specific location"""
         self.settings.v_init = self.settings.Hold1
         self.vClamp = h.SEClamp(sec(D))
         self.vClamp.dur1  = self.settings.ChangeClamp
@@ -96,9 +98,8 @@ class Type6_Model():
         self.h.continuerun(self.settings.tstop)
         self.time = np.linspace(0, self.settings.tstop, len(self.segment_recording[0]))
         
-        
-    def updateAndRun(self):
-        """Update settings and run simulaltion, then plot"""
+    def update(self):
+        """Update Settings"""
         self.settings = Settings()
         self.insertChannels()
         if self.settings.DoVClamp:
@@ -109,29 +110,40 @@ class Type6_Model():
         for syn in self.excSyns:
             syn.updateSettings(syn.stim, syn.con, self.settings.darkExc)
             syn.updateSettings(syn.stim2, syn.con2, self.settings.lightExc)        
+        
+    def updateAndRun(self):
+        """Update settings and run simulaltion, then plot"""
+        self.update()
         self.run()
    
         f.makePlot(self.time, self.segment_recording[0])
         if self.settings.DoVClamp:
             f.makePlot(self.time, self.current_recording, title = 'Current Graph')
             
-    def runIV(self, sampleTime, minV = -90, maxV = 40, steps = 12):
+    def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 12):
+        """Run an Current voltage experiment"""
         Vs = np.linspace(minV, maxV, steps)
         Is = []
         for [n, v] in enumerate(Vs):
+            self.update()
             self.settings.Hold2 = v
             self.placeVoltageClamp(self.h.dend_0[2], .9)
             print('Running ', v, 'mV (', n+1, '/', steps, ')')
             self.run()
-            f.makePlot(self.time, self.current_recording, title = 'Current Graph')
+            current = list(self.current_recording)
+            f.makePlot(self.time, current, title = 'Current Graph')
+            #f.makePlot(self.time, self.segment_recording[50])
             diff = abs(sampleTime - self.time)
             ind = np.where(diff == min(diff))
-            Is.append(self.current_recording[ind[0][0]])
+            ind = ind[0][0]
+            val = min(current[ind:-1])
+            Is.append(val)
         f.makePlot(Vs, Is, title = 'IV graph')    
         return [Vs, Is]
             
 
     def calcDistances(locations1, locations2, fileName):
+        """calculate the path distances between sets of locations"""
         distMatrix = np.zeros([len(locations1), len(locations2)])
         
         for num1, loc1 in enumerate(locations1):
