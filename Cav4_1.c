@@ -60,15 +60,15 @@ extern double hoc_Exp(double);
 #define DmCa _p[12]
 #define DhCa _p[13]
 #define gCa _p[14]
-#define iCa _p[15]
+#define ica _p[15]
 #define infmCa _p[16]
 #define taumCa _p[17]
 #define infhCa _p[18]
 #define tauhCa _p[19]
 #define v _p[20]
 #define _g _p[21]
-#define _ion_iCa	*_ppvar[0]._pval
-#define _ion_diCadv	*_ppvar[1]._pval
+#define _ion_ica	*_ppvar[0]._pval
+#define _ion_dicadv	*_ppvar[1]._pval
  
 #if MAC
 #if !defined(v)
@@ -199,7 +199,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  "hCa_Cav1_4",
  0,
  0};
- static Symbol* _Ca_sym;
+ static Symbol* _ca_sym;
  
 extern Prop* need_memb(Symbol*);
 
@@ -223,9 +223,9 @@ static void nrn_alloc(Prop* _prop) {
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 3, _prop);
  	_prop->dparam = _ppvar;
  	/*connect ionic variables to this model*/
- prop_ion = need_memb(_Ca_sym);
- 	_ppvar[0]._pval = &prop_ion->param[3]; /* iCa */
- 	_ppvar[1]._pval = &prop_ion->param[4]; /* _ion_diCadv */
+ prop_ion = need_memb(_ca_sym);
+ 	_ppvar[0]._pval = &prop_ion->param[3]; /* ica */
+ 	_ppvar[1]._pval = &prop_ion->param[4]; /* _ion_dicadv */
  
 }
  static void _initlists();
@@ -244,8 +244,8 @@ extern void _cvode_abstol( Symbol**, double*, int);
  void _Cav4_1_reg() {
 	int _vectorized = 1;
   _initlists();
- 	ion_reg("Ca", 2.0);
- 	_Ca_sym = hoc_lookup("Ca_ion");
+ 	ion_reg("ca", 2.0);
+ 	_ca_sym = hoc_lookup("ca_ion");
  	register_mech(_mechanism, nrn_alloc,nrn_cur, nrn_jacob, nrn_state, nrn_init, hoc_nrnpointerindex, 1);
  _mechtype = nrn_get_mechtype(_mechanism[1]);
      _nrn_setdata_reg(_mechtype, _setdata);
@@ -255,8 +255,8 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
   hoc_register_prop_size(_mechtype, 22, 3);
-  hoc_register_dparam_semantics(_mechtype, 0, "Ca_ion");
-  hoc_register_dparam_semantics(_mechtype, 1, "Ca_ion");
+  hoc_register_dparam_semantics(_mechtype, 0, "ca_ion");
+  hoc_register_dparam_semantics(_mechtype, 1, "ca_ion");
   hoc_register_dparam_semantics(_mechtype, 2, "cvodeieq");
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
@@ -434,8 +434,8 @@ static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
  }}
  extern void nrn_update_ion_pointer(Symbol*, Datum*, int, int);
  static void _update_ion_pointer(Datum* _ppvar) {
-   nrn_update_ion_pointer(_Ca_sym, _ppvar, 0, 3);
-   nrn_update_ion_pointer(_Ca_sym, _ppvar, 1, 4);
+   nrn_update_ion_pointer(_ca_sym, _ppvar, 0, 3);
+   nrn_update_ion_pointer(_ca_sym, _ppvar, 1, 4);
  }
 
 static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
@@ -477,9 +477,9 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    gCa = ( 0.001 ) * gCabar * mCa * hCa ;
-   iCa = gCa * ( v - eCa ) ;
+   ica = gCa * ( v - eCa ) ;
    }
- _current += iCa;
+ _current += ica;
 
 } return _current;
 }
@@ -504,13 +504,13 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
     _v = NODEV(_nd);
   }
  _g = _nrn_current(_p, _ppvar, _thread, _nt, _v + .001);
- 	{ double _diCa;
-  _diCa = iCa;
+ 	{ double _dica;
+  _dica = ica;
  _rhs = _nrn_current(_p, _ppvar, _thread, _nt, _v);
-  _ion_diCadv += (_diCa - iCa)/.001 ;
+  _ion_dicadv += (_dica - ica)/.001 ;
  	}
  _g = (_g - _rhs)/.001;
-  _ion_iCa += iCa ;
+  _ion_ica += ica ;
 #if CACHEVEC
   if (use_cachevec) {
 	VEC_RHS(_ni[_iml]) -= _rhs;
@@ -596,15 +596,13 @@ static const char* nmodl_file_text =
   ": Rod  Photoreceptor Ca and Calcium  channel\n"
   ": Ref. Kourenny and  Liu 2002   ABME 30 : 1196-1203\n"
   ": Modification 2004-02-07\n"
-  "NEURON\n"
-  "{\n"
+  "NEURON  {\n"
   "	SUFFIX Cav1_4\n"
-  "\n"
-  "	USEION Ca WRITE iCa VALENCE 2\n"
-  "        RANGE gCabar,VhalfCam,SCam\n"
-  "        RANGE VhalfCah,SCah\n"
-  "        RANGE eCa,aomCa,bomCa\n"
-  "        RANGE gammaohCa,deltaohCa\n"
+  "	USEION ca WRITE ica VALENCE 2\n"
+  "  RANGE gCabar,VhalfCam,SCam\n"
+  "  RANGE VhalfCah,SCah\n"
+  "  RANGE eCa,aomCa,bomCa\n"
+  "  RANGE gammaohCa,deltaohCa\n"
   "\n"
   "\n"
   "}\n"
@@ -653,7 +651,7 @@ static const char* nmodl_file_text =
   "\n"
   "	v (mV)\n"
   "\n"
-  "	iCa (mA/cm2)\n"
+  "	ica (mA/cm2)\n"
   "\n"
   "	infmCa\n"
   "	taumCa  (ms)\n"
@@ -684,7 +682,7 @@ static const char* nmodl_file_text =
   "	gCa = (0.001)*gCabar*mCa*hCa\n"
   "	: g is in unit of S/cm2 ,i is in unit of mA/cm2 and v is in mV\n"
   "\n"
-  "	iCa = gCa*(v - eCa)\n"
+  "	ica = gCa*(v - eCa)\n"
   "	: the current is in the unit of mA/cm2\n"
   "\n"
   "\n"

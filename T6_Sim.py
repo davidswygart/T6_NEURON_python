@@ -14,14 +14,16 @@ class Type6_Model():
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
         self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
         for syn in self.excSyns:
-            syn.addStim2(self.h, self.settings.lightExc)
+            syn.addStim2(self.h, self.settings.lightExc) 
         self.insertChannels()
         self.setRecordingPoints()
+        self.channelAdjustment()
         if self.settings.DoVClamp:
             self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)        
     
     def addSynapses(self, LocationFile, settings):
         """Add synapses to the locations specified in LocationFile"""
+        print('....adding synapses: ', LocationFile)
         synapseList = []
         XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
@@ -32,20 +34,29 @@ class Type6_Model():
     
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
+        print('....loading morphology')
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
         
     def insertChannels(self):
         """Insert active channels"""
-        for sec in h.allsec():
-            sec.Ra = self.settings.Ra
+        print('....inserting channels')
+        for sec in self.h.allsec():
             sec.insert('pas')
             sec.insert('hcn2')
             sec.insert('Kv1_2')
             sec.insert('Kv1_3')
             sec.insert('Cav3_1')
             sec.insert('Cav1_4')
+            sec.insert('cad')
+
+    
+    def channelAdjustment(self):
+        """Adjust channels settings"""
+        print('....Adjusting biophysics and channels')
+        for sec in h.allsec():
+            sec.Ra = self.settings.Ra
             for seg in sec:
                 seg.cm = self.settings.cm
                 
@@ -59,52 +70,77 @@ class Type6_Model():
                 
                 seg.Cav3_1.gCav3_1bar = self.settings.Cav3_1_gpeak
                 seg.Cav1_4.gCabar = self.settings.Cav1_4_gpeak
+                seg.Cav3_1.gCav3_1bar = 0
+                seg.Cav1_4.gCabar = 0
+
+        for [sec, d] in self.recordings['ribLocations']:
+            if d == 1: d = .99
+            if d == 0: d = .01
+            sec(d).Cav3_1.gCav3_1bar = self.settings.Cav3_1_gpeak
+            sec(d).Cav3_1.m_vHalf = self.settings.Cav3_1_m_Vhalf
+            sec(d).Cav1_4.gCabar = self.settings.Cav1_4_gpeak
+            sec(d).Cav1_4.VhalfCam =  self.settings.Cav1_4_m_Vhalf
 
     def setRecordingPoints(self):
-        """Set recording points at each ribbon and segment"""        
+        """Set recording points at each ribbon and segment""" 
+        print('....setting recording points (voltage and calcium recording points')
+        
+        self.recordings = {
+        'segLocations' : [],
+        'segV' : [],
+        'segCai' : [],
+        'ribLocations' : [],
+        'ribV' : [],
+        'ribCai' : []
+        }
+        
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
-        self.ribbon_recording = []
-        self.ribbon_location = []
         for ribNum in range(len(XYZs)):
             [sec,D] = f.findSectionForLocation(h, XYZs[ribNum,:])
-            self.ribbon_location.append([sec,D])
-            self.ribbon_recording.append(h.Vector().record(sec(D)._ref_v ))
-
-        self.segment_recording = []
-        self.segment_location = []
+            self.recordings['ribLocations'].append([sec,D])
+            self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
+            self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_cai))
 
         for sec in h.allsec():
             for n in range(sec.nseg):
                 D = 1/(2*sec.nseg) + n/sec.nseg
                     
-                self.segment_location.append([sec, D])
-                self.segment_recording.append(h.Vector().record(sec(D)._ref_v))
+                self.recordings['segLocations'].append([sec, D])
+                self.recordings['segV'].append(h.Vector().record(sec(D)._ref_v))
+                self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_cai))
     
     def placeVoltageClamp(self, sec, D):
         """Put a voltage clamp at a specific location"""
+        print('....adding a voltage clamp electrode')
         self.settings.v_init = self.settings.Hold1
         self.vClamp = h.SEClamp(sec(D))
         self.vClamp.dur1  = self.settings.ChangeClamp
         self.vClamp.dur2  = self.settings.tstop - self.settings.ChangeClamp
         self.vClamp.amp1  = self.settings.Hold1
         self.vClamp.amp2  = self.settings.Hold2
-        self.current_recording = h.Vector().record(self.vClamp._ref_i)
+        self.recordings['iClamp'] = h.Vector().record(self.vClamp._ref_i)
 
     def run(self):
         """Run the simulation"""
+        print('....running simulation')
         self.h.celsius = self.settings.temp
         self.h.finitialize(self.settings.v_init)
         self.h.frecord_init()
         self.h.continuerun(self.settings.tstop)
-        self.time = np.linspace(0, self.settings.tstop, len(self.segment_recording[0]))
+        self.recordings['time'] = np.linspace(0, self.settings.tstop, len(self.recordings['segV'][0]))
+        for key in self.recordings.keys():
+            self.recordings[key] = np.array(self.recordings[key])
         
     def update(self):
         """Update Settings"""
+        print('....updating settings')
         self.settings = Settings()
-        self.insertChannels()
+        self.channelAdjustment()
+        
         if self.settings.DoVClamp:
             self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
         
+        print('....updating synapse values')
         for syn in self.inhSyns:
             syn.updateSettings(syn.stim, syn.con, self.settings.inhSyn)
         for syn in self.excSyns:
@@ -116,9 +152,9 @@ class Type6_Model():
         self.update()
         self.run()
    
-        f.makePlot(self.time, self.segment_recording[0])
+        f.makePlot(self.recordings['time'], self.recordings['segV'][0])
         if self.settings.DoVClamp:
-            f.makePlot(self.time, self.current_recording, title = 'Current Graph')
+            f.makePlot(self.recordings['time'], self.recordings['iClamp'], title = 'Current Graph')
             
     def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 12):
         """Run an Current voltage experiment"""
@@ -130,10 +166,9 @@ class Type6_Model():
             self.placeVoltageClamp(self.h.dend_0[2], .9)
             print('Running ', v, 'mV (', n+1, '/', steps, ')')
             self.run()
-            current = list(self.current_recording)
-            f.makePlot(self.time, current, title = 'Current Graph')
-            #f.makePlot(self.time, self.segment_recording[50])
-            diff = abs(sampleTime - self.time)
+            current = self.recordings['iClamp']
+            f.makePlot(self.recordings['time'], current, title = v, ymax = .1, xmin = 350, xmax = 500)
+            diff = abs(sampleTime - self.recordings['time'])
             ind = np.where(diff == min(diff))
             ind = ind[0][0]
             val = min(current[ind:-1])

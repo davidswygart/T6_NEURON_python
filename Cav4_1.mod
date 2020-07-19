@@ -1,15 +1,13 @@
 : Rod  Photoreceptor Ca and Calcium  channel
 : Ref. Kourenny and  Liu 2002   ABME 30 : 1196-1203
 : Modification 2004-02-07
-NEURON
-{
+NEURON  {
 	SUFFIX Cav1_4
-
-	USEION Ca WRITE iCa VALENCE 2
-        RANGE gCabar,VhalfCam,SCam
-        RANGE VhalfCah,SCah
-        RANGE eCa,aomCa,bomCa
-        RANGE gammaohCa,deltaohCa
+	USEION ca WRITE ica VALENCE 2
+  RANGE gCabar,VhalfCam,SCam
+  RANGE VhalfCah,SCah
+  RANGE eCa,aomCa,bomCa
+  RANGE gammaohCa,deltaohCa
 
 
 }
@@ -58,7 +56,7 @@ ASSIGNED
 
 	v (mV)
 
-	iCa (mA/cm2)
+	ica (mA/cm2)
 
 	infmCa
 	taumCa  (ms)
@@ -89,7 +87,7 @@ BREAKPOINT
 	gCa = (0.001)*gCabar*mCa*hCa
 	: g is in unit of S/cm2 ,i is in unit of mA/cm2 and v is in mV
 
-	iCa = gCa*(v - eCa)
+	ica = gCa*(v - eCa)
 	: the current is in the unit of mA/cm2
 
 

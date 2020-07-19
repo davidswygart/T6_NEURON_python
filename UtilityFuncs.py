@@ -31,12 +31,22 @@ def makePlot(x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = '
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     
+    x = np.array(x)
+    y = np.array(y)
+    
+    
+    
     # if ymin == 'calc': ymin = np.average(y) - 2 * np.std(y)
     # if ymax == 'calc': ymax = np.average(y) + 2 * np.std(y)
-    if ymin == 'calc': ymin = min(y)
-    if ymax == 'calc': ymax = max(y)
     if xmin == 'calc': xmin = min(x)
     if xmax == 'calc': xmax = max(x)
+    
+    yStart = np.where(x == xmin)
+    yStop = np.where(x == xmax)
+    
+    if ymin == 'calc': ymin = min(y[yStart[0][0]:yStop[0][0]])
+    if ymax == 'calc': ymax = max(y[yStart[0][0]:yStop[0][0]])
+
     
     plt.ylim(ymin, ymax)
     plt.xlim(xmin, xmax)
@@ -66,6 +76,39 @@ def compareIVs(Vs, Is_conductance, Is_baseline):
     Is = Is_conductance - Is_baseline
     makePlot(Vs, Is, title = 'IV graph: baseline subtracted')
     
+def interpData(xp, fp, dt):
+    """Interpolate data so that it can be saved in smaller files"""
+    x = np.arrange(xp[0], xp[-1], dt)
+    f = np.interp(x, xp, fp)
+    return([x, f])
+
+def icaSuppression(model, preStart, preEnd, stimStart, stimEnd):
+    model.updateAndRun()
+    
+    supMeans = []
+    for rec in model.ribbon_icaRecording:
+        preStim = pullAvg(model.time, rec, preStart, preEnd) * -1
+        Stim = pullAvg(model.time, rec, stimStart, stimEnd) * -1
+        supMeans.append(Stim-preStim)
+        
+    for syn in model.inhSyns:
+        syn.con.weight[0] = 0
+    model.run()
+    makePlot(model.time, model.segment_Vrecording[0])
+    
+    noSupMeans = []
+    for rec in model.ribbon_icaRecording:
+        preStim = pullAvg(model.time, rec, preStart, preEnd) * -1
+        Stim = pullAvg(model.time, rec, stimStart, stimEnd) * -1
+        noSupMeans.append(Stim-preStim)
+    
+    supMeans = np.array(supMeans)
+    noSupMeans = np.array(noSupMeans)
+    
+    sup = 1 - (supMeans/noSupMeans)
+    plt.hist(sup)
+    
+    return(sup)
     
     
     

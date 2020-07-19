@@ -8,7 +8,7 @@
 NEURON	{
 	SUFFIX Cav3_1
 	USEION ca READ eca WRITE ica
-	RANGE gCav3_1bar, gCav3_1, ica
+	RANGE gCav3_1bar, gCav3_1, ica, m_vHalf
 }
 
 UNITS	{
@@ -19,6 +19,7 @@ UNITS	{
 
 PARAMETER	{
 	gCav3_1bar = 0.00001 (S/cm2)
+	m_vHalf = -42.921064
 }
 
 ASSIGNED	{
@@ -57,7 +58,7 @@ INITIAL{
 
 PROCEDURE rates(){
 	UNITSOFF
-		mInf = 1 /(1+exp((v-(-42.921064))/-5.163208))
+		mInf = 1 /(1+exp((v-(m_vHalf))/-5.163208))
 		if(v < -10){
 			mTau = -0.855809 + (1.493527 * exp(-v/27.414182))
 		}

@@ -10,14 +10,14 @@ class Settings ():
 
     def experimental_parameters(self):
         """Initialize settings related to experimental setup"""
-        self.tstop = 1500                                            # How long to Run the simulation (ms)
+        self.tstop = 800                                            # How long to Run the simulation (ms)
         
-        self.temp = 33
+        self.temp = 22
 
-        self.DoVClamp = 0                                               # Set to 1 to run in voltage clamp configuration
-        self.Hold1 = 10                                                # Initial holding potential (mV)
-        self.Hold2 =  10                                               # Step holding potential (mV)
-        self.ChangeClamp = 1100                                       # What time to change from hold1 to hold2 (ms)
+        self.DoVClamp = 1                                               # Set to 1 to run in voltage clamp configuration
+        self.Hold1 = -80                                               # Initial holding potential (mV)
+        self.Hold2 =   -40                                             # Step holding potential (mV)
+        self.ChangeClamp = 400                                       # What time to change from hold1 to hold2 (ms)
 
     def passive_properties(self):
         """Initialize settings for passive properties"""
@@ -31,8 +31,10 @@ class Settings ():
         self.hcn2_gpeak = 0.00004
         self.Kv1_2_gpeak = 0.00056
         self.Kv1_3_gpeak = 0.00056
-        self.Cav3_1_gpeak = 0.00005
-        self.Cav1_4_gpeak = 0.1
+        self.Cav3_1_gpeak = 0.002
+        self.Cav3_1_m_Vhalf = -50
+        self.Cav1_4_gpeak = 02.2
+        self.Cav1_4_m_Vhalf = -10
         
     def synaptic_inputs(self):
         """Initialize settings for excitatory and inhibitory inputs"""
@@ -40,9 +42,9 @@ class Settings ():
     
         self.darkExc = {
         'start' : 0,
-        'stop' : self.tstop,
+        'stop' : self.tstop + 100,
         'spikeFreq' : 4600,
-        'weight' : 0.0000005,
+        'weight' : 0,#.0000005,
         'e' : 10,
         'decayTau' : 40
         }
@@ -60,7 +62,7 @@ class Settings ():
         'start' : 500,
         'stop' : 1000,
         'spikeFreq' : 5,
-        'weight' : 0.00045,
+        'weight' : 0,#.0002,
         'e' : -60,
         'decayTau' : 19
         }
