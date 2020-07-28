@@ -2,7 +2,6 @@ from T6_Sim import Type6_Model
 from UtilityFuncs import makePlot
 from UtilityFuncs import saveRecordingData
 from UtilityFuncs import pullAvg
-from UtilityFuncs import icaSuppression
 
 
 T6 = Type6_Model()

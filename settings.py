@@ -10,14 +10,14 @@ class Settings ():
 
     def experimental_parameters(self):
         """Initialize settings related to experimental setup"""
-        self.tstop = 800                                            # How long to Run the simulation (ms)
+        self.tstop = 2000                                            # How long to Run the simulation (ms)
         
-        self.temp = 22
+        self.temp = 32
 
-        self.DoVClamp = 1                                               # Set to 1 to run in voltage clamp configuration
+        self.DoVClamp = 0                                               # Set to 1 to run in voltage clamp configuration
         self.Hold1 = -80                                               # Initial holding potential (mV)
         self.Hold2 =   -40                                             # Step holding potential (mV)
-        self.ChangeClamp = 400                                       # What time to change from hold1 to hold2 (ms)
+        self.ChangeClamp = 500                                       # What time to change from hold1 to hold2 (ms)
 
     def passive_properties(self):
         """Initialize settings for passive properties"""
@@ -31,10 +31,11 @@ class Settings ():
         self.hcn2_gpeak = 0.00004
         self.Kv1_2_gpeak = 0.00056
         self.Kv1_3_gpeak = 0.00056
-        self.Cav3_1_gpeak = 0.002
-        self.Cav3_1_m_Vhalf = -50
-        self.Cav1_4_gpeak = 02.2
-        self.Cav1_4_m_Vhalf = -10
+        self.Cav3_1_gpeak = 0.001
+        #self.Cav3_1_m_Vhalf = -55
+        #self.Cav3_1_h_Vhalf = -60
+        self.Cav1_4_gpeak = 1
+        #self.Cav1_4_m_Vhalf = -10
         
     def synaptic_inputs(self):
         """Initialize settings for excitatory and inhibitory inputs"""
@@ -43,26 +44,26 @@ class Settings ():
         self.darkExc = {
         'start' : 0,
         'stop' : self.tstop + 100,
-        'spikeFreq' : 4600,
-        'weight' : 0,#.0000005,
+        'spikeFreq' : 200,
+        'weight' : 0.000003,
         'e' : 10,
         'decayTau' : 40
         }
         
         self.lightExc = {
-        'start' : 500,
-        'stop' : 1000,
-        'spikeFreq' : 7500,
+        'start' : 1000,
+        'stop' : 2000,
+        'spikeFreq' : 700,
         'weight' : self.darkExc['weight'],
         'e' : self.darkExc['e'],
-        'decayTau' : self.darkExc['e']
+        'decayTau' : self.darkExc['decayTau']
         }
         
         self.inhSyn = {
-        'start' : 500,
-        'stop' : 1000,
+        'start' : 1000,
+        'stop' : 2000,
         'spikeFreq' : 5,
-        'weight' : 0,#.0002,
+        'weight' : 0.0003,
         'e' : -60,
         'decayTau' : 19
         }

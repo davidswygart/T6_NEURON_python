@@ -82,34 +82,19 @@ def interpData(xp, fp, dt):
     f = np.interp(x, xp, fp)
     return([x, f])
 
-def icaSuppression(model, preStart, preEnd, stimStart, stimEnd):
-    model.updateAndRun()
+def hist(vals, title = '', ylabel = '', xlabel = '', xmin = 'calc', xmax = 'calc'):
+    fig, ax = plt.subplots()
+    ax.hist(vals)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
     
-    supMeans = []
-    for rec in model.ribbon_icaRecording:
-        preStim = pullAvg(model.time, rec, preStart, preEnd) * -1
-        Stim = pullAvg(model.time, rec, stimStart, stimEnd) * -1
-        supMeans.append(Stim-preStim)
-        
-    for syn in model.inhSyns:
-        syn.con.weight[0] = 0
-    model.run()
-    makePlot(model.time, model.segment_Vrecording[0])
-    
-    noSupMeans = []
-    for rec in model.ribbon_icaRecording:
-        preStim = pullAvg(model.time, rec, preStart, preEnd) * -1
-        Stim = pullAvg(model.time, rec, stimStart, stimEnd) * -1
-        noSupMeans.append(Stim-preStim)
-    
-    supMeans = np.array(supMeans)
-    noSupMeans = np.array(noSupMeans)
-    
-    sup = 1 - (supMeans/noSupMeans)
-    plt.hist(sup)
-    
-    return(sup)
-    
+    if xmin == 'calc': xmin = min(vals)
+    if xmax == 'calc': xmax = max(vals)
+
+    plt.xlim(xmin, xmax)
+    plt.show()
+
+
     
     
     

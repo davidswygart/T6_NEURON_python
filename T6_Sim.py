@@ -3,6 +3,7 @@ from neuron import h, gui, units
 import UtilityFuncs as f
 from settings import Settings
 from synapse import Synapse
+import matplotlib.pyplot as plt
 
 
 class Type6_Model():  
@@ -68,8 +69,7 @@ class Type6_Model():
                 seg.Kv1_2.gKv1_2bar = self.settings.Kv1_2_gpeak
                 seg.Kv1_3.gKv1_3bar = self.settings.Kv1_3_gpeak
                 
-                seg.Cav3_1.gCav3_1bar = self.settings.Cav3_1_gpeak
-                seg.Cav1_4.gCabar = self.settings.Cav1_4_gpeak
+                
                 seg.Cav3_1.gCav3_1bar = 0
                 seg.Cav1_4.gCabar = 0
 
@@ -77,9 +77,11 @@ class Type6_Model():
             if d == 1: d = .99
             if d == 0: d = .01
             sec(d).Cav3_1.gCav3_1bar = self.settings.Cav3_1_gpeak
-            sec(d).Cav3_1.m_vHalf = self.settings.Cav3_1_m_Vhalf
+            #sec(d).Cav3_1.m_vHalf = self.settings.Cav3_1_m_Vhalf
+            #sec(d).Cav3_1.h_vHalf = self.settings.Cav3_1_h_Vhalf
+            
             sec(d).Cav1_4.gCabar = self.settings.Cav1_4_gpeak
-            sec(d).Cav1_4.VhalfCam =  self.settings.Cav1_4_m_Vhalf
+            #sec(d).Cav1_4.VhalfCam =  self.settings.Cav1_4_m_Vhalf
 
     def setRecordingPoints(self):
         """Set recording points at each ribbon and segment""" 
@@ -89,9 +91,11 @@ class Type6_Model():
         'segLocations' : [],
         'segV' : [],
         'segCai' : [],
+        'segIca' : [],
         'ribLocations' : [],
         'ribV' : [],
-        'ribCai' : []
+        'ribCai' : [],
+        'ribIca' : []
         }
         
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
@@ -100,6 +104,7 @@ class Type6_Model():
             self.recordings['ribLocations'].append([sec,D])
             self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
             self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_cai))
+            self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_ica))
 
         for sec in h.allsec():
             for n in range(sec.nseg):
@@ -108,6 +113,7 @@ class Type6_Model():
                 self.recordings['segLocations'].append([sec, D])
                 self.recordings['segV'].append(h.Vector().record(sec(D)._ref_v))
                 self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_cai))
+                self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_ica))
     
     def placeVoltageClamp(self, sec, D):
         """Put a voltage clamp at a specific location"""
@@ -127,9 +133,9 @@ class Type6_Model():
         self.h.finitialize(self.settings.v_init)
         self.h.frecord_init()
         self.h.continuerun(self.settings.tstop)
-        self.recordings['time'] = np.linspace(0, self.settings.tstop, len(self.recordings['segV'][0]))
-        for key in self.recordings.keys():
-            self.recordings[key] = np.array(self.recordings[key])
+        self.recordings['time'] = np.linspace(0, self.settings.tstop, len(self.recordings['segV'][252]))
+        #for key in self.recordings.keys():
+         #   self.recordings[key] = np.array(self.recordings[key])
         
     def update(self):
         """Update Settings"""
@@ -152,7 +158,7 @@ class Type6_Model():
         self.update()
         self.run()
    
-        f.makePlot(self.recordings['time'], self.recordings['segV'][0])
+        f.makePlot(self.recordings['time'], self.recordings['segV'][252])
         if self.settings.DoVClamp:
             f.makePlot(self.recordings['time'], self.recordings['iClamp'], title = 'Current Graph')
             
@@ -166,8 +172,8 @@ class Type6_Model():
             self.placeVoltageClamp(self.h.dend_0[2], .9)
             print('Running ', v, 'mV (', n+1, '/', steps, ')')
             self.run()
-            current = self.recordings['iClamp']
-            f.makePlot(self.recordings['time'], current, title = v, ymax = .1, xmin = 350, xmax = 500)
+            current = np.array(self.recordings['iClamp'])
+            f.makePlot(self.recordings['time'], current, title = v, ymax = .1, xmin = 450)
             diff = abs(sampleTime - self.recordings['time'])
             ind = np.where(diff == min(diff))
             ind = ind[0][0]
@@ -187,3 +193,35 @@ class Type6_Model():
                 distMatrix[num1, num2] = dist
         
         np.savetxt(fileName, distMatrix)
+        
+        
+        
+    def plotSuppression(self, preStart, preEnd, stimStart, stimEnd, plotWhat):
+        self.updateAndRun()
+        
+        supMeans = []
+        for rec in self.recordings[plotWhat]:
+            preStim = f.pullAvg(self.recordings['time'], rec, preStart, preEnd)
+            Stim = f.pullAvg(self.recordings['time'], rec, stimStart, stimEnd)
+            supMeans.append(Stim-preStim)
+            
+        for syn in self.inhSyns:
+            syn.con.weight[0] = 0
+        self.run()
+        f.makePlot(self.recordings['time'], self.recordings['segV'][252])
+        
+        noSupMeans = []
+        for rec in self.recordings[plotWhat]:
+            preStim = f.pullAvg(self.recordings['time'], rec, preStart, preEnd)
+            Stim = f.pullAvg(self.recordings['time'], rec, stimStart, stimEnd)
+            noSupMeans.append(Stim-preStim)
+        
+        supMeans = np.array(supMeans)
+        noSupMeans = np.array(noSupMeans)
+        
+        sup = 1 - (supMeans/noSupMeans)
+        
+        plt.hist(sup)
+        
+        return(sup)
+    
