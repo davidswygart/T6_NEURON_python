@@ -140,7 +140,6 @@ class Type6_Model():
     def update(self):
         """Update Settings"""
         print('....updating settings')
-        self.settings = Settings()
         self.channelAdjustment()
         
         if self.settings.DoVClamp:
@@ -155,31 +154,34 @@ class Type6_Model():
         
     def updateAndRun(self):
         """Update settings and run simulaltion, then plot"""
+        self.settings = Settings()
         self.update()
         self.run()
    
         f.makePlot(self.recordings['time'], self.recordings['segV'][252])
+        #f.makePlot(self.recordings['time'], self.recordings['ribV'][1], title = 'ribV')
         if self.settings.DoVClamp:
             f.makePlot(self.recordings['time'], self.recordings['iClamp'], title = 'Current Graph')
             
-    def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 12):
+    def runIV(self, startTime, minV = -80, maxV = 40, steps = 12):
         """Run an Current voltage experiment"""
+        self.settings = Settings()
+        self.settings.DoVClamp = 1
+        self.update()
+        
         Vs = np.linspace(minV, maxV, steps)
         Is = []
         for [n, v] in enumerate(Vs):
-            self.update()
             self.settings.Hold2 = v
-            self.placeVoltageClamp(self.h.dend_0[2], .9)
+            self.update()
             print('Running ', v, 'mV (', n+1, '/', steps, ')')
             self.run()
-            current = np.array(self.recordings['iClamp'])
-            f.makePlot(self.recordings['time'], current, title = v, ymax = .1, xmin = 450)
-            diff = abs(sampleTime - self.recordings['time'])
-            ind = np.where(diff == min(diff))
-            ind = ind[0][0]
-            val = min(current[ind:-1])
+            
+            f.makePlot(self.recordings['time'], self.recordings['iClamp'], ymax = .01, xmin = 390, xmax = 450)
+            val = f.pullMax(self.recordings['time'], self.recordings['iClamp'], 405)
+            #val = f.pullAvg(self.recordings['time'], self.recordings['iClamp'], startTime, stopTime)
             Is.append(val)
-        f.makePlot(Vs, Is, title = 'IV graph')    
+        f.makePlot(Vs, Is, title = 'IV graph')
         return [Vs, Is]
             
 

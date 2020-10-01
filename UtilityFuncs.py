@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from settings import Settings
 
 def findSectionForLocation(h, location):
     """Give a 3D point in space and get the closes model section"""
@@ -41,11 +42,14 @@ def makePlot(x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = '
     if xmin == 'calc': xmin = min(x)
     if xmax == 'calc': xmax = max(x)
     
-    yStart = np.where(x == xmin)
-    yStop = np.where(x == xmax)
+   # yStart = np.where(x == xmin)
+   # yStop = np.where(x == xmax)
     
-    if ymin == 'calc': ymin = min(y[yStart[0][0]:yStop[0][0]])
-    if ymax == 'calc': ymax = max(y[yStart[0][0]:yStop[0][0]])
+    #if ymin == 'calc': ymin = min(y[yStart[0][0]-1:yStop[0][0]+1])
+    #if ymax == 'calc': ymax = max(y[yStart[0][0]-1:yStop[0][0]+1])
+    
+    if ymin == 'calc': ymin = min(y)
+    if ymax == 'calc': ymax = max(y)
 
     
     plt.ylim(ymin, ymax)
@@ -68,6 +72,17 @@ def pullAvg(x, y, start, stop):
     maxInd = np.where(diff == min(diff))
     
     return np.mean(y[minInd[0][0] : maxInd[0][0]])
+
+def pullMax(x, y, start):
+    """Pull the max value after a certain point"""
+    y = np.array(y)
+    
+    diff = abs(start - x)
+    startInd = np.where(diff == min(diff))
+    
+    biggest = np.max(abs(y[startInd[0][0]:-1]))
+    bigInd = np.where(biggest == abs(y))
+    return y[bigInd]
 
 def compareIVs(Vs, Is_conductance, Is_baseline):
     """Plot the difference between 2 IV curves"""
@@ -93,9 +108,49 @@ def hist(vals, title = '', ylabel = '', xlabel = '', xmin = 'calc', xmax = 'calc
 
     plt.xlim(xmin, xmax)
     plt.show()
-
+    
+def rangeCheck(model, iterations):
+    """Function to check the output of the model over a range of a variable"""
+    model.settings = Settings()
+    model.update()
+    
+    baselineC = np.zeros([len(model.recordings['ribCai']), iterations])
+    stimC = np.zeros([len(model.recordings['ribCai']), iterations])
+    
+    baselineV = np.zeros([len(model.recordings['ribCai']), iterations])
+    stimV = np.zeros([len(model.recordings['ribCai']), iterations])
+    
+    
+    for i in range(iterations):
+        print(model.settings.Ra)
+        model.run()
+        time = model.recordings['time']
+        makePlot(time, model.recordings['ribCai'][0], title='ribCai')
+        makePlot(time, model.recordings['ribV'][0], title='ribV')
+        makePlot(time, model.recordings['segV'][252], title = 'soma V')
+        
+        
+        for [n, ribCai] in enumerate(model.recordings['ribCai']):
+            baselineC[n,i] = pullAvg(time, ribCai, 300, 500)
+            stimC[n,i] = pullAvg(time, ribCai, 505, 1000)
+            
+        for [n, ribV] in enumerate(model.recordings['ribV']):
+            baselineV[n,i] = pullAvg(time, ribV, 300, 500)
+            stimV[n,i] = pullAvg(time, ribV, 505, 1000)
+            
+            
+        model.settings.Ra = model.settings.Ra * 2
+        for [sec, loc] in model.recordings['ribLocations']:
+            sec.Ra = model.settings.Ra
 
     
+    np.savetxt('baselineC_I.txt', baselineC)
+    np.savetxt('stimC_I.txt', stimC)
+    np.savetxt('baselineV_I.txt', baselineV)
+    np.savetxt('stimV_I.txt', stimV)
+    
+    model.settings = Settings()
+    model.update()
     
     
     

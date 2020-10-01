@@ -1,12 +1,27 @@
+import numpy as np
 from T6_Sim import Type6_Model
 from UtilityFuncs import makePlot
 from UtilityFuncs import saveRecordingData
 from UtilityFuncs import pullAvg
+from UtilityFuncs import rangeCheck
 
 
 T6 = Type6_Model()
 T6.updateAndRun()
 #T6.runIV(200) 
+
+
+
+
+
+#rangeCheck(T6, 4, T6.settings.Ra)
+
+
+
+
+
+
+
 
 
 #from hoc2swc import neuron2swc

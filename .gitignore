@@ -7,3 +7,11 @@ results/singleRun.txt
 results/singleRun.txt
 results/singleRun.txt
 results/segmentVoltages.txt
+stimC_I.txt
+stimC_noI.txt
+stimV_noI.txt
+stimV_I.txt
+baselineV_I.txt
+baselineC_I.txt
+baselineC_noI.txt
+baselineV_noI.txt
