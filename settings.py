@@ -32,10 +32,7 @@ class Settings ():
         self.Kv1_2_gpeak = 0.00056
         self.Kv1_3_gpeak = 0.00056
         self.Cav3_1_gpeak = 0.001
-        #self.Cav3_1_m_Vhalf = -55
-        #self.Cav3_1_h_Vhalf = -60
         self.Cav1_4_gpeak = 1
-        #self.Cav1_4_m_Vhalf = -10
         
     def synaptic_inputs(self):
         """Initialize settings for excitatory and inhibitory inputs"""
@@ -44,7 +41,7 @@ class Settings ():
         self.darkExc = {
         'start' : 0,
         'stop' : self.tstop + 100,
-        'spikeFreq' : 450,
+        'spikeFreq' : 300,
         'weight' : 0.000003,
         'e' : 10,
         'decayTau' : 40
@@ -53,7 +50,7 @@ class Settings ():
         self.lightExc = {
         'start' : 500,
         'stop' : 2000,
-        'spikeFreq' : 950,
+        'spikeFreq' : 1200,
         'weight' : self.darkExc['weight'],
         'e' : self.darkExc['e'],
         'decayTau' : self.darkExc['decayTau']
@@ -63,7 +60,7 @@ class Settings ():
         'start' : 500,
         'stop' : 2000,
         'spikeFreq' : 5,
-        'weight' : 0.000,
+        'weight' : 0.0003,
         'e' : -60,
         'decayTau' : 19
         }

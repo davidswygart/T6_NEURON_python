@@ -2,6 +2,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from settings import Settings
+import random
 
 def findSectionForLocation(h, location):
     """Give a 3D point in space and get the closes model section"""
@@ -122,12 +123,18 @@ def rangeCheck(model, iterations):
     
     
     for i in range(iterations):
+        model.settings.Ra = model.settings.Ra * 64
         print(model.settings.Ra)
+        for [sec, loc] in model.recordings['ribLocations']:
+            sec.Ra = model.settings.Ra
+
         model.run()
         time = model.recordings['time']
         makePlot(time, model.recordings['ribCai'][0], title='ribCai')
         makePlot(time, model.recordings['ribV'][0], title='ribV')
         makePlot(time, model.recordings['segV'][252], title = 'soma V')
+        
+
         
         
         for [n, ribCai] in enumerate(model.recordings['ribCai']):
@@ -139,9 +146,7 @@ def rangeCheck(model, iterations):
             stimV[n,i] = pullAvg(time, ribV, 505, 1000)
             
             
-        model.settings.Ra = model.settings.Ra * 2
-        for [sec, loc] in model.recordings['ribLocations']:
-            sec.Ra = model.settings.Ra
+
 
     
     np.savetxt('baselineC_I.txt', baselineC)
@@ -151,6 +156,96 @@ def rangeCheck(model, iterations):
     
     model.settings = Settings()
     model.update()
+    
+def locationInfo(locationList):
+    values = np.zeros(len(locationList))
+    for [n, location] in enumerate(locationList):
+        print(location[0].diam)
+        values[n] = location[0].diam
+        
+    return values
+
+
+def runBoth(model):
+    """Function to run both with and without inhibition"""
+    Ra_factor = 20
+    inhRatio = 0.3
+    
+    model.settings = Settings()
+    model.update()
+    
+    newRa = Ra_factor * model.settings.Ra
+    for [sec, loc] in model.recordings['ribLocations']:
+        sec.Ra = newRa
+
+    synNums = list(range(len(model.inhSyns)))
+    random.shuffle(synNums) 
+    NumToChange = round(len(model.inhSyns) * (1-inhRatio))
+    print('......zeoring ', NumToChange, ' inhibitory synapses' )
+    for n in range(NumToChange):
+        model.inhSyns[synNums[n]].con.weight[0] = 0
+
+    
+    model.run()
+    time = model.recordings['time']
+    #makePlot(time, model.recordings['ribCai'][0], title='ribCai with inhibition')
+    makePlot(time, model.recordings['ribV'][0], title='ribV  with inhibition')
+    #makePlot(time, model.recordings['segV'][252], title = 'somaV  with inhibition')
+    
+    baselineC = np.zeros(len(model.recordings['ribCai']))
+    stimC = np.zeros(len(model.recordings['ribCai']))
+    
+    baselineV = np.zeros(len(model.recordings['ribCai']))
+    stimV = np.zeros(len(model.recordings['ribCai']))
+    
+    for [n, ribCai] in enumerate(model.recordings['ribCai']):
+        baselineC[n] = pullAvg(time, ribCai, 300, 500)
+        stimC[n] = pullAvg(time, ribCai, 505, 1000)
+        
+    for [n, ribV] in enumerate(model.recordings['ribV']):
+        baselineV[n] = pullAvg(time, ribV, 300, 500)
+        stimV[n] = pullAvg(time, ribV, 505, 1000)   
+        
+    np.savetxt('baselineC_I.txt', baselineC)
+    np.savetxt('stimC_I.txt', stimC)
+    np.savetxt('baselineV_I.txt', baselineV)
+    np.savetxt('stimV_I.txt', stimV)
+        
+    
+    print('.....turning off inhibition completely')
+    model.settings.inhSyn['weight'] = 0
+    model.update()
+    for [sec, loc] in model.recordings['ribLocations']:
+        sec.Ra = newRa
+    model.run()
+    #makePlot(time, model.recordings['ribCai'][0], title='ribCai: NO inhibition')
+    makePlot(time, model.recordings['ribV'][0], title='ribV: NO inhibition')
+    #makePlot(time, model.recordings['segV'][252], title = 'somaV: NO inhibition')
+    
+    baselineC = np.zeros(len(model.recordings['ribCai']))
+    stimC = np.zeros(len(model.recordings['ribCai']))
+    
+    baselineV = np.zeros(len(model.recordings['ribCai']))
+    stimV = np.zeros(len(model.recordings['ribCai']))
+    
+    for [n, ribCai] in enumerate(model.recordings['ribCai']):
+        baselineC[n] = pullAvg(time, ribCai, 300, 500)
+        stimC[n] = pullAvg(time, ribCai, 505, 1000)
+        
+    for [n, ribV] in enumerate(model.recordings['ribV']):
+        baselineV[n] = pullAvg(time, ribV, 300, 500)
+        stimV[n] = pullAvg(time, ribV, 505, 1000)
+            
+    np.savetxt('baselineC_noI.txt', baselineC)
+    np.savetxt('stimC_noI.txt', stimC)
+    np.savetxt('baselineV_noI.txt', baselineV)
+    np.savetxt('stimV_noI.txt', stimV)
+    
+    model.settings = Settings()
+    model.update()
+    
+        
+        
     
     
     

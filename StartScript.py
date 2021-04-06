@@ -4,6 +4,7 @@ from UtilityFuncs import makePlot
 from UtilityFuncs import saveRecordingData
 from UtilityFuncs import pullAvg
 from UtilityFuncs import rangeCheck
+from UtilityFuncs import runBoth
 
 
 T6 = Type6_Model()

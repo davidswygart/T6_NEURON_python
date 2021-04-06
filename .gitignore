@@ -15,3 +15,4 @@ baselineV_I.txt
 baselineC_I.txt
 baselineC_noI.txt
 baselineV_noI.txt
+*.pyc
