@@ -1,25 +1,28 @@
 class Synapse():
     def __init__(self, h, sec, D, settings):
         """Make the Synapse (postsynaptic portion), a spike train (virtual presynaptic cell), and connect them together"""
-        self.syn = h.ExpSyn(sec(D))    #Create an inhibitory synapse at the specified section location
-        self.stim = h.NetStim()          #Create a netstim
-        self.con = h.NetCon(self.stim, self.syn)    #connect the netstim to the inhibitory synapse
-        self.updateSettings(self.stim, self.con, settings)
- 
-    def addStim2(self, h, settings):
-        """Add a second stimulus train to the synapse"""
-        self.stim2 = h.NetStim()          #Create a netstim
-        self.con2 = h.NetCon(self.stim2, self.syn)    #connect the netstim to the inhibitory synapse
-        self.updateSettings(self.stim2, self.con2, settings)
-        
-    
+        self.syn = h.ExpSyn(sec(D))    #Create a synapse at the specified section location.
+        self.stim = [] #Create an empty list for your stimuli
+        self.con = [] #Create an empty list for your connections
+        self.addStim(h, settings) #Add the first stimuli and connection
+
+
+    def addStim(self, h, settings):
+        """Add a stimulus train to the synapse"""
+        stim = h.NetStim()          #Create a netstim
+        con = h.NetCon(stim, self.syn)    #connect the netstim to the synapse
+        self.updateSettings(stim, con, settings) #Apply the appropriate settings to synapse
+        self.stim.append(stim)  #Add the stimulus to the list for easy access
+        self.con.append(con) #Add the connection to the list for easy access
+
+
     def updateSettings(self, stim, con, settings):
         """Update synapse with our custom settings"""
         start = settings['start']
         stop = settings['stop']
         spikeFreq = settings['spikeFreq']
         weight = settings['weight']
-        
+
         self.syn.tau =  settings['decayTau']
         self.syn.e = settings['e']
         stim.start = start
@@ -28,6 +31,3 @@ class Synapse():
         stim.number = duration * spikeFreq / 1000
         stim.noise = 1  # 0 deterministic, 1 intervals have negexp distribution.
         con.weight[0] = weight
-        
-
-        
