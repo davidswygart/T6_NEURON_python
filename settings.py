@@ -10,7 +10,7 @@ class Settings ():
 
     def experimental_parameters(self):
         """Initialize settings related to experimental setup"""
-        self.tstop = 1000                                            # How long to Run the simulation (ms)
+        self.tstop = 500                                          # How long to Run the simulation (ms)
         
         self.temp = 32
 
@@ -22,45 +22,45 @@ class Settings ():
     def passive_properties(self):
         """Initialize settings for passive properties"""
         self.cm = 1.18
-        self.Ra = 132
+        self.Ra = 132                                       # Ohm
         self.e_pas = -60
-        self.g_pas = 3.91e-5
+        self.g_pas = 1/25600                                # 1/  Ohm/cm2
         
     def active_conductances(self):
         """Initialize settings for active conductances"""
-        self.hcn2_gpeak = 0.00004
-        self.Kv1_2_gpeak = 0.00056
-        self.Kv1_3_gpeak = 0.00056
-        self.Cav3_1_gpeak = 0.001
-        self.Cav1_4_gpeak = 1
+        self.hcn2_gpeak = 0#.00004
+        self.Kv1_2_gpeak = 0#.00056
+        self.Kv1_3_gpeak = 0#.00056
+        self.Cav3_1_gpeak = 0#.001
+        self.Cav1_4_gpeak = 0#1
         
     def synaptic_inputs(self):
         """Initialize settings for excitatory and inhibitory inputs"""
-        self.v_init = -45
+        self.v_init = -30
     
         self.darkExc = {
         'start' : 0,
         'stop' : self.tstop + 100,
-        'spikeFreq' : 300,
-        'weight' : 0.000003,
+        'spikeFreq' : 30000,
+        'weight' : 0.00000005,
         'e' : 10,
         'decayTau' : 40
         }
         
         self.lightExc = {
-        'start' : 500,
+        'start' : 1500,
         'stop' : 2000,
-        'spikeFreq' : 1200,
+        'spikeFreq' : 800,
         'weight' : self.darkExc['weight'],
         'e' : self.darkExc['e'],
         'decayTau' : self.darkExc['decayTau']
         }
         
         self.inhSyn = {
-        'start' : 500,
+        'start' : 0,
         'stop' : 2000,
-        'spikeFreq' : 5,
-        'weight' : 0.0003,
+        'spikeFreq' : 5000,
+        'weight' : 0, #3/10000,
         'e' : -60,
         'decayTau' : 19
         }

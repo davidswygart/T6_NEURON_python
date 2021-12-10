@@ -139,7 +139,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  /* declare global and static user variables */
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
- "gCabar_Cav1_4", 0, 1e+009,
+ "gCabar_Cav1_4", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {

@@ -135,7 +135,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  double zetat = 1.5;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
- "gpeak_hcn2", 0, 1e+009,
+ "gpeak_hcn2", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {

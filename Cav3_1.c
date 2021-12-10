@@ -174,7 +174,7 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 16, _prop);
  	/*initialize range parameters*/
- 	gCav3_1bar = 1e-005;
+ 	gCav3_1bar = 1e-05;
  	m_vHalf = -42.9211;
  	h_vHalf = -72.9074;
  	_prop->param = _p;

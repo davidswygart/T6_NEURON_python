@@ -90,12 +90,16 @@ class Type6_Model():
         self.recordings = {
         'segLocations' : [],
         'segV' : [],
-        'segCai' : [],
-        'segIca' : [],
+        #'segCai' : [],
+        #'segIca' : [],
         'ribLocations' : [],
         'ribV' : [],
-        'ribCai' : [],
-        'ribIca' : []
+        #'ribCai' : [],
+        #'ribIca' : [],
+        'inhLocations' : [],
+        'inhV' : [],
+        #'inhCai' : [],
+        #'inhIca' : []
         }
 
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
@@ -103,8 +107,16 @@ class Type6_Model():
             [sec,D] = f.findSectionForLocation(h, XYZs[ribNum,:])
             self.recordings['ribLocations'].append([sec,D])
             self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
-            self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_cai))
-            self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_ica))
+           # self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_cai))
+           # self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_ica))
+            
+        XYZs = f.readLocation("morphology/InhSynLocations.txt")
+        for inhNum in range(len(XYZs)):
+            [sec,D] = f.findSectionForLocation(h, XYZs[inhNum,:])
+            self.recordings['inhLocations'].append([sec,D])
+            self.recordings['inhV'].append(h.Vector().record(sec(D)._ref_v ))
+            #self.recordings['inhCai'].append(h.Vector().record(sec(D)._ref_cai))
+            #self.recordings['inhIca'].append(h.Vector().record(sec(D)._ref_ica))
 
         for sec in h.allsec():
             for n in range(sec.nseg):
@@ -112,8 +124,8 @@ class Type6_Model():
 
                 self.recordings['segLocations'].append([sec, D])
                 self.recordings['segV'].append(h.Vector().record(sec(D)._ref_v))
-                self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_cai))
-                self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_ica))
+               # self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_cai))
+               # self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_ica))
 
     def placeVoltageClamp(self, sec, D):
         """Put a voltage clamp at a specific location"""
@@ -185,7 +197,7 @@ class Type6_Model():
         return [Vs, Is]
 
 
-    def calcDistances(locations1, locations2, fileName):
+    def calcDistances(self, locations1, locations2, fileName):
         """calculate the path distances between sets of locations"""
         distMatrix = np.zeros([len(locations1), len(locations2)])
 
@@ -195,6 +207,8 @@ class Type6_Model():
                 distMatrix[num1, num2] = dist
 
         np.savetxt(fileName, distMatrix)
+        
+        
 
 
 

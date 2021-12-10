@@ -166,6 +166,34 @@ def locationInfo(locationList):
     return values
 
 
+
+def LoopThoughInhibitorySynapses(model, weight, name):
+    """Run function looping though and providing inhibition at each synapse"""
+    ribVs = np.zeros((91,120))
+    inhVs = np.zeros((120,120))
+    
+    for ii, inhSyn in enumerate(model.inhSyns):
+        inhSyn.con[0].weight[0] = weight #1 /100000
+        model.run()
+        time = model.recordings['time']
+        makePlot(time, model.recordings['inhV'][ii])
+        
+        inhSyn.con[0].weight[0] = 0
+         
+        for [n, v] in enumerate(model.recordings['ribV']):
+            ribVs[n,ii] = pullAvg(time,model.recordings['ribV'][n],400,500)
+            
+        for [n, v] in enumerate(model.recordings['inhV']):
+            inhVs[n,ii] = pullAvg(time,model.recordings['inhV'][n],400,500)
+            
+        print(str(ii) + ' of 120 completed')
+
+    np.savetxt(name + 'ribV.txt', ribVs)
+    np.savetxt(name + 'inhV.txt', inhVs)
+        
+        
+        
+
 def runBoth(model):
     """Function to run both with and without inhibition"""
     Ra_factor = 20
