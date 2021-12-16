@@ -1,13 +1,15 @@
 : Rod  Photoreceptor Ca and Calcium  channel
 : Ref. Kourenny and  Liu 2002   ABME 30 : 1196-1203
 : Modification 2004-02-07
-NEURON  {
-	SUFFIX Cav1_4
-	USEION ca WRITE ica VALENCE 2
-  RANGE gCabar,VhalfCam,SCam
-  RANGE VhalfCah,SCah
-  RANGE eCa,aomCa,bomCa
-  RANGE gammaohCa,deltaohCa
+NEURON
+{
+	SUFFIX Ca
+
+	USEION Ca WRITE iCa VALENCE 2
+        RANGE gCabar,VhalfCam,SCam
+        RANGE VhalfCah,SCah
+        RANGE eCa,aomCa,bomCa
+        RANGE gammaohCa,deltaohCa
 
 
 }
@@ -56,7 +58,7 @@ ASSIGNED
 
 	v (mV)
 
-	ica (mA/cm2)
+	iCa (mA/cm2)
 
 	infmCa
 	taumCa  (ms)
@@ -87,7 +89,7 @@ BREAKPOINT
 	gCa = (0.001)*gCabar*mCa*hCa
 	: g is in unit of S/cm2 ,i is in unit of mA/cm2 and v is in mV
 
-	ica = gCa*(v - eCa)
+	iCa = gCa*(v - eCa)
 	: the current is in the unit of mA/cm2
 
 
@@ -107,21 +109,21 @@ DERIVATIVE states
 
 FUNCTION alphamCa(v(mV))(/ms)
 {
-	alphamCa = 0.001*aomCa*exp( (v - VhalfCam)/(2*SCam)   )
+	alphamCa = (0.001)*aomCa*exp( (v - VhalfCam)/(2*SCam)   )
 }
 
 FUNCTION betamCa(v(mV))(/ms)
 {
-	betamCa = 0.001*bomCa*exp( - ( v-VhalfCam)/(2*SCam) )
+	betamCa = (0.001)*bomCa*exp( - ( v-VhalfCam)/(2*SCam) )
 }
 FUNCTION gammahCa(v(mV))(/ms)
 {
-	gammahCa = 0.001*gammaohCa*exp( (v - VhalfCah)/(2*SCah))
+	gammahCa = (0.001)*gammaohCa*exp( (v - VhalfCah)/(2*SCah))
 }
 
 FUNCTION deltahCa(v(mV))(/ms)
 {
-	deltahCa = 0.001*deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )
+	deltahCa = (0.001)*deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )
 }
 
 

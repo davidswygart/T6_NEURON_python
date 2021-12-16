@@ -74,6 +74,27 @@ def pullAvg(x, y, start, stop):
     
     return np.mean(y[minInd[0][0] : maxInd[0][0]])
 
+def averageRibbonVoltage(model):
+    time = model.recordings['time']
+    stopTime = model.settings.tstop
+    startTime = stopTime-50
+    voltages = []
+    
+    
+    for ribV in model.recordings['ribV']:
+        voltages.append(pullAvg(time, ribV, startTime, stopTime))
+    
+    d = model.calcDistances([model.recordings['segLocations'][241]],model.recordings['ribLocations'], 'soma2ribDist.txt')[0]
+    plt.scatter(d,voltages)
+    plt.title('range of ribbon voltages')
+    plt.ylabel('mV')
+    plt.xlabel('distance from soma')
+    plt.ylim((np.min(voltages)-2, np.max(voltages)+2))
+    
+    return np.mean(voltages)
+    #return voltages
+    
+
 def pullMax(x, y, start):
     """Pull the max value after a certain point"""
     y = np.array(y)
@@ -169,16 +190,34 @@ def locationInfo(locationList):
 
 def LoopThoughInhibitorySynapses(model, weight, name):
     """Run function looping though and providing inhibition at each synapse"""
-    ribVs = np.zeros((91,120))
-    inhVs = np.zeros((120,120))
+    numInh = len(model.recordings['inhV'])
+    numExc = len(model.recordings['ribV'])
+    numSeg = len(model.recordings['segV'])
+    
+    ribVs = np.zeros((numExc,numInh))
+    inhVs = np.zeros((numInh,numInh))
+    segVs = np.zeros((numSeg,numInh))
+    
+    ribIca = np.zeros((numExc,numInh))
+    inhIca = np.zeros((numInh,numInh))
+    segIca = np.zeros((numSeg,numInh))
+    
+    
+    ribCai = np.zeros((numExc,numInh))
+    inhCai = np.zeros((numInh,numInh))
+    segCai = np.zeros((numSeg,numInh))
+    
     
     for ii, inhSyn in enumerate(model.inhSyns):
-        inhSyn.con[0].weight[0] = weight #1 /100000
+        inhSyn.con[0].weight[0] = weight
         model.run()
+        inhSyn.con[0].weight[0] = 0
         time = model.recordings['time']
         makePlot(time, model.recordings['inhV'][ii])
         
-        inhSyn.con[0].weight[0] = 0
+        #break
+        
+        
          
         for [n, v] in enumerate(model.recordings['ribV']):
             ribVs[n,ii] = pullAvg(time,model.recordings['ribV'][n],400,500)
@@ -186,14 +225,47 @@ def LoopThoughInhibitorySynapses(model, weight, name):
         for [n, v] in enumerate(model.recordings['inhV']):
             inhVs[n,ii] = pullAvg(time,model.recordings['inhV'][n],400,500)
             
-        print(str(ii) + ' of 120 completed')
+        for [n, v] in enumerate(model.recordings['segV']):
+            segVs[n,ii] = pullAvg(time,model.recordings['segV'][n],400,500)
+            
+            
+        for [n, v] in enumerate(model.recordings['ribIca']):
+            ribIca[n,ii] = pullAvg(time,model.recordings['ribIca'][n],400,500)
+            
+        for [n, v] in enumerate(model.recordings['inhIca']):
+            inhIca[n,ii] = pullAvg(time,model.recordings['inhIca'][n],400,500)
+            
+        for [n, v] in enumerate(model.recordings['segIca']):
+            segIca[n,ii] = pullAvg(time,model.recordings['segIca'][n],400,500)
+            
+            
+        for [n, v] in enumerate(model.recordings['ribCai']):
+            ribCai[n,ii] = pullAvg(time,model.recordings['ribCai'][n],400,500)
+            
+        for [n, v] in enumerate(model.recordings['inhCai']):
+            inhCai[n,ii] = pullAvg(time,model.recordings['inhCai'][n],400,500)
+            
+        for [n, v] in enumerate(model.recordings['segCai']):
+            segCai[n,ii] = pullAvg(time,model.recordings['segCai'][n],400,500)
+            
+         
+        print(str(ii+1) + ' of 120 completed')
+       
 
-    np.savetxt(name + 'ribV.txt', ribVs)
-    np.savetxt(name + 'inhV.txt', inhVs)
-        
-        
-        
+    np.savetxt('results\\voltage\\' + name + 'ribV.txt', ribVs)
+    np.savetxt('results\\voltage\\' + name + 'inhV.txt', inhVs)
+    np.savetxt('results\\voltage\\' + name + 'segV.txt', segVs)
+    
+    np.savetxt('results\\calciumCurrent\\' + name + 'ribIca.txt', ribIca)
+    np.savetxt('results\\calciumCurrent\\' + name + 'inhIca.txt', inhIca)
+    np.savetxt('results\\calciumCurrent\\' + name + 'segIca.txt', segIca)
 
+    np.savetxt('results\\calciumConcentration\\' + name + 'ribCai.txt', ribCai)
+    np.savetxt('results\\calciumConcentration\\' + name + 'inhCai.txt', inhCai)
+    np.savetxt('results\\calciumConcentration\\' + name + 'segCai.txt', segCai)
+ 
+       
+        
 def runBoth(model):
     """Function to run both with and without inhibition"""
     Ra_factor = 20

@@ -30,7 +30,7 @@ PARAMETER {
 NEURON {
 	SUFFIX hcn2
 	NONSPECIFIC_CURRENT i
-    	RANGE gpeak, vhakt, a0t		
+    	RANGE gpeak, vhakt, a0t
 }
 
 STATE {

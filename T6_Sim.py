@@ -39,6 +39,8 @@ class Type6_Model():
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
+        h.load_file( "gapJunctionChannels.hoc") 
+    
 
     def insertChannels(self):
         """Insert active channels"""
@@ -48,9 +50,12 @@ class Type6_Model():
             sec.insert('hcn2')
             sec.insert('Kv1_2')
             sec.insert('Kv1_3')
-            sec.insert('Cav3_1')
-            sec.insert('Cav1_4')
-            sec.insert('cad')
+            sec.insert('Ca')
+            sec.insert('Cad')
+            sec.insert('gapJunction')
+            # insert gapJunction
+            # gmax_gapJunction = 1
+            # e_gapJunction = -35
 
 
     def channelAdjustment(self):
@@ -69,19 +74,15 @@ class Type6_Model():
                 seg.Kv1_2.gKv1_2bar = self.settings.Kv1_2_gpeak
                 seg.Kv1_3.gKv1_3bar = self.settings.Kv1_3_gpeak
 
-
-                seg.Cav3_1.gCav3_1bar = 0
-                seg.Cav1_4.gCabar = 0
+                seg.Ca.gCabar = 0
+                seg.gapJunction.gmax = 0
 
         for [sec, d] in self.recordings['ribLocations']:
             if d == 1: d = .99
             if d == 0: d = .01
-            sec(d).Cav3_1.gCav3_1bar = self.settings.Cav3_1_gpeak
-            #sec(d).Cav3_1.m_vHalf = self.settings.Cav3_1_m_Vhalf
-            #sec(d).Cav3_1.h_vHalf = self.settings.Cav3_1_h_Vhalf
+            sec(d).Ca.gCabar = self.settings.Cav_L_gpeak
+            sec(d).gapJunction.gmax = self.settings.gapJunction_gmax
 
-            sec(d).Cav1_4.gCabar = self.settings.Cav1_4_gpeak
-            #sec(d).Cav1_4.VhalfCam =  self.settings.Cav1_4_m_Vhalf
 
     def setRecordingPoints(self):
         """Set recording points at each ribbon and segment"""
@@ -90,16 +91,16 @@ class Type6_Model():
         self.recordings = {
         'segLocations' : [],
         'segV' : [],
-        #'segCai' : [],
-        #'segIca' : [],
+        'segCai' : [],
+        'segIca' : [],
         'ribLocations' : [],
         'ribV' : [],
-        #'ribCai' : [],
-        #'ribIca' : [],
+        'ribCai' : [],
+        'ribIca' : [],
         'inhLocations' : [],
         'inhV' : [],
-        #'inhCai' : [],
-        #'inhIca' : []
+        'inhCai' : [],
+        'inhIca' : []
         }
 
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
@@ -107,25 +108,24 @@ class Type6_Model():
             [sec,D] = f.findSectionForLocation(h, XYZs[ribNum,:])
             self.recordings['ribLocations'].append([sec,D])
             self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
-           # self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_cai))
-           # self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_ica))
+            self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_Cai))
+            self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_iCa))
             
         XYZs = f.readLocation("morphology/InhSynLocations.txt")
         for inhNum in range(len(XYZs)):
             [sec,D] = f.findSectionForLocation(h, XYZs[inhNum,:])
             self.recordings['inhLocations'].append([sec,D])
             self.recordings['inhV'].append(h.Vector().record(sec(D)._ref_v ))
-            #self.recordings['inhCai'].append(h.Vector().record(sec(D)._ref_cai))
-            #self.recordings['inhIca'].append(h.Vector().record(sec(D)._ref_ica))
+            self.recordings['inhCai'].append(h.Vector().record(sec(D)._ref_Cai))
+            self.recordings['inhIca'].append(h.Vector().record(sec(D)._ref_iCa))
 
         for sec in h.allsec():
             for n in range(sec.nseg):
                 D = 1/(2*sec.nseg) + n/sec.nseg
-
                 self.recordings['segLocations'].append([sec, D])
                 self.recordings['segV'].append(h.Vector().record(sec(D)._ref_v))
-               # self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_cai))
-               # self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_ica))
+                self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_Cai))
+                self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_iCa))
 
     def placeVoltageClamp(self, sec, D):
         """Put a voltage clamp at a specific location"""
@@ -170,16 +170,16 @@ class Type6_Model():
         self.update()
         self.run()
 
-        f.makePlot(self.recordings['time'], self.recordings['segV'][252])
+        f.makePlot(self.recordings['time'], self.recordings['segV'][241])
         #f.makePlot(self.recordings['time'], self.recordings['ribV'][1], title = 'ribV')
         if self.settings.DoVClamp:
             f.makePlot(self.recordings['time'], self.recordings['iClamp'], title = 'Current Graph')
 
-    def runIV(self, startTime, minV = -80, maxV = 40, steps = 12):
+    def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 12):
         """Run an Current voltage experiment"""
-        self.settings = Settings()
-        self.settings.DoVClamp = 1
-        self.update()
+        #self.settings = Settings()
+        #self.settings.DoVClamp = 1
+        #self.update()
 
         Vs = np.linspace(minV, maxV, steps)
         Is = []
@@ -189,9 +189,9 @@ class Type6_Model():
             print('Running ', v, 'mV (', n+1, '/', steps, ')')
             self.run()
 
-            f.makePlot(self.recordings['time'], self.recordings['iClamp'], ymax = .01, xmin = 390, xmax = 450)
-            val = f.pullMax(self.recordings['time'], self.recordings['iClamp'], 405)
-            #val = f.pullAvg(self.recordings['time'], self.recordings['iClamp'], startTime, stopTime)
+            f.makePlot(self.recordings['time'], self.recordings['iClamp'], ymax = .05, ymin = -.1, xmin = 390, xmax = 500)
+            #val = f.pullMax(self.recordings['time'], self.recordings['iClamp'], 405)
+            val = f.pullAvg(self.recordings['time'], self.recordings['iClamp'], sampleTime, sampleTime+1)
             Is.append(val)
         f.makePlot(Vs, Is, title = 'IV graph')
         return [Vs, Is]
@@ -207,6 +207,7 @@ class Type6_Model():
                 distMatrix[num1, num2] = dist
 
         np.savetxt(fileName, distMatrix)
+        return distMatrix
         
         
 

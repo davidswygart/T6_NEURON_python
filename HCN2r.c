@@ -554,7 +554,7 @@ static const char* nmodl_file_text =
   "NEURON {\n"
   "	SUFFIX hcn2\n"
   "	NONSPECIFIC_CURRENT i\n"
-  "    	RANGE gpeak, vhakt, a0t		\n"
+  "    	RANGE gpeak, vhakt, a0t\n"
   "}\n"
   "\n"
   "STATE {\n"

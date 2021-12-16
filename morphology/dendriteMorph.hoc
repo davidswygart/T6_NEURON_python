@@ -614,7 +614,7 @@ proc geom() {
   forsec all {  }
 }
 proc geom_nseg() {
-  forsec all { nseg = int((L/(0.01*lambda_f(100))+.999)/2)*2 + 1  }
+  forsec all { nseg = int((L/(0.1*lambda_f(100))+.999)/2)*2 + 1  }
 }
 proc biophys() {
   forsec all {

@@ -29,5 +29,5 @@ class Synapse():
         stim.interval = (1 / spikeFreq) * 1000
         duration = stop - start
         stim.number = duration * spikeFreq / 1000
-        stim.noise = 1  # 0 deterministic, 1 intervals have negexp distribution.
+        stim.noise = 0  # 0 deterministic, 1 intervals have negexp distribution.
         con.weight[0] = weight
