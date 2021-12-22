@@ -5,7 +5,7 @@ from settings import Settings
 import random
 
 def findSectionForLocation(h, location):
-    """Give a 3D point in space and get the closes model section"""
+    """Give a 3D point in space and get the closest model section"""
     dists = []
     for sec in h.allsec():
         for pointNum in range(sec.n3d()):
@@ -16,6 +16,12 @@ def findSectionForLocation(h, location):
             dists.append(dist)
     raise Exception('Could not find a matching point in the model for')
 
+def rBetween3D(h, location1, location2):
+    a =1
+    
+    
+    
+    
 def readLocation(fileName):
     """Read the XYZ locations from a txt file"""
     with open(fileName) as file_object:
@@ -95,6 +101,18 @@ def averageRibbonVoltage(model):
     #return voltages
     
 
+def pullMin(x, y, start):
+    """Pull the max value after a certain point"""
+    y = np.array(y)
+    
+    diff = abs(start - x)
+    startInd = np.where(diff == min(diff))
+    
+    small = np.min(y[startInd[0][0]:-1])
+    smallInd = np.where(small == y)
+    return y[smallInd]
+
+
 def pullMax(x, y, start):
     """Pull the max value after a certain point"""
     y = np.array(y)
@@ -102,9 +120,9 @@ def pullMax(x, y, start):
     diff = abs(start - x)
     startInd = np.where(diff == min(diff))
     
-    biggest = np.max(abs(y[startInd[0][0]:-1]))
-    bigInd = np.where(biggest == abs(y))
-    return y[bigInd]
+    small = np.max(y[startInd[0][0]:-1])
+    smallInd = np.where(small == y)
+    return y[smallInd]
 
 def compareIVs(Vs, Is_conductance, Is_baseline):
     """Plot the difference between 2 IV curves"""
@@ -186,10 +204,21 @@ def locationInfo(locationList):
         
     return values
 
+def runSingleInh(model, inhSyn, newG):
+    """run model after turning a single inhibitory synapse at new conductance"""
+    oldG = inhSyn.syn.gmax
+    inhSyn.syn.gmax = newG
+    model.run()
+    inhSyn.syn.gmax = oldG
+    time = model.recordings['time']
+    makePlot(time, model.recordings['inhV'][inhSyn.index])
+    
 
-
-def LoopThoughInhibitorySynapses(model, weight, name):
+def LoopThoughInhibitorySynapses(model, name, gmax):
     """Run function looping though and providing inhibition at each synapse"""
+    stopTime = model.settings.tstop
+    startTime = stopTime - 50;
+    
     numInh = len(model.recordings['inhV'])
     numExc = len(model.recordings['ribV'])
     numSeg = len(model.recordings['segV'])
@@ -209,60 +238,53 @@ def LoopThoughInhibitorySynapses(model, weight, name):
     
     
     for ii, inhSyn in enumerate(model.inhSyns):
-        inhSyn.con[0].weight[0] = weight
-        model.run()
-        inhSyn.con[0].weight[0] = 0
+        
+        runSingleInh(model, inhSyn, gmax)
         time = model.recordings['time']
-        makePlot(time, model.recordings['inhV'][ii])
-        
-        #break
-        
-        
          
         for [n, v] in enumerate(model.recordings['ribV']):
-            ribVs[n,ii] = pullAvg(time,model.recordings['ribV'][n],400,500)
+            ribVs[n,ii] = pullAvg(time,model.recordings['ribV'][n],startTime,stopTime)
             
         for [n, v] in enumerate(model.recordings['inhV']):
-            inhVs[n,ii] = pullAvg(time,model.recordings['inhV'][n],400,500)
+            inhVs[n,ii] = pullAvg(time,model.recordings['inhV'][n],startTime,stopTime)
             
         for [n, v] in enumerate(model.recordings['segV']):
-            segVs[n,ii] = pullAvg(time,model.recordings['segV'][n],400,500)
+            segVs[n,ii] = pullAvg(time,model.recordings['segV'][n],startTime,stopTime)
             
             
         for [n, v] in enumerate(model.recordings['ribIca']):
-            ribIca[n,ii] = pullAvg(time,model.recordings['ribIca'][n],400,500)
+            ribIca[n,ii] = pullAvg(time,model.recordings['ribIca'][n],startTime,stopTime)
             
         for [n, v] in enumerate(model.recordings['inhIca']):
-            inhIca[n,ii] = pullAvg(time,model.recordings['inhIca'][n],400,500)
+            inhIca[n,ii] = pullAvg(time,model.recordings['inhIca'][n],startTime,stopTime)
             
         for [n, v] in enumerate(model.recordings['segIca']):
-            segIca[n,ii] = pullAvg(time,model.recordings['segIca'][n],400,500)
+            segIca[n,ii] = pullAvg(time,model.recordings['segIca'][n],startTime,stopTime)
             
             
         for [n, v] in enumerate(model.recordings['ribCai']):
-            ribCai[n,ii] = pullAvg(time,model.recordings['ribCai'][n],400,500)
+            ribCai[n,ii] = pullAvg(time,model.recordings['ribCai'][n],startTime,stopTime)
             
         for [n, v] in enumerate(model.recordings['inhCai']):
-            inhCai[n,ii] = pullAvg(time,model.recordings['inhCai'][n],400,500)
+            inhCai[n,ii] = pullAvg(time,model.recordings['inhCai'][n],startTime,stopTime)
             
         for [n, v] in enumerate(model.recordings['segCai']):
-            segCai[n,ii] = pullAvg(time,model.recordings['segCai'][n],400,500)
+            segCai[n,ii] = pullAvg(time,model.recordings['segCai'][n],startTime,stopTime)
             
-         
         print(str(ii+1) + ' of 120 completed')
        
 
-    np.savetxt('results\\voltage\\' + name + 'ribV.txt', ribVs)
-    np.savetxt('results\\voltage\\' + name + 'inhV.txt', inhVs)
-    np.savetxt('results\\voltage\\' + name + 'segV.txt', segVs)
+    np.savetxt(name + 'ribV.txt', ribVs)
+    np.savetxt(name + 'inhV.txt', inhVs)
+    np.savetxt(name + 'segV.txt', segVs)
     
-    np.savetxt('results\\calciumCurrent\\' + name + 'ribIca.txt', ribIca)
-    np.savetxt('results\\calciumCurrent\\' + name + 'inhIca.txt', inhIca)
-    np.savetxt('results\\calciumCurrent\\' + name + 'segIca.txt', segIca)
+    np.savetxt(name + 'ribIca.txt', ribIca)
+    np.savetxt(name + 'inhIca.txt', inhIca)
+    np.savetxt(name + 'segIca.txt', segIca)
 
-    np.savetxt('results\\calciumConcentration\\' + name + 'ribCai.txt', ribCai)
-    np.savetxt('results\\calciumConcentration\\' + name + 'inhCai.txt', inhCai)
-    np.savetxt('results\\calciumConcentration\\' + name + 'segCai.txt', segCai)
+    np.savetxt(name + 'ribCai.txt', ribCai)
+    np.savetxt(name + 'inhCai.txt', inhCai)
+    np.savetxt(name + 'segCai.txt', segCai)
  
        
         

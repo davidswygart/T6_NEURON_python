@@ -13,9 +13,7 @@ class Type6_Model():
         self.settings = Settings()
         self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
-        self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.darkExc)
-        for syn in self.excSyns:
-            syn.addStim(self.h, self.settings.lightExc) #Add a second stim for the light step
+        self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.excSyn)
         self.insertChannels()
         self.setRecordingPoints()
         self.channelAdjustment()
@@ -29,7 +27,7 @@ class Type6_Model():
         XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
             [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
-            syn = Synapse(self.h, sec, D, settings)
+            syn = Synapse(self.h, sec, D, settings, Num)
             synapseList.append(syn)
         return synapseList
 
@@ -39,7 +37,6 @@ class Type6_Model():
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
-        h.load_file( "gapJunctionChannels.hoc") 
     
 
     def insertChannels(self):
@@ -52,7 +49,7 @@ class Type6_Model():
             sec.insert('Kv1_3')
             sec.insert('Ca')
             sec.insert('Cad')
-            sec.insert('gapJunction')
+            sec.insert('gapJ')
             # insert gapJunction
             # gmax_gapJunction = 1
             # e_gapJunction = -35
@@ -75,13 +72,13 @@ class Type6_Model():
                 seg.Kv1_3.gKv1_3bar = self.settings.Kv1_3_gpeak
 
                 seg.Ca.gCabar = 0
-                seg.gapJunction.gmax = 0
+                seg.gapJ.g = 0
 
         for [sec, d] in self.recordings['ribLocations']:
             if d == 1: d = .99
             if d == 0: d = .01
             sec(d).Ca.gCabar = self.settings.Cav_L_gpeak
-            sec(d).gapJunction.gmax = self.settings.gapJunction_gmax
+            sec(d).gapJ.g = self.settings.gapJunction_gmax
 
 
     def setRecordingPoints(self):
@@ -137,6 +134,14 @@ class Type6_Model():
         self.vClamp.amp1  = self.settings.Hold1
         self.vClamp.amp2  = self.settings.Hold2
         self.recordings['iClamp'] = h.Vector().record(self.vClamp._ref_i)
+        
+    def placeCurrentClamp(self, sec, D, ):
+        """Put a current clamp at a specific location"""
+        print('....adding a current clamp electrode')
+        self.IClamp = h.IClamp(sec(D))
+        self.IClamp.delay = 100 
+        self.IClamp.dur = 100 
+        self.IClamp.amp = 100
 
     def run(self):
         """Run the simulation"""
@@ -159,14 +164,13 @@ class Type6_Model():
 
         print('....updating synapse values')
         for syn in self.inhSyns:
-            syn.updateSettings(syn.stim[0], syn.con[0], self.settings.inhSyn)
+            syn.updateSettings(self.settings.inhSyn)
         for syn in self.excSyns:
-            syn.updateSettings(syn.stim[0], syn.con[0], self.settings.darkExc)
-            syn.updateSettings(syn.stim[1], syn.con[1], self.settings.lightExc)
+            syn.updateSettings(self.settings.excSyn)
 
     def updateAndRun(self):
         """Update settings and run simulaltion, then plot"""
-        self.settings = Settings()
+        #self.settings = Settings()
         self.update()
         self.run()
 
@@ -175,12 +179,8 @@ class Type6_Model():
         if self.settings.DoVClamp:
             f.makePlot(self.recordings['time'], self.recordings['iClamp'], title = 'Current Graph')
 
-    def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 12):
+    def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 15):
         """Run an Current voltage experiment"""
-        #self.settings = Settings()
-        #self.settings.DoVClamp = 1
-        #self.update()
-
         Vs = np.linspace(minV, maxV, steps)
         Is = []
         for [n, v] in enumerate(Vs):
@@ -189,9 +189,10 @@ class Type6_Model():
             print('Running ', v, 'mV (', n+1, '/', steps, ')')
             self.run()
 
-            f.makePlot(self.recordings['time'], self.recordings['iClamp'], ymax = .05, ymin = -.1, xmin = 390, xmax = 500)
+            f.makePlot(self.recordings['time'], self.recordings['iClamp'], ymax = .05, ymin = -.1, xmin = 190)
             #val = f.pullMax(self.recordings['time'], self.recordings['iClamp'], 405)
-            val = f.pullAvg(self.recordings['time'], self.recordings['iClamp'], sampleTime, sampleTime+1)
+            #val = f.pullAvg(self.recordings['time'], self.recordings['iClamp'], sampleTime, sampleTime+1)
+            val = f.pullMin(self.recordings['time'],self.recordings['iClamp'],205)
             Is.append(val)
         f.makePlot(Vs, Is, title = 'IV graph')
         return [Vs, Is]
@@ -208,36 +209,10 @@ class Type6_Model():
 
         np.savetxt(fileName, distMatrix)
         return distMatrix
-        
-        
-
-
-
-    def plotSuppression(self, preStart, preEnd, stimStart, stimEnd, plotWhat):
-        self.updateAndRun()
-
-        supMeans = []
-        for rec in self.recordings[plotWhat]:
-            preStim = f.pullAvg(self.recordings['time'], rec, preStart, preEnd)
-            Stim = f.pullAvg(self.recordings['time'], rec, stimStart, stimEnd)
-            supMeans.append(Stim-preStim)
-
-        for syn in self.inhSyns:
-            syn.con[0].weight[0] = 0
-        self.run()
-        f.makePlot(self.recordings['time'], self.recordings['segV'][252])
-
-        noSupMeans = []
-        for rec in self.recordings[plotWhat]:
-            preStim = f.pullAvg(self.recordings['time'], rec, preStart, preEnd)
-            Stim = f.pullAvg(self.recordings['time'], rec, stimStart, stimEnd)
-            noSupMeans.append(Stim-preStim)
-
-        supMeans = np.array(supMeans)
-        noSupMeans = np.array(noSupMeans)
-
-        sup = 1 - (supMeans/noSupMeans)
-
-        plt.hist(sup)
-
-        return(sup)
+    def area(self):
+        area = []
+        for sec in self.h.axon:
+            for seg in sec.allseg():
+                area.append(seg.area())        
+        return area
+    

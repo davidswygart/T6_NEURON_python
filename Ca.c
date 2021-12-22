@@ -304,7 +304,7 @@ static int _ode_spec1(_threadargsproto_);
  
 double alphamCa ( _threadargsprotocomma_ double _lv ) {
    double _lalphamCa;
- _lalphamCa = 0.001 * aomCa * exp ( ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
+ _lalphamCa = ( 0.001 ) * aomCa * exp ( ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
    
 return _lalphamCa;
  }
@@ -321,7 +321,7 @@ static void _hoc_alphamCa(void) {
  
 double betamCa ( _threadargsprotocomma_ double _lv ) {
    double _lbetamCa;
- _lbetamCa = 0.001 * bomCa * exp ( - ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
+ _lbetamCa = ( 0.001 ) * bomCa * exp ( - ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
    
 return _lbetamCa;
  }
@@ -338,7 +338,7 @@ static void _hoc_betamCa(void) {
  
 double gammahCa ( _threadargsprotocomma_ double _lv ) {
    double _lgammahCa;
- _lgammahCa = 0.001 * gammaohCa * exp ( ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
+ _lgammahCa = ( 0.001 ) * gammaohCa * exp ( ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
    
 return _lgammahCa;
  }
@@ -355,7 +355,7 @@ static void _hoc_gammahCa(void) {
  
 double deltahCa ( _threadargsprotocomma_ double _lv ) {
    double _ldeltahCa;
- _ldeltahCa = 0.001 * deltaohCa * exp ( - ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
+ _ldeltahCa = ( 0.001 ) * deltaohCa * exp ( - ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
    
 return _ldeltahCa;
  }
@@ -704,21 +704,21 @@ static const char* nmodl_file_text =
   "\n"
   "FUNCTION alphamCa(v(mV))(/ms)\n"
   "{\n"
-  "	alphamCa = 0.001*aomCa*exp( (v - VhalfCam)/(2*SCam)   )\n"
+  "	alphamCa = (0.001)*aomCa*exp( (v - VhalfCam)/(2*SCam)   )\n"
   "}\n"
   "\n"
   "FUNCTION betamCa(v(mV))(/ms)\n"
   "{\n"
-  "	betamCa = 0.001*bomCa*exp( - ( v-VhalfCam)/(2*SCam) )\n"
+  "	betamCa = (0.001)*bomCa*exp( - ( v-VhalfCam)/(2*SCam) )\n"
   "}\n"
   "FUNCTION gammahCa(v(mV))(/ms)\n"
   "{\n"
-  "	gammahCa = 0.001*gammaohCa*exp( (v - VhalfCah)/(2*SCah))\n"
+  "	gammahCa = (0.001)*gammaohCa*exp( (v - VhalfCah)/(2*SCah))\n"
   "}\n"
   "\n"
   "FUNCTION deltahCa(v(mV))(/ms)\n"
   "{\n"
-  "	deltahCa = 0.001*deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )\n"
+  "	deltahCa = (0.001)*deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )\n"
   "}\n"
   "\n"
   "\n"
