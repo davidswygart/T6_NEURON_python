@@ -1,4 +1,7 @@
 #cd C:\Users\david\Documents\Code\Github\T6_NEURON_python
+#from neuron import h#, gui, units
+#h.load_file('stdrun.hoc')
+#h.load_file('stdrun.hoc')
 
 import numpy as np
 import pandas as pd
@@ -83,23 +86,44 @@ T6.settings.Kv1_3_gpeak = 550 / 1000000
 T6.settings.Cav_L_gpeak = 75000 / 100000
 
 #set excitation so that average ribbon is -35 mV
-T6.settings.excSyn['gmax'] = 315 / 1000000
+T6.settings.excSyn['gmax'] = 275 / 1000000
 T6.updateAndRun()
 averageRibbonVoltage(T6) 
-
-#set inhibition so that an individual inhibitory synapse (Vmax) is -50 mV
+#%% set inhibition so that an individual inhibitory synapse (Vmax) is -50 mV
 runSingleInh(T6, T6.inhSyns[0], 6000/1000000)
 pullAvg(T6.recordings['time'], T6.recordings['inhV'][0], 150,200)
 
 
-#%%
+#%% record voltage drop in active model
 #Run inhibition for each inh synapse and save data
 LoopThoughInhibitorySynapses(T6,'results\\active\\stim',6000/1000000)
 LoopThoughInhibitorySynapses(T6,'results\\active\\base',0)
 
+#%% increase internal resistance in at ribbon output locations
+#set excitation so that average ribbon is -35 mV
+T6.settings.excSyn['gmax'] = 4000 / 1000000    
+T6.updateAndRun()
+
+newRa = T6.settings.Ra * 25
+
+for [sec, d] in T6.recordings['ribLocations']:
+    sec.Ra = newRa
+T6.run()    
+makePlot(T6.recordings['time'], T6.recordings['segV'][241])
+averageRibbonVoltage(T6)
+
+
+#%%set inhibition so that an individual inhibitory synapse (Vmax) is -50 mV
+runSingleInh(T6, T6.inhSyns[0], 2000/1000000)
+pullAvg(T6.recordings['time'], T6.recordings['inhV'][0], 150,200)
+
+#%% record voltage drop in high Ra (active) model
+#Run inhibition for each inh synapse and save data
+LoopThoughInhibitorySynapses(T6,'results\\highRa\\stim',2000/1000000)
+LoopThoughInhibitorySynapses(T6,'results\\highRa\\base',0)
 
 #%% measure membrane area (of axon terminal right now)
-np.sum(T6.area())
+np.sum(T6.area()) # 633 um^2
 
 
 #%% estimate membrane resistance with current pulse
@@ -109,7 +133,7 @@ T6.settings.Kv1_3_gpeak = 550 / 1000000
 T6.settings.Cav_L_gpeak = 75000 / 100000
 
 
-#T6.placeCurrentClamp(T6.h.dend_0[2], .8)
+T6.placeCurrentClamp(T6.h.dend_0[2], .8)
 T6.IClamp.amp = 2/1000
 T6.IClamp.delay = 200
 T6.IClamp.dur = 200
@@ -131,8 +155,17 @@ makePlot(T6.recordings['time'], T6.recordings['ribIca'][0])
 
 T6.calcDistances([T6.recordings['segLocations'][241]],T6.recordings['ribLocations'], 'soma2ribDist.txt')[0]
 
+#%% Show excitation and inhibition in same trace
+T6.settings.tstop = 1000
+T6.settings.v_init = -35
+T6.settings.excSyn['start'] = 300
+T6.settings.inhSyn['start'] = 600
+T6.settings.excSyn['gmax'] = 275 / 1000000
+T6.updateAndRun()
+i = runSingleInh(T6, T6.inhSyns[0], 6000/1000000)
 
-
+makePlot(T6.recordings['time'], T6.recordings['inhV'][i], ylabel='mV', xlabel='time (ms)',ymax=0, ymin=-70)
+makePlot(T6.recordings['time'], T6.recordings['ribV'][10], ylabel='mV', xlabel='time (ms)',ymax=0, ymin=-70)
 
 #T6.recordings['segLocations'][241]
 #[dend_0[2], 0.8333333333333333]

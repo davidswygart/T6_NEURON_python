@@ -3,7 +3,6 @@ from neuron import h, gui, units
 import UtilityFuncs as f
 from settings import Settings
 from synapse import Synapse
-import matplotlib.pyplot as plt
 
 
 class Type6_Model():
@@ -34,9 +33,9 @@ class Type6_Model():
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
         print('....loading morphology')
-        h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
-        h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
-        h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
+        self.h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
+        self.h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
+        self.h.dend_0[0].connect(self.h.axon[0], 0, 0) #connect the dendrites and the axons together
     
 
     def insertChannels(self):
@@ -58,7 +57,7 @@ class Type6_Model():
     def channelAdjustment(self):
         """Adjust channels settings"""
         print('....Adjusting biophysics and channels')
-        for sec in h.allsec():
+        for sec in self.h.allsec():
             sec.Ra = self.settings.Ra
             for seg in sec:
                 seg.cm = self.settings.cm
@@ -102,43 +101,43 @@ class Type6_Model():
 
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
         for ribNum in range(len(XYZs)):
-            [sec,D] = f.findSectionForLocation(h, XYZs[ribNum,:])
+            [sec,D] = f.findSectionForLocation(self.h, XYZs[ribNum,:])
             self.recordings['ribLocations'].append([sec,D])
-            self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
-            self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_Cai))
-            self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_iCa))
+            self.recordings['ribV'].append(self.h.Vector().record(sec(D)._ref_v ))
+            self.recordings['ribCai'].append(self.h.Vector().record(sec(D)._ref_Cai))
+            self.recordings['ribIca'].append(self.h.Vector().record(sec(D)._ref_iCa))
             
         XYZs = f.readLocation("morphology/InhSynLocations.txt")
         for inhNum in range(len(XYZs)):
-            [sec,D] = f.findSectionForLocation(h, XYZs[inhNum,:])
+            [sec,D] = f.findSectionForLocation(self.h, XYZs[inhNum,:])
             self.recordings['inhLocations'].append([sec,D])
-            self.recordings['inhV'].append(h.Vector().record(sec(D)._ref_v ))
-            self.recordings['inhCai'].append(h.Vector().record(sec(D)._ref_Cai))
-            self.recordings['inhIca'].append(h.Vector().record(sec(D)._ref_iCa))
+            self.recordings['inhV'].append(self.h.Vector().record(sec(D)._ref_v ))
+            self.recordings['inhCai'].append(self.h.Vector().record(sec(D)._ref_Cai))
+            self.recordings['inhIca'].append(self.h.Vector().record(sec(D)._ref_iCa))
 
-        for sec in h.allsec():
+        for sec in self.h.allsec():
             for n in range(sec.nseg):
                 D = 1/(2*sec.nseg) + n/sec.nseg
                 self.recordings['segLocations'].append([sec, D])
-                self.recordings['segV'].append(h.Vector().record(sec(D)._ref_v))
-                self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_Cai))
-                self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_iCa))
+                self.recordings['segV'].append(self.h.Vector().record(sec(D)._ref_v))
+                self.recordings['segCai'].append(self.h.Vector().record(sec(D)._ref_Cai))
+                self.recordings['segIca'].append(self.h.Vector().record(sec(D)._ref_iCa))
 
     def placeVoltageClamp(self, sec, D):
         """Put a voltage clamp at a specific location"""
         print('....adding a voltage clamp electrode')
         self.settings.v_init = self.settings.Hold1
-        self.vClamp = h.SEClamp(sec(D))
+        self.vClamp = self.h.SEClamp(sec(D))
         self.vClamp.dur1  = self.settings.ChangeClamp
         self.vClamp.dur2  = self.settings.tstop - self.settings.ChangeClamp
         self.vClamp.amp1  = self.settings.Hold1
         self.vClamp.amp2  = self.settings.Hold2
-        self.recordings['iClamp'] = h.Vector().record(self.vClamp._ref_i)
+        self.recordings['iClamp'] = self.h.Vector().record(self.vClamp._ref_i)
         
     def placeCurrentClamp(self, sec, D, ):
         """Put a current clamp at a specific location"""
         print('....adding a current clamp electrode')
-        self.IClamp = h.IClamp(sec(D))
+        self.IClamp = self.h.IClamp(sec(D))
         self.IClamp.delay = 100 
         self.IClamp.dur = 100 
         self.IClamp.amp = 100
@@ -204,7 +203,7 @@ class Type6_Model():
 
         for num1, loc1 in enumerate(locations1):
             for num2, loc2 in enumerate(locations2):
-                dist = h.distance(loc1[0](loc1[1]), loc2[0](loc2[1]))
+                dist = self.h.distance(loc1[0](loc1[1]), loc2[0](loc2[1]))
                 distMatrix[num1, num2] = dist
 
         np.savetxt(fileName, distMatrix)

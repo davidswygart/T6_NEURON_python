@@ -212,6 +212,7 @@ def runSingleInh(model, inhSyn, newG):
     inhSyn.syn.gmax = oldG
     time = model.recordings['time']
     makePlot(time, model.recordings['inhV'][inhSyn.index])
+    return inhSyn.index
     
 
 def LoopThoughInhibitorySynapses(model, name, gmax):
