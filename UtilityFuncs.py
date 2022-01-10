@@ -109,8 +109,7 @@ def pullMin(x, y, start):
     startInd = np.where(diff == min(diff))
     
     small = np.min(y[startInd[0][0]:-1])
-    smallInd = np.where(small == y)
-    return y[smallInd]
+    return small
 
 
 def pullMax(x, y, start):

@@ -1,5 +1,7 @@
+from neuron import h
+
 class Synapse():
-    def __init__(self, h, sec, D, settings, index):
+    def __init__(self, sec, D, settings, index):
         """Make the Synapse (postsynaptic portion), a spike train (virtual presynaptic cell), and connect them together"""
         
         self.syn = h.biSyn(sec(D))    #Create a synapse at the specified section location.

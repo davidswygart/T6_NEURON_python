@@ -1,22 +1,17 @@
 #cd C:\Users\david\Documents\Code\Github\T6_NEURON_python
-#from neuron import h#, gui, units
+from neuron import h
 #h.load_file('stdrun.hoc')
 #h.load_file('stdrun.hoc')
 
 import numpy as np
-import pandas as pd
 from T6_Sim import Type6_Model
 from UtilityFuncs import makePlot
-from UtilityFuncs import saveRecordingData
 from UtilityFuncs import pullAvg
-from UtilityFuncs import rangeCheck
-from UtilityFuncs import runBoth
 from UtilityFuncs import LoopThoughInhibitorySynapses
 from UtilityFuncs import averageRibbonVoltage
 from UtilityFuncs import runSingleInh
 from UtilityFuncs import pullMin
 from UtilityFuncs import pullMax
-import matplotlib.pyplot as plt
 
 T6 = Type6_Model()
 
@@ -60,23 +55,25 @@ T6.settings.Kv1_2_gpeak = 550 / 1000000
 T6.settings.Kv1_3_gpeak = 550 / 1000000
 T6.updateAndRun()
 
-makePlot(T6.recordings['time'], T6.recordings['iClamp'], title = 'Current Graph', ymax = 1.5, xmin = 180)
-KvCurrent = pullAvg(T6.recordings['time'],T6.recordings['iClamp'],240,260)
+makePlot(T6.recordings['time'], T6.recordings['vClamp'], title = 'Current Graph', ymax = 1.5, xmin = 180)
+KvCurrent = pullAvg(T6.recordings['time'],T6.recordings['vClamp'],240,260)
 
 T6.settings.Kv1_2_gpeak = 0 
 T6.settings.Kv1_3_gpeak = 0
 
 #%% set Ca current to 30 pA when stepping from -80 to -35 mV
-T6.settings.Hold1 = -70
-T6.settings.Hold2 = -10
+T6.settings.Hold1 = -80
+T6.settings.Hold2 = -35
 T6.settings.Cav_L_gpeak = 75000 / 100000
 T6.updateAndRun()
 
-makePlot(T6.recordings['time'], T6.recordings['iClamp'], title = 'Current Graph', xmin = 190, ymax = .01)
-CaCurrent = pullMin(T6.recordings['time'],T6.recordings['iClamp'],205)
+makePlot(T6.recordings['time'], T6.recordings['vClamp'], title = 'Current Graph', xmin = 190, ymax = .01)
+CaCurrent = pullMin(T6.recordings['time'],T6.recordings['vClamp'],202)
+#%% create calcium IV
 
-T6.runIV(205)
-
+[Vs, Is] = T6.runIV(minV = -90, maxV = 50, steps = 30) #pulls minimum from anytime after 201 ms
+np.savetxt('results\\CaIV\\Voltages.txt', Vs)
+np.savetxt('results\\CaIV\\Currents.txt', Is)
 #%% Run active model voltage drop
 T6 = Type6_Model() #remoake the model in order to remove the voltage clamp
 T6.settings.temp = 32
@@ -156,17 +153,25 @@ makePlot(T6.recordings['time'], T6.recordings['ribIca'][0])
 T6.calcDistances([T6.recordings['segLocations'][241]],T6.recordings['ribLocations'], 'soma2ribDist.txt')[0]
 
 #%% Show excitation and inhibition in same trace
-T6.settings.tstop = 1000
+T6.settings.hcn2_gpeak = 50 / 1000000
+T6.settings.Kv1_2_gpeak = 550 / 1000000 
+T6.settings.Kv1_3_gpeak = 550 / 1000000
+T6.settings.Cav_L_gpeak = 75000 / 100000
+T6.settings.tstop = 800
 T6.settings.v_init = -35
 T6.settings.excSyn['start'] = 300
-T6.settings.inhSyn['start'] = 600
+T6.settings.inhSyn['start'] = 500
 T6.settings.excSyn['gmax'] = 275 / 1000000
 T6.updateAndRun()
-i = runSingleInh(T6, T6.inhSyns[0], 6000/1000000)
+i = runSingleInh(T6, T6.inhSyns[40], 3000/1000000)
 
 makePlot(T6.recordings['time'], T6.recordings['inhV'][i], ylabel='mV', xlabel='time (ms)',ymax=0, ymin=-70)
-makePlot(T6.recordings['time'], T6.recordings['ribV'][10], ylabel='mV', xlabel='time (ms)',ymax=0, ymin=-70)
+makePlot(T6.recordings['time'], T6.recordings['ribV'][90], ylabel='mV', xlabel='time (ms)',ymax=0, ymin=-70)
 
 #T6.recordings['segLocations'][241]
 #[dend_0[2], 0.8333333333333333]
 #is soma after updating nseg on 12/15/21
+
+
+#axon 40(0)
+#axon 36(1)

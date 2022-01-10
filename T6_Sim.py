@@ -1,5 +1,5 @@
 import numpy as np
-from neuron import h, gui, units
+from neuron import h
 import UtilityFuncs as f
 from settings import Settings
 from synapse import Synapse
@@ -8,7 +8,6 @@ from synapse import Synapse
 class Type6_Model():
     def __init__(self):
         """Build the model cell."""
-        self.h = h
         self.settings = Settings()
         self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
@@ -17,7 +16,7 @@ class Type6_Model():
         self.setRecordingPoints()
         self.channelAdjustment()
         if self.settings.DoVClamp:
-            self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
+            self.placeVoltageClamp(h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
 
     def addSynapses(self, LocationFile, settings):
         """Add synapses to the locations specified in LocationFile"""
@@ -25,23 +24,23 @@ class Type6_Model():
         synapseList = []
         XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
-            [sec,D] = f.findSectionForLocation(self.h, XYZ[Num,:])
-            syn = Synapse(self.h, sec, D, settings, Num)
+            [sec,D] = f.findSectionForLocation(h, XYZ[Num,:])
+            syn = Synapse(sec, D, settings, Num)
             synapseList.append(syn)
         return synapseList
 
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
         print('....loading morphology')
-        self.h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
-        self.h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
-        self.h.dend_0[0].connect(self.h.axon[0], 0, 0) #connect the dendrites and the axons together
+        h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
+        h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
+        h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
     
 
     def insertChannels(self):
         """Insert active channels"""
         print('....inserting channels')
-        for sec in self.h.allsec():
+        for sec in h.allsec():
             sec.insert('pas')
             sec.insert('hcn2')
             sec.insert('Kv1_2')
@@ -57,7 +56,7 @@ class Type6_Model():
     def channelAdjustment(self):
         """Adjust channels settings"""
         print('....Adjusting biophysics and channels')
-        for sec in self.h.allsec():
+        for sec in h.allsec():
             sec.Ra = self.settings.Ra
             for seg in sec:
                 seg.cm = self.settings.cm
@@ -101,43 +100,43 @@ class Type6_Model():
 
         XYZs = f.readLocation("morphology/RibbonLocations.txt")
         for ribNum in range(len(XYZs)):
-            [sec,D] = f.findSectionForLocation(self.h, XYZs[ribNum,:])
+            [sec,D] = f.findSectionForLocation(h, XYZs[ribNum,:])
             self.recordings['ribLocations'].append([sec,D])
-            self.recordings['ribV'].append(self.h.Vector().record(sec(D)._ref_v ))
-            self.recordings['ribCai'].append(self.h.Vector().record(sec(D)._ref_Cai))
-            self.recordings['ribIca'].append(self.h.Vector().record(sec(D)._ref_iCa))
+            self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
+            self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_Cai))
+            self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_iCa))
             
         XYZs = f.readLocation("morphology/InhSynLocations.txt")
         for inhNum in range(len(XYZs)):
-            [sec,D] = f.findSectionForLocation(self.h, XYZs[inhNum,:])
+            [sec,D] = f.findSectionForLocation(h, XYZs[inhNum,:])
             self.recordings['inhLocations'].append([sec,D])
-            self.recordings['inhV'].append(self.h.Vector().record(sec(D)._ref_v ))
-            self.recordings['inhCai'].append(self.h.Vector().record(sec(D)._ref_Cai))
-            self.recordings['inhIca'].append(self.h.Vector().record(sec(D)._ref_iCa))
+            self.recordings['inhV'].append(h.Vector().record(sec(D)._ref_v ))
+            self.recordings['inhCai'].append(h.Vector().record(sec(D)._ref_Cai))
+            self.recordings['inhIca'].append(h.Vector().record(sec(D)._ref_iCa))
 
-        for sec in self.h.allsec():
+        for sec in h.allsec():
             for n in range(sec.nseg):
                 D = 1/(2*sec.nseg) + n/sec.nseg
                 self.recordings['segLocations'].append([sec, D])
-                self.recordings['segV'].append(self.h.Vector().record(sec(D)._ref_v))
-                self.recordings['segCai'].append(self.h.Vector().record(sec(D)._ref_Cai))
-                self.recordings['segIca'].append(self.h.Vector().record(sec(D)._ref_iCa))
+                self.recordings['segV'].append(h.Vector().record(sec(D)._ref_v))
+                self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_Cai))
+                self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_iCa))
 
     def placeVoltageClamp(self, sec, D):
         """Put a voltage clamp at a specific location"""
         print('....adding a voltage clamp electrode')
         self.settings.v_init = self.settings.Hold1
-        self.vClamp = self.h.SEClamp(sec(D))
+        self.vClamp = h.SEClamp(sec(D))
         self.vClamp.dur1  = self.settings.ChangeClamp
         self.vClamp.dur2  = self.settings.tstop - self.settings.ChangeClamp
         self.vClamp.amp1  = self.settings.Hold1
         self.vClamp.amp2  = self.settings.Hold2
-        self.recordings['iClamp'] = self.h.Vector().record(self.vClamp._ref_i)
+        self.recordings['vClamp'] = h.Vector().record(self.vClamp._ref_i)
         
     def placeCurrentClamp(self, sec, D, ):
         """Put a current clamp at a specific location"""
         print('....adding a current clamp electrode')
-        self.IClamp = self.h.IClamp(sec(D))
+        self.IClamp = h.IClamp(sec(D))
         self.IClamp.delay = 100 
         self.IClamp.dur = 100 
         self.IClamp.amp = 100
@@ -145,10 +144,12 @@ class Type6_Model():
     def run(self):
         """Run the simulation"""
         print('....running simulation')
-        self.h.celsius = self.settings.temp
-        self.h.finitialize(self.settings.v_init)
-        self.h.frecord_init()
-        self.h.continuerun(self.settings.tstop)
+        h.celsius = self.settings.temp
+        h.finitialize(self.settings.v_init)
+        h.frecord_init()
+        h.load_file('stdrun.hoc')
+        h.load_file('stdrun.hoc')
+        h.continuerun(self.settings.tstop)
         self.recordings['time'] = np.linspace(0, self.settings.tstop, len(self.recordings['segV'][252]))
         #for key in self.recordings.keys():
          #   self.recordings[key] = np.array(self.recordings[key])
@@ -159,7 +160,7 @@ class Type6_Model():
         self.channelAdjustment()
 
         if self.settings.DoVClamp:
-            self.placeVoltageClamp(self.h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
+            self.placeVoltageClamp(h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
 
         print('....updating synapse values')
         for syn in self.inhSyns:
@@ -176,24 +177,46 @@ class Type6_Model():
         f.makePlot(self.recordings['time'], self.recordings['segV'][241])
         #f.makePlot(self.recordings['time'], self.recordings['ribV'][1], title = 'ribV')
         if self.settings.DoVClamp:
-            f.makePlot(self.recordings['time'], self.recordings['iClamp'], title = 'Current Graph')
+            f.makePlot(self.recordings['time'], self.recordings['vClamp'], title = 'Current Graph')
 
-    def runIV(self, sampleTime, minV = -80, maxV = 40, steps = 15):
+    def runIV(self, minV = -80, maxV = 40, steps = 15):
         """Run an Current voltage experiment"""
+        
+        initialH1 = self.settings.Hold1
+        initialH2 = self.settings.Hold2
+        G_ca = self.settings.Cav_L_gpeak
+        switchTime = self.settings.ChangeClamp
+        
         Vs = np.linspace(minV, maxV, steps)
         Is = []
         for [n, v] in enumerate(Vs):
             self.settings.Hold2 = v
+            
+            self.settings.Cav_L_gpeak = 0
             self.update()
-            print('Running ', v, 'mV (', n+1, '/', steps, ')')
+            print('Running ', v, 'mV (', n+1, '/', steps, ') ','G_ca = ', self.settings.Cav_L_gpeak)
             self.run()
-
-            f.makePlot(self.recordings['time'], self.recordings['iClamp'], ymax = .05, ymin = -.1, xmin = 190)
-            #val = f.pullMax(self.recordings['time'], self.recordings['iClamp'], 405)
-            #val = f.pullAvg(self.recordings['time'], self.recordings['iClamp'], sampleTime, sampleTime+1)
-            val = f.pullMin(self.recordings['time'],self.recordings['iClamp'],205)
-            Is.append(val)
+            f.makePlot(self.recordings['time'], self.recordings['vClamp'], xmin = switchTime-5)
+            I_noCa = f.pullMin(self.recordings['time'],self.recordings['vClamp'],switchTime+1)
+            print('I_noCa = ', I_noCa)
+            
+            self.settings.Cav_L_gpeak = G_ca
+            self.update()
+            print('Running ', v, 'mV (', n+1, '/', steps, ') ','G_ca = ', self.settings.Cav_L_gpeak)
+            self.run()
+            f.makePlot(self.recordings['time'], self.recordings['vClamp'], xmin = switchTime-5)
+            I_Ca = f.pullMin(self.recordings['time'],self.recordings['vClamp'],switchTime+1)
+            print('I_Ca = ', I_Ca)
+            
+            dI = I_Ca-I_noCa
+            print('dI = ', dI)
+            Is.append(dI)
+            
         f.makePlot(Vs, Is, title = 'IV graph')
+        
+        self.settings.Hold1 = initialH1
+        self.settings.Hold2 = initialH2
+        self.update()
         return [Vs, Is]
 
 
@@ -203,14 +226,14 @@ class Type6_Model():
 
         for num1, loc1 in enumerate(locations1):
             for num2, loc2 in enumerate(locations2):
-                dist = self.h.distance(loc1[0](loc1[1]), loc2[0](loc2[1]))
+                dist = h.distance(loc1[0](loc1[1]), loc2[0](loc2[1]))
                 distMatrix[num1, num2] = dist
 
         np.savetxt(fileName, distMatrix)
         return distMatrix
     def area(self):
         area = []
-        for sec in self.h.axon:
+        for sec in h.axon:
             for seg in sec.allseg():
                 area.append(seg.area())        
         return area
