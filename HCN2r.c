@@ -147,7 +147,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "temp_hcn2", "degC",
  "q10_hcn2", "1",
  "qtl_hcn2", "1",
- "gpeak_hcn2", "mho/cm2",
+ "gpeak_hcn2", "pS/um2",
  "vhakt_hcn2", "mV",
  "a0t_hcn2", "/ms",
  "i_hcn2", "mA/cm2",
@@ -205,7 +205,7 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 11, _prop);
  	/*initialize range parameters*/
- 	gpeak = 0.00015;
+ 	gpeak = 1.5;
  	vhakt = -93.6;
  	a0t = 0.00372;
  	_prop->param = _p;
@@ -411,7 +411,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    ghd = gpeak * l ;
-   i = ghd * ( v - Vrev ) ;
+   i = ghd * ( v - Vrev ) * ( 1e-12 ) * ( 1e+08 ) ;
    }
  _current += i;
 
@@ -526,28 +526,30 @@ static const char* nmodl_file_text =
   ": Konstantin Stadler 2009\n"
   "\n"
   "UNITS {\n"
+  "	(pS) = (picosiemens)\n"
+  "	(um) = (micron)\n"
   "	(mA) = (milliamp)\n"
   "	(mV) = (millivolt)\n"
-  "\n"
   "}\n"
   "\n"
   "PARAMETER {\n"
-  "    	v 		(mV)\n"
-  "    	Vrev  = -40	(mV)\n"
-  "    	gpeak = 0.00015	(mho/cm2) <0, 1e9>\n"
+  "	gpeak = 1.5	(pS/um2) <0,1e9>\n"
+  "	v 		(mV)\n"
+  "	Vrev  = -40	(mV)\n"
   "\n"
-  "    	vhakt = -93.6		(mV)\n"
-  "    	k     = -11.9		(mV)\n"
   "\n"
-  "    	vhtau = -84.6		(mV)\n"
-  "    	a0t   = 0.00372		(/ms)\n"
-  "    	zetat = 1.5		(/mV)\n"
-  "    	gmt   = .561	(1)\n"
+  "	vhakt = -93.6		(mV)\n"
+  "	k     = -11.9		(mV)\n"
   "\n"
-  "    	celsius		(degC)\n"
-  "    	temp  = 23	(degC)\n"
-  "    	q10   = 4.5		(1)\n"
-  "    	qtl   = 1		(1)\n"
+  "	vhtau = -84.6		(mV)\n"
+  "	a0t   = 0.00372		(/ms)\n"
+  "	zetat = 1.5		(/mV)\n"
+  "	gmt   = .561	(1)\n"
+  "\n"
+  "	celsius		(degC)\n"
+  "	temp  = 23	(degC)\n"
+  "	q10   = 4.5		(1)\n"
+  "	qtl   = 1		(1)\n"
   "}\n"
   "\n"
   "\n"
@@ -565,7 +567,7 @@ static const char* nmodl_file_text =
   "	i (mA/cm2)\n"
   "    	linf (1)\n"
   "    	taul (ms)\n"
-  "    	ghd (mho/cm2)\n"
+  "    	ghd (pS/um2)\n"
   "}\n"
   "\n"
   "INITIAL {\n"
@@ -577,7 +579,7 @@ static const char* nmodl_file_text =
   "BREAKPOINT {\n"
   "	SOLVE states METHOD cnexp\n"
   "	ghd = gpeak*l\n"
-  "	i = ghd*(v-Vrev)\n"
+  "	i = ghd*(v-Vrev) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
   "\n"
   "}\n"
   "\n"

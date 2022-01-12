@@ -15,10 +15,6 @@ def findSectionForLocation(h, location):
                 return [sec,D]
             dists.append(dist)
     raise Exception('Could not find a matching point in the model for')
-
-def rBetween3D(h, location1, location2):
-    a =1
-    
     
     
     
@@ -42,21 +38,12 @@ def makePlot(x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = '
     x = np.array(x)
     y = np.array(y)
     
-    
-    
-    # if ymin == 'calc': ymin = np.average(y) - 2 * np.std(y)
-    # if ymax == 'calc': ymax = np.average(y) + 2 * np.std(y)
     if xmin == 'calc': xmin = min(x)
     if xmax == 'calc': xmax = max(x)
     
-   # yStart = np.where(x == xmin)
-   # yStop = np.where(x == xmax)
     
-    #if ymin == 'calc': ymin = min(y[yStart[0][0]-1:yStop[0][0]+1])
-    #if ymax == 'calc': ymax = max(y[yStart[0][0]-1:yStop[0][0]+1])
-    
-    if ymin == 'calc': ymin = min(y)
-    if ymax == 'calc': ymax = max(y)
+    if ymin == 'calc': ymin = np.average(y) - 2*np.std(y)#ymin = min(y)
+    if ymax == 'calc': ymax = np.average(y) + 2*np.std(y)#ymax = max(y)
 
     
     plt.ylim(ymin, ymax)
@@ -110,6 +97,23 @@ def pullMin(x, y, start):
     
     small = np.min(y[startInd[0][0]:-1])
     return small
+
+
+def pullAbs(x, y, start):
+    """Pull the max value after a certain point"""
+    y = np.array(y)
+    x = np.array(x)
+    
+    diff = abs(start - x)
+    startInd = np.where(diff == min(diff))
+    
+    newY = y[startInd[0][0]:-1]
+    absY = np.abs(newY)
+    maxAbs = np.max(absY)
+    
+    ind = np.where(maxAbs == absY)
+    
+    return newY[ind[0][0]]
 
 
 def pullMax(x, y, start):

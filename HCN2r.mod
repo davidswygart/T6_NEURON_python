@@ -2,28 +2,30 @@ TITLE HCN2 with one time constant
 : Konstantin Stadler 2009
 
 UNITS {
+	(pS) = (picosiemens)
+	(um) = (micron)
 	(mA) = (milliamp)
 	(mV) = (millivolt)
-
 }
 
 PARAMETER {
-    	v 		(mV)
-    	Vrev  = -40	(mV)
-    	gpeak = 0.00015	(mho/cm2) <0, 1e9>
+	gpeak = 1.5	(pS/um2) <0,1e9>
+	v 		(mV)
+	Vrev  = -40	(mV)
 
-    	vhakt = -93.6		(mV)
-    	k     = -11.9		(mV)
 
-    	vhtau = -84.6		(mV)
-    	a0t   = 0.00372		(/ms)
-    	zetat = 1.5		(/mV)
-    	gmt   = .561	(1)
+	vhakt = -93.6		(mV)
+	k     = -11.9		(mV)
 
-    	celsius		(degC)
-    	temp  = 23	(degC)
-    	q10   = 4.5		(1)
-    	qtl   = 1		(1)
+	vhtau = -84.6		(mV)
+	a0t   = 0.00372		(/ms)
+	zetat = 1.5		(/mV)
+	gmt   = .561	(1)
+
+	celsius		(degC)
+	temp  = 23	(degC)
+	q10   = 4.5		(1)
+	qtl   = 1		(1)
 }
 
 
@@ -41,7 +43,7 @@ ASSIGNED {
 	i (mA/cm2)
     	linf (1)
     	taul (ms)
-    	ghd (mho/cm2)
+    	ghd (pS/um2)
 }
 
 INITIAL {
@@ -53,7 +55,7 @@ INITIAL {
 BREAKPOINT {
 	SOLVE states METHOD cnexp
 	ghd = gpeak*l
-	i = ghd*(v-Vrev)
+	i = ghd*(v-Vrev) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
 
 }
 

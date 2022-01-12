@@ -46,7 +46,7 @@ class Type6_Model():
             sec.insert('Kv1_2')
             sec.insert('Kv1_3')
             sec.insert('Ca')
-            sec.insert('Cad')
+            #sec.insert('Cad')
             sec.insert('gapJ')
             # insert gapJunction
             # gmax_gapJunction = 1
@@ -186,31 +186,38 @@ class Type6_Model():
         initialH2 = self.settings.Hold2
         G_ca = self.settings.Cav_L_gpeak
         switchTime = self.settings.ChangeClamp
+
         
         Vs = np.linspace(minV, maxV, steps)
         Is = []
-        for [n, v] in enumerate(Vs):
+        for [n, v] in enumerate(Vs):           
             self.settings.Hold2 = v
             
             self.settings.Cav_L_gpeak = 0
             self.update()
             print('Running ', v, 'mV (', n+1, '/', steps, ') ','G_ca = ', self.settings.Cav_L_gpeak)
             self.run()
-            f.makePlot(self.recordings['time'], self.recordings['vClamp'], xmin = switchTime-5)
-            I_noCa = f.pullMin(self.recordings['time'],self.recordings['vClamp'],switchTime+1)
-            print('I_noCa = ', I_noCa)
+            #f.makePlot(self.recordings['time'], self.recordings['segV'][0], xmin = switchTime-5, title='no calcium', ylabel='Voltage (mV)')
+            I_noCa = self.recordings['vClamp']
+            #f.makePlot(self.recordings['time'], I_noCa, xmin = switchTime-5, title='no calcium', ylabel='current (nA)')
+            #I_noCa = f.pullMin(self.recordings['time'],self.recordings['vClamp'],switchTime+1)
+            
             
             self.settings.Cav_L_gpeak = G_ca
             self.update()
             print('Running ', v, 'mV (', n+1, '/', steps, ') ','G_ca = ', self.settings.Cav_L_gpeak)
             self.run()
-            f.makePlot(self.recordings['time'], self.recordings['vClamp'], xmin = switchTime-5)
-            I_Ca = f.pullMin(self.recordings['time'],self.recordings['vClamp'],switchTime+1)
-            print('I_Ca = ', I_Ca)
+            I_Ca = self.recordings['vClamp']
+            #f.makePlot(self.recordings['time'], I_Ca, xmin = switchTime-5, title='calcium', ylabel='current (nA)')
+            #I_Ca = f.pullMin(self.recordings['time'],self.recordings['vClamp'],switchTime+1)
             
             dI = I_Ca-I_noCa
-            print('dI = ', dI)
-            Is.append(dI)
+            f.makePlot(self.recordings['time'], dI, xmin = switchTime-5, title='calcium', ylabel='current (nA)')
+            #maxAbs = f.pullAbs(self.recordings['time'],dI,switchTime+10)
+            #print('maxAbs = ', maxAbs)
+            #Is.append(maxAbs)
+            Is.append(dI[-1])
+            
             
         f.makePlot(Vs, Is, title = 'IV graph')
         

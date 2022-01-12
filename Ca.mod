@@ -10,37 +10,33 @@ NEURON
         RANGE VhalfCah,SCah
         RANGE eCa,aomCa,bomCa
         RANGE gammaohCa,deltaohCa
-
-
 }
 
 UNITS
 {
+	(pS) = (picosiemens)
+	(um) = (micron)
 	(mA) = (milliamp)
 	(mV) = (millivolt)
-	(mS) = (millimho)
-	(mol)= (1)
-	(M)  = (mol/liter)
-	(uM) = (micro M)
 }
 
 PARAMETER
 {
-
        : Calcium channel
-       gCabar = 2 (mS/cm2) <0,1e9> :different from ABME paper
+			 gCabar = 4  (pS/um2) <0,1e9>
        eCa =  40 (mV)
-       aomCa = 50  (/s)  : changed from 3.10/s, 20/s
-       bomCa = 50  (/s)
-       gammaohCa = 1 (/s)
-       deltaohCa =1 (/s)
 
-       VhalfCam=-20.0 (mV)
-       VhalfCah=10 (mV)
-       SCam =6.0      (mV)
+			 : Activation
+       VhalfCam = -32 (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.
+			 SCam =  10    (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.
+			 aomCa = 50   (/s)  :opening rate multiplier
+			 bomCa = 50   (/s)  :closing rate multiplier
 
-       SCah =9        (mV)
-
+			 : Deactivation
+			 VhalfCah = 10 (mV)
+			 SCah = 9     (mV)
+			 gammaohCa = 1 (/s) :opening rate multiplier
+			 deltaohCa = 1 (/s) :closing rate multiplier
 }
 
 
@@ -54,7 +50,7 @@ STATE
 
 ASSIGNED
 {
-	gCa (mho/cm2)
+	gCa (pS/um2)
 
 	v (mV)
 
@@ -86,19 +82,14 @@ INITIAL
 BREAKPOINT
 {
 	SOLVE states METHOD cnexp
-	gCa = (0.001)*gCabar*mCa*hCa
-	: g is in unit of S/cm2 ,i is in unit of mA/cm2 and v is in mV
-
-	iCa = gCa*(v - eCa)
-	: the current is in the unit of mA/cm2
-
-
+	gCa = gCabar*mCa*hCa
+	iCa = gCa*(v - eCa) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
 }
 
 DERIVATIVE states
 {
 	rate(v)
-	mCa' = (infmCa - mCa)/taumCa
+	mCa' = (infmCa-mCa)/taumCa
 	hCa'= (infhCa-hCa)/tauhCa
 
 

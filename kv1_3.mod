@@ -12,24 +12,40 @@ NEURON	{
 }
 
 UNITS	{
-	(S) = (siemens)
+	(pS) = (picosiemens)
+	(um) = (micron)
 	(mV) = (millivolt)
 	(mA) = (milliamp)
 }
 
 PARAMETER	{
-	gKv1_3bar = 0.00001 (S/cm2)
+	gKv1_3bar = 0.1 (pS/um2) <0,1e9>
+
+
+	:Activation
+	a = 1 (/ms) :opening rate multiplier (doesn't use voltage to calculate)
+	bMult = 1 (/ms) :closing rate multiplier
+	vHalfB = -14.1 (mV) :voltage center for calculating closing rate of activation
+	widthB = -10.3 (mV) :voltage width for calculating closing rate of activation
+	mTauMult = 1 (ms/mV) :scale factor for tau of activation (used to get correct units)
+
+	:Inactivation
+	c = 1 (/ms) :opening rate multiplier
+	dMult = 1 (/ms) :closing rate multiplier
+	vHalfD = -33 (mV)
+	widthD = 3.7 (mV)
+	hTauMult = 1 (ms/mV) :scale factor for tau of inactivation (used to get correct units)
 }
 
 ASSIGNED	{
 	v	(mV)
 	ek	(mV)
 	ik	(mA/cm2)
-	gKv1_3	(S/cm2)
+	gKv1_3	(pS/um2)
 	mInf
-	mTau
+	mTau (ms)
 	hInf
-	hTau
+	hTau (ms)
 }
 
 STATE	{
@@ -40,7 +56,7 @@ STATE	{
 BREAKPOINT	{
 	SOLVE states METHOD cnexp
 	gKv1_3 = gKv1_3bar*m*h
-	ik = gKv1_3*(v-ek)
+	ik = gKv1_3*(v-ek) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
 }
 
 DERIVATIVE states	{
@@ -56,20 +72,25 @@ INITIAL{
 }
 
 PROCEDURE rates(){
-	UNITSOFF
-		mInf = 1.0000/(1+ exp((v - -14.1000)/-10.3000))
-		if(v < 50){
-			mTau = (-0.2840 * v) + 19.1600
-		}
-		if(v >= 50){
-			mTau = 5
-		}
-		hInf = 1.0000/(1+ exp((v - -33.0000)/3.7000))
-		if(v < 80){
-			hTau = (-13.7600 * v) + 1162.4000
-		}
-		if(v >= 80){
-			hTau = 60
-		}
-	UNITSON
+	LOCAL b, d
+
+	b = bMult * exp((v - vHalfB)/ widthB)
+
+	mInf = a / (a + b)
+
+	if(v < 50){
+		mTau = mTauMult * ((-0.284 * v) + 19.16)
+	}
+	if(v >= 50){
+		mTau = mTauMult * ((0 * v) + 5)
+	}
+
+	d = dMult * exp((v - vHalfD)/widthD)
+	hInf = c/(c + d)
+	if(v < 80){
+		hTau = hTauMult * ((-13.76 * v) + 1162.4)
+	}
+	if(v >= 80){
+		hTau = hTauMult * ((0 * v) + 60)
+	}
 }

@@ -114,14 +114,45 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  0, 0
 };
  /* declare global and static user variables */
+#define a a_Kv1_3
+ double a = 1;
+#define bMult bMult_Kv1_3
+ double bMult = 1;
+#define c c_Kv1_3
+ double c = 1;
+#define dMult dMult_Kv1_3
+ double dMult = 1;
+#define hTauMult hTauMult_Kv1_3
+ double hTauMult = 1;
+#define mTauMult mTauMult_Kv1_3
+ double mTauMult = 1;
+#define vHalfD vHalfD_Kv1_3
+ double vHalfD = -33;
+#define vHalfB vHalfB_Kv1_3
+ double vHalfB = -14.1;
+#define widthD widthD_Kv1_3
+ double widthD = 3.7;
+#define widthB widthB_Kv1_3
+ double widthB = -10.3;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
+ "gKv1_3bar_Kv1_3", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
- "gKv1_3bar_Kv1_3", "S/cm2",
+ "a_Kv1_3", "/ms",
+ "bMult_Kv1_3", "/ms",
+ "vHalfB_Kv1_3", "mV",
+ "widthB_Kv1_3", "mV",
+ "mTauMult_Kv1_3", "ms/mV",
+ "c_Kv1_3", "/ms",
+ "dMult_Kv1_3", "/ms",
+ "vHalfD_Kv1_3", "mV",
+ "widthD_Kv1_3", "mV",
+ "hTauMult_Kv1_3", "ms/mV",
+ "gKv1_3bar_Kv1_3", "pS/um2",
  "ik_Kv1_3", "mA/cm2",
- "gKv1_3_Kv1_3", "S/cm2",
+ "gKv1_3_Kv1_3", "pS/um2",
  0,0
 };
  static double delta_t = 0.01;
@@ -129,6 +160,16 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  static double m0 = 0;
  /* connect global user variables to hoc */
  static DoubScal hoc_scdoub[] = {
+ "a_Kv1_3", &a_Kv1_3,
+ "bMult_Kv1_3", &bMult_Kv1_3,
+ "vHalfB_Kv1_3", &vHalfB_Kv1_3,
+ "widthB_Kv1_3", &widthB_Kv1_3,
+ "mTauMult_Kv1_3", &mTauMult_Kv1_3,
+ "c_Kv1_3", &c_Kv1_3,
+ "dMult_Kv1_3", &dMult_Kv1_3,
+ "vHalfD_Kv1_3", &vHalfD_Kv1_3,
+ "widthD_Kv1_3", &widthD_Kv1_3,
+ "hTauMult_Kv1_3", &hTauMult_Kv1_3,
  0,0
 };
  static DoubVec hoc_vdoub[] = {
@@ -170,7 +211,7 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 14, _prop);
  	/*initialize range parameters*/
- 	gKv1_3bar = 1e-05;
+ 	gKv1_3bar = 0.1;
  	_prop->param = _p;
  	_prop->param_size = 14;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
@@ -259,21 +300,24 @@ static int _ode_spec1(_threadargsproto_);
 }
  
 static int  rates ( _threadargsproto_ ) {
-    mInf = 1.0000 / ( 1.0 + exp ( ( v - - 14.1000 ) / - 10.3000 ) ) ;
+   double _lb , _ld ;
+ _lb = bMult * exp ( ( v - vHalfB ) / widthB ) ;
+   mInf = a / ( a + _lb ) ;
    if ( v < 50.0 ) {
-     mTau = ( - 0.2840 * v ) + 19.1600 ;
+     mTau = mTauMult * ( ( - 0.284 * v ) + 19.16 ) ;
      }
    if ( v >= 50.0 ) {
-     mTau = 5.0 ;
+     mTau = mTauMult * ( ( 0.0 * v ) + 5.0 ) ;
      }
-   hInf = 1.0000 / ( 1.0 + exp ( ( v - - 33.0000 ) / 3.7000 ) ) ;
+   _ld = dMult * exp ( ( v - vHalfD ) / widthD ) ;
+   hInf = c / ( c + _ld ) ;
    if ( v < 80.0 ) {
-     hTau = ( - 13.7600 * v ) + 1162.4000 ;
+     hTau = hTauMult * ( ( - 13.76 * v ) + 1162.4 ) ;
      }
    if ( v >= 80.0 ) {
-     hTau = 60.0 ;
+     hTau = hTauMult * ( ( 0.0 * v ) + 60.0 ) ;
      }
-     return 0; }
+    return 0; }
  
 static void _hoc_rates(void) {
   double _r;
@@ -374,7 +418,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    gKv1_3 = gKv1_3bar * m * h ;
-   ik = gKv1_3 * ( v - ek ) ;
+   ik = gKv1_3 * ( v - ek ) * ( 1e-12 ) * ( 1e+08 ) ;
    }
  _current += ik;
 
@@ -506,24 +550,40 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "UNITS	{\n"
-  "	(S) = (siemens)\n"
+  "	(pS) = (picosiemens)\n"
+  "	(um) = (micron)\n"
   "	(mV) = (millivolt)\n"
   "	(mA) = (milliamp)\n"
   "}\n"
   "\n"
   "PARAMETER	{\n"
-  "	gKv1_3bar = 0.00001 (S/cm2)\n"
+  "	gKv1_3bar = 0.1 (pS/um2) <0,1e9>\n"
+  "\n"
+  "\n"
+  "	:Activation\n"
+  "	a = 1 (/ms) :opening rate multiplier (doesn't use voltage to calculate)\n"
+  "	bMult = 1 (/ms) :closing rate multiplier\n"
+  "	vHalfB = -14.1 (mV) :voltage center for calculating closing rate of activation\n"
+  "	widthB = -10.3 (mV) :voltage width for calculating closing rate of activation\n"
+  "	mTauMult = 1 (ms/mV) :scale factor for tau of activation (used to get correct units)\n"
+  "\n"
+  "	:Inactivation\n"
+  "	c = 1 (/ms) :opening rate multiplier\n"
+  "	dMult = 1 (/ms) :closing rate multiplier\n"
+  "	vHalfD = -33 (mV)\n"
+  "	widthD = 3.7 (mV)\n"
+  "	hTauMult = 1 (ms/mV) :scale factor for tau of inactivation (used to get correct units)\n"
   "}\n"
   "\n"
   "ASSIGNED	{\n"
   "	v	(mV)\n"
   "	ek	(mV)\n"
   "	ik	(mA/cm2)\n"
-  "	gKv1_3	(S/cm2)\n"
+  "	gKv1_3	(pS/um2)\n"
   "	mInf\n"
-  "	mTau\n"
+  "	mTau (ms)\n"
   "	hInf\n"
-  "	hTau\n"
+  "	hTau (ms)\n"
   "}\n"
   "\n"
   "STATE	{\n"
@@ -534,7 +594,7 @@ static const char* nmodl_file_text =
   "BREAKPOINT	{\n"
   "	SOLVE states METHOD cnexp\n"
   "	gKv1_3 = gKv1_3bar*m*h\n"
-  "	ik = gKv1_3*(v-ek)\n"
+  "	ik = gKv1_3*(v-ek) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
   "}\n"
   "\n"
   "DERIVATIVE states	{\n"
@@ -550,22 +610,27 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "PROCEDURE rates(){\n"
-  "	UNITSOFF\n"
-  "		mInf = 1.0000/(1+ exp((v - -14.1000)/-10.3000))\n"
-  "		if(v < 50){\n"
-  "			mTau = (-0.2840 * v) + 19.1600\n"
-  "		}\n"
-  "		if(v >= 50){\n"
-  "			mTau = 5\n"
-  "		}\n"
-  "		hInf = 1.0000/(1+ exp((v - -33.0000)/3.7000))\n"
-  "		if(v < 80){\n"
-  "			hTau = (-13.7600 * v) + 1162.4000\n"
-  "		}\n"
-  "		if(v >= 80){\n"
-  "			hTau = 60\n"
-  "		}\n"
-  "	UNITSON\n"
+  "	LOCAL b, d\n"
+  "\n"
+  "	b = bMult * exp((v - vHalfB)/ widthB)\n"
+  "\n"
+  "	mInf = a / (a + b)\n"
+  "\n"
+  "	if(v < 50){\n"
+  "		mTau = mTauMult * ((-0.284 * v) + 19.16)\n"
+  "	}\n"
+  "	if(v >= 50){\n"
+  "		mTau = mTauMult * ((0 * v) + 5)\n"
+  "	}\n"
+  "\n"
+  "	d = dMult * exp((v - vHalfD)/widthD)\n"
+  "	hInf = c/(c + d)\n"
+  "	if(v < 80){\n"
+  "		hTau = hTauMult * ((-13.76 * v) + 1162.4)\n"
+  "	}\n"
+  "	if(v >= 80){\n"
+  "		hTau = hTauMult * ((0 * v) + 60)\n"
+  "	}\n"
   "}\n"
   ;
 #endif

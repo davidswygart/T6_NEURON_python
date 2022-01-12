@@ -47,14 +47,14 @@ extern double hoc_Exp(double);
 #define dt _nt->_dt
 #define gCabar _p[0]
 #define eCa _p[1]
-#define aomCa _p[2]
-#define bomCa _p[3]
-#define gammaohCa _p[4]
-#define deltaohCa _p[5]
-#define VhalfCam _p[6]
-#define VhalfCah _p[7]
-#define SCam _p[8]
-#define SCah _p[9]
+#define VhalfCam _p[2]
+#define SCam _p[3]
+#define aomCa _p[4]
+#define bomCa _p[5]
+#define VhalfCah _p[6]
+#define SCah _p[7]
+#define gammaohCa _p[8]
+#define deltaohCa _p[9]
 #define mCa _p[10]
 #define hCa _p[11]
 #define DmCa _p[12]
@@ -143,16 +143,16 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
- "gCabar_Ca", "mS/cm2",
+ "gCabar_Ca", "pS/um2",
  "eCa_Ca", "mV",
+ "VhalfCam_Ca", "mV",
+ "SCam_Ca", "mV",
  "aomCa_Ca", "/s",
  "bomCa_Ca", "/s",
+ "VhalfCah_Ca", "mV",
+ "SCah_Ca", "mV",
  "gammaohCa_Ca", "/s",
  "deltaohCa_Ca", "/s",
- "VhalfCam_Ca", "mV",
- "VhalfCah_Ca", "mV",
- "SCam_Ca", "mV",
- "SCah_Ca", "mV",
  0,0
 };
  static double delta_t = 0.01;
@@ -185,14 +185,14 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
 "Ca",
  "gCabar_Ca",
  "eCa_Ca",
+ "VhalfCam_Ca",
+ "SCam_Ca",
  "aomCa_Ca",
  "bomCa_Ca",
+ "VhalfCah_Ca",
+ "SCah_Ca",
  "gammaohCa_Ca",
  "deltaohCa_Ca",
- "VhalfCam_Ca",
- "VhalfCah_Ca",
- "SCam_Ca",
- "SCah_Ca",
  0,
  0,
  "mCa_Ca",
@@ -208,16 +208,16 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 22, _prop);
  	/*initialize range parameters*/
- 	gCabar = 2;
+ 	gCabar = 4;
  	eCa = 40;
+ 	VhalfCam = -32;
+ 	SCam = 10;
  	aomCa = 50;
  	bomCa = 50;
+ 	VhalfCah = 10;
+ 	SCah = 9;
  	gammaohCa = 1;
  	deltaohCa = 1;
- 	VhalfCam = -20;
- 	VhalfCah = 10;
- 	SCam = 6;
- 	SCah = 9;
  	_prop->param = _p;
  	_prop->param_size = 22;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 3, _prop);
@@ -476,8 +476,8 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
-   gCa = ( 0.001 ) * gCabar * mCa * hCa ;
-   iCa = gCa * ( v - eCa ) ;
+   gCa = gCabar * mCa * hCa ;
+   iCa = gCa * ( v - eCa ) * ( 1e-12 ) * ( 1e+08 ) ;
    }
  _current += iCa;
 
@@ -605,37 +605,33 @@ static const char* nmodl_file_text =
   "        RANGE VhalfCah,SCah\n"
   "        RANGE eCa,aomCa,bomCa\n"
   "        RANGE gammaohCa,deltaohCa\n"
-  "\n"
-  "\n"
   "}\n"
   "\n"
   "UNITS\n"
   "{\n"
+  "	(pS) = (picosiemens)\n"
+  "	(um) = (micron)\n"
   "	(mA) = (milliamp)\n"
   "	(mV) = (millivolt)\n"
-  "	(mS) = (millimho)\n"
-  "	(mol)= (1)\n"
-  "	(M)  = (mol/liter)\n"
-  "	(uM) = (micro M)\n"
   "}\n"
   "\n"
   "PARAMETER\n"
   "{\n"
-  "\n"
   "       : Calcium channel\n"
-  "       gCabar = 2 (mS/cm2) <0,1e9> :different from ABME paper\n"
+  "			 gCabar = 4  (pS/um2) <0,1e9>\n"
   "       eCa =  40 (mV)\n"
-  "       aomCa = 50  (/s)  : changed from 3.10/s, 20/s\n"
-  "       bomCa = 50  (/s)\n"
-  "       gammaohCa = 1 (/s)\n"
-  "       deltaohCa =1 (/s)\n"
   "\n"
-  "       VhalfCam=-20.0 (mV)\n"
-  "       VhalfCah=10 (mV)\n"
-  "       SCam =6.0      (mV)\n"
+  "			 : Activation\n"
+  "       VhalfCam = -32 (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.\n"
+  "			 SCam =  10    (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.\n"
+  "			 aomCa = 50   (/s)  :opening rate multiplier\n"
+  "			 bomCa = 50   (/s)  :closing rate multiplier\n"
   "\n"
-  "       SCah =9        (mV)\n"
-  "\n"
+  "			 : Deactivation\n"
+  "			 VhalfCah = 10 (mV)\n"
+  "			 SCah = 9     (mV)\n"
+  "			 gammaohCa = 1 (/s) :opening rate multiplier\n"
+  "			 deltaohCa = 1 (/s) :closing rate multiplier\n"
   "}\n"
   "\n"
   "\n"
@@ -649,7 +645,7 @@ static const char* nmodl_file_text =
   "\n"
   "ASSIGNED\n"
   "{\n"
-  "	gCa (mho/cm2)\n"
+  "	gCa (pS/um2)\n"
   "\n"
   "	v (mV)\n"
   "\n"
@@ -681,19 +677,14 @@ static const char* nmodl_file_text =
   "BREAKPOINT\n"
   "{\n"
   "	SOLVE states METHOD cnexp\n"
-  "	gCa = (0.001)*gCabar*mCa*hCa\n"
-  "	: g is in unit of S/cm2 ,i is in unit of mA/cm2 and v is in mV\n"
-  "\n"
-  "	iCa = gCa*(v - eCa)\n"
-  "	: the current is in the unit of mA/cm2\n"
-  "\n"
-  "\n"
+  "	gCa = gCabar*mCa*hCa\n"
+  "	iCa = gCa*(v - eCa) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
   "}\n"
   "\n"
   "DERIVATIVE states\n"
   "{\n"
   "	rate(v)\n"
-  "	mCa' = (infmCa - mCa)/taumCa\n"
+  "	mCa' = (infmCa-mCa)/taumCa\n"
   "	hCa'= (infhCa-hCa)/tauhCa\n"
   "\n"
   "\n"

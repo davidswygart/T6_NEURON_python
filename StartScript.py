@@ -1,4 +1,6 @@
-#cd C:\Users\david\Documents\Code\Github\T6_NEURON_python
+import os
+os.chdir('C:/Users/david/Documents/Code/Github/T6_NEURON_python')
+
 from neuron import h
 #h.load_file('stdrun.hoc')
 #h.load_file('stdrun.hoc')
@@ -51,7 +53,7 @@ T6.settings.hcn2_gpeak = 0
 #%% set Kv current to 1.31 nA when stepping from -60 mV to 30 mV
 T6.settings.Hold1 = -60
 T6.settings.Hold2 = 30
-T6.settings.Kv1_2_gpeak = 550 / 1000000 
+T6.settings.Kv1_2_gpeak = 5500 
 T6.settings.Kv1_3_gpeak = 550 / 1000000
 T6.updateAndRun()
 
@@ -70,10 +72,44 @@ T6.updateAndRun()
 makePlot(T6.recordings['time'], T6.recordings['vClamp'], title = 'Current Graph', xmin = 190, ymax = .01)
 CaCurrent = pullMin(T6.recordings['time'],T6.recordings['vClamp'],202)
 #%% create calcium IV
+import os
+os.chdir('C:/Users/david/Documents/Code/Github/T6_NEURON_python')
+from neuron import h
 
-[Vs, Is] = T6.runIV(minV = -90, maxV = 50, steps = 30) #pulls minimum from anytime after 201 ms
-np.savetxt('results\\CaIV\\Voltages.txt', Vs)
-np.savetxt('results\\CaIV\\Currents.txt', Is)
+import numpy as np
+from T6_Sim import Type6_Model
+from UtilityFuncs import makePlot
+from UtilityFuncs import pullAvg
+from UtilityFuncs import LoopThoughInhibitorySynapses
+from UtilityFuncs import averageRibbonVoltage
+from UtilityFuncs import runSingleInh
+from UtilityFuncs import pullMin
+from UtilityFuncs import pullMax
+
+T6 = Type6_Model()
+T6.settings.Hold1 = -80
+T6.settings.temp = 22
+T6.settings.DoVClamp = 1
+T6.settings.ChangeClamp = 200
+T6.settings.tstop = 1000
+T6.settings.excSyn['gmax'] = 0
+
+for [sec, d] in T6.recordings['ribLocations']:
+    if d == 1: d = .99
+    if d == 0: d = .01
+    sec(d).Ca.SCam = 10
+    sec(d).Ca.VhalfCam = -32
+
+T6.settings.Cav_L_gpeak = 75000 / 100000 #Used a really high conductance just to make the IV cleaner.  Shouldn't change the shape.
+#[Vs, Is] = T6.runIV(minV = -90, maxV = 50, steps = 30) #pulls minimum from anytime after 201 ms
+#[Vs, Is] = T6.runIV(minV = -70, maxV = -30, steps = 2) #pulls minimum from anytime after 201 ms
+#np.savetxt('results\\CaIV\\Voltages.txt', Vs)
+#np.savetxt('results\\CaIV\\Currents.txt', Is)
+
+#%%
+
+
+
 #%% Run active model voltage drop
 T6 = Type6_Model() #remoake the model in order to remove the voltage clamp
 T6.settings.temp = 32
@@ -86,6 +122,9 @@ T6.settings.Cav_L_gpeak = 75000 / 100000
 T6.settings.excSyn['gmax'] = 275 / 1000000
 T6.updateAndRun()
 averageRibbonVoltage(T6) 
+
+
+
 #%% set inhibition so that an individual inhibitory synapse (Vmax) is -50 mV
 runSingleInh(T6, T6.inhSyns[0], 6000/1000000)
 pullAvg(T6.recordings['time'], T6.recordings['inhV'][0], 150,200)
@@ -125,7 +164,7 @@ np.sum(T6.area()) # 633 um^2
 
 #%% estimate membrane resistance with current pulse
 T6.settings.hcn2_gpeak = 50 / 1000000
-T6.settings.Kv1_2_gpeak = 550 / 1000000 
+T6.settings.Kv1_2_gpeak = 550 
 T6.settings.Kv1_3_gpeak = 550 / 1000000
 T6.settings.Cav_L_gpeak = 75000 / 100000
 
