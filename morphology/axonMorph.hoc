@@ -2,8 +2,6 @@
 proc celldef() {
   topol()
   subsets()
-  geom()
-  biophys()
   geom_nseg()
 }
 
@@ -2670,27 +2668,19 @@ proc subsets() { local i
 
   axonal = new SectionList()
     for i=0, 106 axon[i] axonal.append()
+}
 
-}
-proc geom() {
-  forsec all {  }
-}
+
 proc geom_nseg() {
-  forsec all { nseg = int((L/(0.01*lambda_f(100))+.999)/2)*2 + 1  }
-}
-proc biophys() {
-  forsec all {
-    Ra = 130
-    cm = 1.1
-    insert pas
-      g_pas = 4.17e-05
-      e_pas = -60
-  }
+  forsec all {nseg = int((L/(0.1*lambda_f(100))+.999)/2)*2 + 1 }
 }
 
-func lambda_f() { local i, x1, x2, d1, d2, lam
+func lambda_f() {local i, x1, x2, d1, d2, lam, axialR, capacitance
+        axialR = 132
+        capacitance = 1.18
+
         if (n3d() < 2) {
-                return 1e5*sqrt(diam/(4*PI*$1*Ra*cm))
+                return 1e-5*sqrt(diam/(4*PI*$1*axialR*capacitance))
         }
 
         x1 = arc3d(0)
@@ -2703,14 +2693,10 @@ func lambda_f() { local i, x1, x2, d1, d2, lam
                 x1 = x2   d1 = d2
         }
         //  length of the section in units of lambda
-        lam *= sqrt(2) * 1e-5*sqrt(4*PI*$1*Ra*cm)
+        lam *= sqrt(2) * 1e-5*sqrt(4*PI*$1*axialR*capacitance)
 
         return L/lam
 }
-
-
-
-
 access axon
 
 celldef()

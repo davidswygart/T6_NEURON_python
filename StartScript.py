@@ -2,9 +2,6 @@ import os
 os.chdir('C:/Users/david/Documents/Code/Github/T6_NEURON_python')
 
 from neuron import h
-#h.load_file('stdrun.hoc')
-#h.load_file('stdrun.hoc')
-
 import numpy as np
 from T6_Sim import Type6_Model
 from UtilityFuncs import makePlot
@@ -44,7 +41,7 @@ T6.settings.tstop = 500
 T6.settings.excSyn['gmax'] = 0
 
 #%% set HCN current to -0.051 nA when stepping from -70 mV to -135 mV
-T6.settings.hcn2_gpeak = 50 / 1000000
+T6.settings.hcn2_gpeak = 0.5 / 1000000
 T6.updateAndRun()
 makePlot(T6.recordings['time'], T6.recordings['iClamp'], title = 'Current Graph', ymin = -.15, xmin = 150)
 makePlot(T6.recordings['time'], T6.recordings['iClamp'], title = 'Current Graph', ymin = -.15, xmin = 200, xmax = 210)
@@ -53,20 +50,20 @@ T6.settings.hcn2_gpeak = 0
 #%% set Kv current to 1.31 nA when stepping from -60 mV to 30 mV
 T6.settings.Hold1 = -60
 T6.settings.Hold2 = 30
-T6.settings.Kv1_2_gpeak = 5500 
-T6.settings.Kv1_3_gpeak = 550 / 1000000
+T6.settings.Kv1_2_gpeak = 5.5 
+T6.settings.Kv1_3_gpeak = 5.5
 T6.updateAndRun()
 
 makePlot(T6.recordings['time'], T6.recordings['vClamp'], title = 'Current Graph', ymax = 1.5, xmin = 180)
 KvCurrent = pullAvg(T6.recordings['time'],T6.recordings['vClamp'],240,260)
 
-T6.settings.Kv1_2_gpeak = 0 
+T6.settings.Kv1_2_gpeak = 0
 T6.settings.Kv1_3_gpeak = 0
 
 #%% set Ca current to 30 pA when stepping from -80 to -35 mV
 T6.settings.Hold1 = -80
 T6.settings.Hold2 = -35
-T6.settings.Cav_L_gpeak = 75000 / 100000
+T6.settings.Cav_L_gpeak = 750
 T6.updateAndRun()
 
 makePlot(T6.recordings['time'], T6.recordings['vClamp'], title = 'Current Graph', xmin = 190, ymax = .01)

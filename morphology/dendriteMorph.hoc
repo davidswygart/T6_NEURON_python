@@ -2,50 +2,48 @@
 proc celldef() {
   topol()
   subsets()
-  geom()
-  biophys()
   geom_nseg()
 }
 
-create dend_0[32]
+create dend[32]
 
 proc topol() { local i
-  for i = 1, 2 connect dend_0[i](0), dend_0(0.5)
-  for i = 3, 7 connect dend_0[i](0), dend_0[i-1](1)
-  connect dend_0[8](0), dend_0[5](1)
-  connect dend_0[9](0), dend_0[3](1)
-  for i = 10, 11 connect dend_0[i](0), dend_0[i-1](1)
-  connect dend_0[12](0), dend_0[4](1)
-  connect dend_0[13](0), dend_0[6](1)
-  connect dend_0[14](0), dend_0[2](1)
-  for i = 15, 16 connect dend_0[i](0), dend_0[i-1](1)
-  connect dend_0[17](0), dend_0[10](1)
-  for i = 18, 19 connect dend_0[i](0), dend_0[17](1)
-  connect dend_0[20](0), dend_0[9](1)
-  connect dend_0[21](0), dend_0[20](1)
-  connect dend_0[22](0), dend_0[15](1)
-  connect dend_0[23](0), dend_0[22](1)
-  connect dend_0[24](0), dend_0[14](1)
-  connect dend_0[25](0), dend_0[24](1)
-  connect dend_0[26](0), dend_0[17](1)
-  connect dend_0[27](0), dend_0[20](1)
-  connect dend_0[28](0), dend_0[22](1)
-  connect dend_0[29](0), dend_0[24](1)
-  for i = 30, 31 connect dend_0[i](0), dend_0[29](1)
+  for i = 1, 2 connect dend[i](0), dend(0.5)
+  for i = 3, 7 connect dend[i](0), dend[i-1](1)
+  connect dend[8](0), dend[5](1)
+  connect dend[9](0), dend[3](1)
+  for i = 10, 11 connect dend[i](0), dend[i-1](1)
+  connect dend[12](0), dend[4](1)
+  connect dend[13](0), dend[6](1)
+  connect dend[14](0), dend[2](1)
+  for i = 15, 16 connect dend[i](0), dend[i-1](1)
+  connect dend[17](0), dend[10](1)
+  for i = 18, 19 connect dend[i](0), dend[17](1)
+  connect dend[20](0), dend[9](1)
+  connect dend[21](0), dend[20](1)
+  connect dend[22](0), dend[15](1)
+  connect dend[23](0), dend[22](1)
+  connect dend[24](0), dend[14](1)
+  connect dend[25](0), dend[24](1)
+  connect dend[26](0), dend[17](1)
+  connect dend[27](0), dend[20](1)
+  connect dend[28](0), dend[22](1)
+  connect dend[29](0), dend[24](1)
+  for i = 30, 31 connect dend[i](0), dend[29](1)
   basic_shape()
 }
 proc shape3d_1() {
-  dend_0 {pt3dclear()
+  dend {pt3dclear()
 	pt3dadd(15.77, 16.47, 23.76, 2.098)
 	pt3dadd(15.741, 16.204, 23.82, 2.2748)
 	pt3dadd(15.96, 16.2, 23.996, 2.233)
   }
-  dend_0[1] {pt3dclear()
+  dend[1] {pt3dclear()
 	pt3dstyle(1, 15.96, 16.2, 23.996)
 	pt3dadd(16.092, 16.068, 23.996, 2.1912)
 	pt3dadd(16.025, 15.737, 23.997, 2.1496)
   }
-  dend_0[2] {pt3dclear()
+  dend[2] {pt3dclear()
 	pt3dstyle(1, 15.96, 16.2, 23.996)
 	pt3dadd(16.024, 16.267, 23.558, 1.75372)
 	pt3dadd(15.84, 16.192, 23.39, 1.2653)
@@ -149,7 +147,7 @@ proc shape3d_1() {
 	pt3dadd(6.645, 23.701, 57.476, 7.2)
 	pt3dadd(7.017, 23.891, 57.976, 2.7314)
   }
-  dend_0[3] {pt3dclear()
+  dend[3] {pt3dclear()
 	pt3dadd(7.017, 23.891, 57.976, 2.7314)
 	pt3dadd(6.726, 23.998, 58.779, 2.5988)
 	pt3dadd(6.585, 24.192, 59.133, 2.6792)
@@ -159,7 +157,7 @@ proc shape3d_1() {
 	pt3dadd(5.876, 24.424, 61.038, 1.99036)
 	pt3dadd(6.06, 24.714, 61.596, 1.9401)
   }
-  dend_0[4] {pt3dclear()
+  dend[4] {pt3dclear()
 	pt3dadd(6.06, 24.714, 61.596, 1.9401)
 	pt3dadd(5.615, 24.619, 61.597, 1.88986)
 	pt3dadd(5.524, 25.106, 61.932, 1.61646)
@@ -184,20 +182,20 @@ proc shape3d_1() {
 	pt3dadd(4.601, 28.593, 62.025, 0.55684)
 	pt3dadd(4.503, 28.822, 61.931, 0.55742)
   }
-  dend_0[5] {pt3dclear()
+  dend[5] {pt3dclear()
 	pt3dadd(4.503, 28.822, 61.931, 0.55742)
 	pt3dadd(4.372, 29.06, 61.774, 1.02858)
 	pt3dadd(4.327, 29.228, 61.87, 0.77682)
 	pt3dadd(4.312, 29.374, 61.927, 0.84448)
 	pt3dadd(4.291, 29.441, 61.964, 0.88874)
   }
-  dend_0[6] {pt3dclear()
+  dend[6] {pt3dclear()
 	pt3dadd(4.291, 29.441, 61.964, 0.88874)
 	pt3dadd(4.079, 29.562, 62.669, 1.20032)
 	pt3dadd(4.089, 29.621, 62.676, 1.16198)
 	pt3dadd(4.394, 29.906, 62.378, 0.9666)
   }
-  dend_0[7] {pt3dclear()
+  dend[7] {pt3dclear()
 	pt3dadd(4.394, 29.906, 62.378, 0.9666)
 	pt3dadd(4.345, 30.004, 62.098, 0.66)
 	pt3dadd(4.496, 30.348, 62.4, 0.396)
@@ -211,7 +209,7 @@ proc shape3d_1() {
 	pt3dadd(4.649, 31.658, 62.709, 0.396)
 	pt3dadd(4.584, 31.882, 63.45, 0.396)
   }
-  dend_0[8] {pt3dclear()
+  dend[8] {pt3dclear()
 	pt3dadd(4.291, 29.441, 61.964, 0.88874)
 	pt3dadd(4.315, 29.33, 62.113, 0.7028)
 	pt3dadd(4.195, 29.43, 62.355, 1.00958)
@@ -223,7 +221,7 @@ proc shape3d_1() {
 	pt3dadd(5.675, 30.236, 62.731, 0.396)
 	pt3dadd(5.693, 30.25, 62.832, 0.396)
   }
-  dend_0[9] {pt3dclear()
+  dend[9] {pt3dclear()
 	pt3dadd(6.06, 24.714, 61.596, 1.9401)
 	pt3dadd(5.912, 24.376, 61.371, 2.0576)
 	pt3dadd(5.695, 24.579, 61.516, 2.3414)
@@ -238,7 +236,7 @@ proc shape3d_1() {
 	pt3dadd(3.741, 24.517, 62.123, 0.99084)
 	pt3dadd(3.646, 24.487, 61.994, 0.93972)
   }
-  dend_0[10] {pt3dclear()
+  dend[10] {pt3dclear()
 	pt3dadd(3.646, 24.487, 61.994, 0.93972)
 	pt3dadd(3.225, 24.515, 61.913, 0.396)
 	pt3dadd(3.154, 24.478, 61.906, 0.38106)
@@ -260,7 +258,7 @@ proc shape3d_1() {
   }
 }
 proc shape3d_2() {
-  dend_0[10] {	pt3dadd(1.567, 24.486, 62.103, 0.396)
+  dend[10] {	pt3dadd(1.567, 24.486, 62.103, 0.396)
 	pt3dadd(1.177, 24.704, 62.061, 0.49656)
 	pt3dadd(0.973, 24.868, 62.333, 0.65166)
 	pt3dadd(0.897, 24.951, 62.364, 0.58768)
@@ -280,11 +278,11 @@ proc shape3d_2() {
 	pt3dadd(-0.551, 26.595, 62.884, 0.35248)
 	pt3dadd(-0.677, 26.837, 63.423, 0.52202)
   }
-  dend_0[11] {pt3dclear()
+  dend[11] {pt3dclear()
 	pt3dadd(-0.677, 26.837, 63.423, 0.52202)
 	pt3dadd(0.057, 27.985, 64.03, 0.69156)
   }
-  dend_0[12] {pt3dclear()
+  dend[12] {pt3dclear()
 	pt3dadd(4.503, 28.822, 61.931, 0.55742)
 	pt3dadd(4.357, 29.151, 61.779, 0.86112)
 	pt3dadd(4.32, 29.425, 61.843, 0.81316)
@@ -294,7 +292,7 @@ proc shape3d_2() {
 	pt3dadd(3.772, 28.742, 62.796, 0.87352)
 	pt3dadd(4.76, 31.28, 62.475, 0.79576)
   }
-  dend_0[13] {pt3dclear()
+  dend[13] {pt3dclear()
 	pt3dadd(4.394, 29.906, 62.378, 0.9666)
 	pt3dadd(4.41, 30.126, 62.396, 0.718)
 	pt3dadd(4.403, 30.153, 62.295, 0.64024)
@@ -306,7 +304,7 @@ proc shape3d_2() {
 	pt3dadd(3.425, 29.557, 62.911, 0.3965)
 	pt3dadd(3.372, 29.554, 63.282, 0.27728)
   }
-  dend_0[14] {pt3dclear()
+  dend[14] {pt3dclear()
 	pt3dadd(7.017, 23.891, 57.976, 2.7314)
 	pt3dadd(7.128, 23.781, 57.628, 2.6308)
 	pt3dadd(7.142, 23.896, 57.601, 2.6448)
@@ -342,7 +340,7 @@ proc shape3d_2() {
 	pt3dadd(11.915, 26.733, 61.633, 1.3884)
 	pt3dadd(12.085, 26.577, 62.015, 1.53778)
   }
-  dend_0[15] {pt3dclear()
+  dend[15] {pt3dclear()
 	pt3dadd(12.085, 26.577, 62.015, 1.53778)
 	pt3dadd(12.062, 26.652, 62.424, 1.58468)
 	pt3dadd(12.068, 26.659, 62.834, 1.63126)
@@ -365,7 +363,7 @@ proc shape3d_2() {
 	pt3dadd(14.812, 26.82, 65.119, 0.42446)
 	pt3dadd(14.911, 26.784, 65.104, 0.50572)
   }
-  dend_0[16] {pt3dclear()
+  dend[16] {pt3dclear()
 	pt3dadd(14.911, 26.784, 65.104, 0.50572)
 	pt3dadd(15.106, 26.785, 65.1, 0.53804)
 	pt3dadd(15.17, 26.81, 65.085, 0.396)
@@ -394,11 +392,11 @@ proc shape3d_2() {
 	pt3dadd(19.419, 27.109, 64.738, 0.54932)
 	pt3dadd(19.458, 27.13, 64.749, 0.51284)
   }
-  dend_0[17] {pt3dclear()
+  dend[17] {pt3dclear()
 	pt3dadd(-0.677, 26.837, 63.423, 0.52202)
 	pt3dadd(-0.55, 26.482, 63.19, 0.47636)
   }
-  dend_0[18] {pt3dclear()
+  dend[18] {pt3dclear()
 	pt3dadd(-0.55, 26.482, 63.19, 0.47636)
 	pt3dadd(-0.614, 26.424, 63.187, 0.396)
 	pt3dadd(-0.963, 26.119, 63.097, 0.3362)
@@ -408,17 +406,17 @@ proc shape3d_2() {
 	pt3dadd(-1.221, 25.725, 63.318, 0.31272)
 	pt3dadd(-1.341, 25.663, 63.567, 0.30938)
   }
-  dend_0[19] {pt3dclear()
+  dend[19] {pt3dclear()
 	pt3dadd(-0.55, 26.482, 63.19, 0.47636)
 	pt3dadd(-0.769, 26.891, 63.413, 0.66)
   }
-  dend_0[20] {pt3dclear()
+  dend[20] {pt3dclear()
 	pt3dadd(3.646, 24.487, 61.994, 0.93972)
 	pt3dadd(3.684, 24.648, 61.996, 0.81806)
 	pt3dadd(3.914, 24.624, 61.933, 0.97612)
 	pt3dadd(3.876, 24.605, 62.097, 1.00826)
   }
-  dend_0[21] {pt3dclear()
+  dend[21] {pt3dclear()
 	pt3dadd(3.876, 24.605, 62.097, 1.00826)
 	pt3dadd(4.066, 24.655, 62.53, 1.232)
 	pt3dadd(4.299, 24.399, 63.274, 0.90544)
@@ -476,22 +474,22 @@ proc shape3d_2() {
 	pt3dadd(12.363, 19.653, 65.348, 0.57492)
 	pt3dadd(12.615, 19.411, 65.436, 0.60014)
   }
-  dend_0[22] {pt3dclear()
+  dend[22] {pt3dclear()
 	pt3dadd(14.911, 26.784, 65.104, 0.50572)
 	pt3dadd(14.757, 26.744, 65.013, 0.57296)
 	pt3dadd(14.55, 27.34, 65.212, 1.05362)
   }
-  dend_0[23] {pt3dclear()
+  dend[23] {pt3dclear()
 	pt3dadd(14.55, 27.34, 65.212, 1.05362)
 	pt3dadd(14.349, 27.764, 65.206, 1.53426)
   }
-  dend_0[24] {pt3dclear()
+  dend[24] {pt3dclear()
 	pt3dadd(12.085, 26.577, 62.015, 1.53778)
 	pt3dadd(12.092, 26.539, 62.286, 2.015)
   }
 }
 proc shape3d_3() {
-  dend_0[24] {	pt3dadd(12.203, 26.376, 61.748, 1.7479)
+  dend[24] {	pt3dadd(12.203, 26.376, 61.748, 1.7479)
 	pt3dadd(12.565, 26.127, 61.698, 1.19378)
 	pt3dadd(12.73, 26.014, 61.895, 0.91672)
 	pt3dadd(12.803, 25.851, 61.884, 0.63964)
@@ -532,7 +530,7 @@ proc shape3d_3() {
 	pt3dadd(16.822, 24.054, 63.965, 0.46226)
 	pt3dadd(17.061, 23.965, 63.945, 0.47196)
   }
-  dend_0[25] {pt3dclear()
+  dend[25] {pt3dclear()
 	pt3dadd(17.061, 23.965, 63.945, 0.47196)
 	pt3dadd(17.169, 23.988, 64.305, 0.64288)
 	pt3dadd(17.16, 24.062, 64.56, 0.51976)
@@ -551,26 +549,26 @@ proc shape3d_3() {
 	pt3dadd(20.071, 23.921, 64.416, 0.396)
 	pt3dadd(20.187, 23.992, 64.411, 0.29204)
   }
-  dend_0[26] {pt3dclear()
+  dend[26] {pt3dclear()
 	pt3dadd(-0.55, 26.482, 63.19, 0.47636)
 	pt3dadd(-0.589, 26.541, 63.089, 0.343)
 	pt3dadd(-0.909, 26.981, 63.296, 0.39394)
   }
-  dend_0[27] {pt3dclear()
+  dend[27] {pt3dclear()
 	pt3dadd(3.876, 24.605, 62.097, 1.00826)
 	pt3dadd(3.905, 24.539, 62.018, 1.02662)
 	pt3dadd(3.948, 24.615, 62.729, 1.10118)
   }
-  dend_0[28] {pt3dclear()
+  dend[28] {pt3dclear()
 	pt3dadd(14.55, 27.34, 65.212, 1.05362)
 	pt3dadd(14.794, 27.08, 65.196, 0.92438)
 	pt3dadd(14.421, 26.717, 65.455, 0.74758)
   }
-  dend_0[29] {pt3dclear()
+  dend[29] {pt3dclear()
 	pt3dadd(17.061, 23.965, 63.945, 0.47196)
 	pt3dadd(16.954, 23.998, 63.98, 0.48052)
   }
-  dend_0[30] {pt3dclear()
+  dend[30] {pt3dclear()
 	pt3dadd(16.954, 23.998, 63.98, 0.48052)
 	pt3dadd(17.049, 24.125, 64.786, 0.27254)
 	pt3dadd(17.054, 24.143, 64.811, 0.33428)
@@ -590,7 +588,7 @@ proc shape3d_3() {
 	pt3dadd(18.451, 26.058, 65.93, 0.5229)
 	pt3dadd(18.447, 26.073, 66.032, 0.52136)
   }
-  dend_0[31] {pt3dclear()
+  dend[31] {pt3dclear()
 	pt3dadd(16.954, 23.998, 63.98, 0.48052)
 	pt3dadd(16.927, 23.983, 63.924, 0.396)
   }
@@ -601,35 +599,26 @@ proc basic_shape() {
   shape3d_3()
 }
 
-objref all, dendritic_0
+objref all, dendritic
 proc subsets() { local i
-  objref all, dendritic_0
+  objref all, dendritic
   all = new SectionList()
-    for i=0, 31 dend_0[i] all.append()
+    for i=0, 31 dend[i] all.append()
 
-  dendritic_0 = new SectionList()
-    for i=0, 31 dend_0[i] dendritic_0.append()
+  dendritic = new SectionList()
+    for i=0, 31 dend[i] dendritic.append()
+}
 
-}
-proc geom() {
-  forsec all {  }
-}
 proc geom_nseg() {
-  forsec all { nseg = int((L/(0.1*lambda_f(100))+.999)/2)*2 + 1  }
-}
-proc biophys() {
-  forsec all {
-    Ra = 130
-    cm = 1.1
-    insert pas
-      g_pas = 4.17e-005
-      e_pas = -60
-  }
+  forsec all {nseg = int((L/(0.1*lambda_f(100))+.999)/2)*2 + 1 }
 }
 
-func lambda_f() { local i, x1, x2, d1, d2, lam
+func lambda_f() {local i, x1, x2, d1, d2, lam, axialR, capacitance
+        axialR = 132
+        capacitance = 1.18
+
         if (n3d() < 2) {
-                return 1e5*sqrt(diam/(4*PI*$1*Ra*cm))
+                return 1e-5*sqrt(diam/(4*PI*$1*axialR*capacitance))
         }
 
         x1 = arc3d(0)
@@ -642,10 +631,11 @@ func lambda_f() { local i, x1, x2, d1, d2, lam
                 x1 = x2   d1 = d2
         }
         //  length of the section in units of lambda
-        lam *= sqrt(2) * 1e-5*sqrt(4*PI*$1*Ra*cm)
+        lam *= sqrt(2) * 1e-5*sqrt(4*PI*$1*axialR*capacitance)
 
         return L/lam
 }
-access dend_0
+
+access dend
 
 celldef()

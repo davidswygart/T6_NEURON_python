@@ -12,11 +12,10 @@ class Type6_Model():
         self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
         self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.excSyn)
-        self.insertChannels()
+        self.biophys()
         self.setRecordingPoints()
-        self.channelAdjustment()
         if self.settings.DoVClamp:
-            self.placeVoltageClamp(h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
+            self.placeVoltageClamp(h.dend[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
 
     def addSynapses(self, LocationFile, settings):
         """Add synapses to the locations specified in LocationFile"""
@@ -33,24 +32,21 @@ class Type6_Model():
         """Load morphology information from pre-created hoc files"""
         print('....loading morphology')
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
-        h.load_file( "morphology/dendriteMorph.hoc") #Load axon morphology (created in Cell Builder)
-        h.dend_0[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
+        h.load_file( "morphology/dendriteMorph.hoc") #Load dendrite morphology (created in Cell Builder)
+        h.dend[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together       
     
 
-    def insertChannels(self):
-        """Insert active channels"""
-        print('....inserting channels')
+    def biophys(self):
+        """Insert active channels and set cell biophysics"""
+        print('....inserting channels and setting cell biophysics')
         for sec in h.allsec():
             sec.insert('pas')
             sec.insert('hcn2')
             sec.insert('Kv1_2')
             sec.insert('Kv1_3')
             sec.insert('Ca')
-            #sec.insert('Cad')
-            sec.insert('gapJ')
-            # insert gapJunction
-            # gmax_gapJunction = 1
-            # e_gapJunction = -35
+            sec.insert('Cad')
+
 
 
     def channelAdjustment(self):
@@ -69,14 +65,14 @@ class Type6_Model():
                 seg.Kv1_2.gKv1_2bar = self.settings.Kv1_2_gpeak
                 seg.Kv1_3.gKv1_3bar = self.settings.Kv1_3_gpeak
 
-                seg.Ca.gCabar = 0
-                seg.gapJ.g = 0
 
-        for [sec, d] in self.recordings['ribLocations']:
-            if d == 1: d = .99
-            if d == 0: d = .01
-            sec(d).Ca.gCabar = self.settings.Cav_L_gpeak
-            sec(d).gapJ.g = self.settings.gapJunction_gmax
+        #Calcium only has conductance in axons
+        for sec in h.axon:
+            for seg in sec:
+                seg.Ca.gCabar = self.settings.Cav_L_gpeak
+        for sec in h.dend:
+            for seg in sec:
+                seg.Ca.gCabar = 0 
 
 
     def setRecordingPoints(self):
@@ -150,9 +146,7 @@ class Type6_Model():
         h.load_file('stdrun.hoc')
         h.load_file('stdrun.hoc')
         h.continuerun(self.settings.tstop)
-        self.recordings['time'] = np.linspace(0, self.settings.tstop, len(self.recordings['segV'][252]))
-        #for key in self.recordings.keys():
-         #   self.recordings[key] = np.array(self.recordings[key])
+        self.recordings['time'] = np.linspace(0, self.settings.tstop, len(self.recordings['segV'][0]))
 
     def update(self):
         """Update Settings"""
@@ -160,7 +154,7 @@ class Type6_Model():
         self.channelAdjustment()
 
         if self.settings.DoVClamp:
-            self.placeVoltageClamp(h.dend_0[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
+            self.placeVoltageClamp(h.dend[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
 
         print('....updating synapse values')
         for syn in self.inhSyns:
