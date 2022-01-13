@@ -9,36 +9,65 @@ class Type6_Model():
     def __init__(self):
         """Build the model cell."""
         self.settings = Settings()
-        self.loadMorphology()
+        self.secs = self.loadMorphology()
+        self.pnt3D = self.listXYZ()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
         self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.excSyn)
+        self.ribbons = 1
         self.biophys()
         self.setRecordingPoints()
-        if self.settings.DoVClamp:
-            self.placeVoltageClamp(h.dend[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
+        # if self.settings.DoVClamp:
+        #     self.placeVoltageClamp(h.dend[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
 
+    def listXYZ(self):
+        XYZ = []
+        secRef = []
+        segRef = []
+        
+        for sec in self.secs:
+            for i in range(sec.n3d()):
+                XYZ.append([sec.x3d(i), sec.y3d(i), sec.z3d(i)])
+                secRef.append(sec)
+                segRef.append(sec(sec.arc3d(i)/sec.L))
+        
+        from collections import namedtuple        
+        XYZStruct = namedtuple("XYZStruct", "XYZ sec seg")
+        
+        return XYZStruct(XYZ, secRef, segRef)
+                
+        
+        
     def addSynapses(self, LocationFile, settings):
         """Add synapses to the locations specified in LocationFile"""
         print('....adding synapses: ', LocationFile)
         synapseList = []
         XYZ = f.readLocation(LocationFile)
         for Num in range(len(XYZ)):
-            [sec,D] = f.findSectionForLocation(h, XYZ[Num,:])
-            syn = Synapse(sec, D, settings, Num)
+            XYZ_ind = self.nearestPnt3D(XYZ[Num,:])
+            seg = self.pnt3D.seg[XYZ_ind]
+            syn = Synapse(seg, settings, XYZ_ind)
             synapseList.append(syn)
         return synapseList
 
+    def nearestPnt3D(self, xyz):
+        """A list of the closest section given a list of XYZ points"""
+        dif = np.array(self.pnt3D.XYZ) - np.array(xyz)
+        dists = np.sqrt(np.sum(np.square(dif), axis = 1))
+        return np.argmin(dists)
+            
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
         print('....loading morphology')
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.load_file( "morphology/dendriteMorph.hoc") #Load dendrite morphology (created in Cell Builder)
-        h.dend[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together       
+        h.dend[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
+        return list(h.allsec())
+        
     
 
     def biophys(self):
         """Insert active channels and set cell biophysics"""
-        print('....inserting channels and setting cell biophysics')
+        print('....inserting channels')
         for sec in h.allsec():
             sec.insert('pas')
             sec.insert('hcn2')
@@ -46,6 +75,7 @@ class Type6_Model():
             sec.insert('Kv1_3')
             sec.insert('Ca')
             sec.insert('Cad')
+        self.channelAdjustment()
 
 
 
@@ -98,7 +128,7 @@ class Type6_Model():
         for ribNum in range(len(XYZs)):
             [sec,D] = f.findSectionForLocation(h, XYZs[ribNum,:])
             self.recordings['ribLocations'].append([sec,D])
-            self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v ))
+            self.recordings['ribV'].append(h.Vector().record(sec(D)._ref_v))
             self.recordings['ribCai'].append(h.Vector().record(sec(D)._ref_Cai))
             self.recordings['ribIca'].append(h.Vector().record(sec(D)._ref_iCa))
             
