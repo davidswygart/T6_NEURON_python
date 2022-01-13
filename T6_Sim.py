@@ -9,51 +9,38 @@ class Type6_Model():
     def __init__(self):
         """Build the model cell."""
         self.settings = Settings()
-        self.secs = self.loadMorphology()
-        self.pnt3D = self.listXYZ()
+        self.pnt3D = self.loadMorphology()
         self.inhSyns = self.addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
         self.excSyns = self.addSynapses("morphology/InputRibbonLocations.txt", self.settings.excSyn)
-        self.ribbons = 1
+        self.ribbons = self.nearestPnt3D("morphology/RibbonLocations.txt")
+        self.soma = np.argmax(self.pnt3D.diam)
         self.biophys()
         self.setRecordingPoints()
-        # if self.settings.DoVClamp:
-        #     self.placeVoltageClamp(h.dend[2], .9) #Place voltage clamp at the soma (as defined by widest segment)
-
-    def listXYZ(self):
-        XYZ = []
-        secRef = []
-        segRef = []
-        
-        for sec in self.secs:
-            for i in range(sec.n3d()):
-                XYZ.append([sec.x3d(i), sec.y3d(i), sec.z3d(i)])
-                secRef.append(sec)
-                segRef.append(sec(sec.arc3d(i)/sec.L))
-        
-        from collections import namedtuple        
-        XYZStruct = namedtuple("XYZStruct", "XYZ sec seg")
-        
-        return XYZStruct(XYZ, secRef, segRef)
-                
+        if self.settings.DoVClamp:
+            self.placeVoltageClamp(self.pnt3D.seg[self.soma]) #Place voltage clamp at the soma (as defined by widest segment)
         
         
     def addSynapses(self, LocationFile, settings):
         """Add synapses to the locations specified in LocationFile"""
         print('....adding synapses: ', LocationFile)
+        iList = self.nearestPnt3D(LocationFile)   
         synapseList = []
-        XYZ = f.readLocation(LocationFile)
-        for Num in range(len(XYZ)):
-            XYZ_ind = self.nearestPnt3D(XYZ[Num,:])
-            seg = self.pnt3D.seg[XYZ_ind]
-            syn = Synapse(seg, settings, XYZ_ind)
+        for i in iList:
+            seg = self.pnt3D.seg[i]
+            syn = Synapse(seg, settings, i)
             synapseList.append(syn)
         return synapseList
 
-    def nearestPnt3D(self, xyz):
+    def nearestPnt3D(self, LocationFile):
         """A list of the closest section given a list of XYZ points"""
-        dif = np.array(self.pnt3D.XYZ) - np.array(xyz)
-        dists = np.sqrt(np.sum(np.square(dif), axis = 1))
-        return np.argmin(dists)
+        locList = f.readLocation(LocationFile)
+        iList = []
+        for Num in range(len(locList)):
+            xyz = locList[Num,:]
+            dif = np.array(self.pnt3D.XYZ) - np.array(xyz)
+            dists = np.sqrt(np.sum(np.square(dif), axis = 1))
+            iList.append(np.argmin(dists))
+        return iList
             
     def loadMorphology(self):
         """Load morphology information from pre-created hoc files"""
@@ -61,7 +48,25 @@ class Type6_Model():
         h.load_file( "morphology/axonMorph.hoc") #Load axon morphology (created in Cell Builder)
         h.load_file( "morphology/dendriteMorph.hoc") #Load dendrite morphology (created in Cell Builder)
         h.dend[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
-        return list(h.allsec())
+        
+        
+        XYZ = []
+        diam = []
+        secRef = []
+        segRef = []
+        
+        for sec in h.allsec():
+            for i in range(sec.n3d()):
+                XYZ.append([sec.x3d(i), sec.y3d(i), sec.z3d(i)])
+                diam.append(sec.diam3d(i))
+                secRef.append(sec)
+                segRef.append(sec(sec.arc3d(i)/sec.L))
+        
+        from collections import namedtuple        
+        XYZStruct = namedtuple("XYZStruct", "XYZ diam sec seg")
+        
+        return XYZStruct(XYZ, diam, secRef, segRef)
+
         
     
 
@@ -148,11 +153,11 @@ class Type6_Model():
                 self.recordings['segCai'].append(h.Vector().record(sec(D)._ref_Cai))
                 self.recordings['segIca'].append(h.Vector().record(sec(D)._ref_iCa))
 
-    def placeVoltageClamp(self, sec, D):
+    def placeVoltageClamp(self, seg):
         """Put a voltage clamp at a specific location"""
         print('....adding a voltage clamp electrode')
         self.settings.v_init = self.settings.Hold1
-        self.vClamp = h.SEClamp(sec(D))
+        self.vClamp = h.SEClamp(seg)
         self.vClamp.dur1  = self.settings.ChangeClamp
         self.vClamp.dur2  = self.settings.tstop - self.settings.ChangeClamp
         self.vClamp.amp1  = self.settings.Hold1
