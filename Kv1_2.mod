@@ -8,7 +8,7 @@
 NEURON	{
 	SUFFIX Kv1_2
 	USEION k READ ek WRITE ik
-	RANGE gKv1_2bar, gKv1_2, ik
+	RANGE gMax, gKv1_2, ik
 }
 
 UNITS	{
@@ -19,7 +19,7 @@ UNITS	{
 }
 
 PARAMETER	{
-	gKv1_2bar = 0.1 (pS/um2) <0,1e9>
+	gMax = 0.1 (pS/um2) <0,1e9>
 
 	:Activation
 	a = 1 (/ms) :opening rate of activation (doesn't use voltage to calculate)
@@ -57,7 +57,7 @@ STATE	{
 
 BREAKPOINT	{
 	SOLVE states METHOD cnexp
-	gKv1_2 = gKv1_2bar*m*h
+	gKv1_2 = gMax*m*h
 	ik = gKv1_2*(v-ek) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
 }
 

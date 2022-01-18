@@ -8,7 +8,6 @@ extern void _Cad_reg();
 extern void _HCN2r_reg();
 extern void _Kv1_2_reg();
 extern void _biSyn_reg();
-extern void _gapJ_reg();
 extern void _kv1_3_reg();
 
 void modl_reg(){
@@ -21,7 +20,6 @@ fprintf(stderr," Cad.mod");
 fprintf(stderr," HCN2r.mod");
 fprintf(stderr," Kv1_2.mod");
 fprintf(stderr," biSyn.mod");
-fprintf(stderr," gapJ.mod");
 fprintf(stderr," kv1_3.mod");
 fprintf(stderr, "\n");
     }
@@ -30,6 +28,5 @@ _Cad_reg();
 _HCN2r_reg();
 _Kv1_2_reg();
 _biSyn_reg();
-_gapJ_reg();
 _kv1_3_reg();
 }

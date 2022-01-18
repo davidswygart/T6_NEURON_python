@@ -45,7 +45,7 @@ extern double hoc_Exp(double);
  
 #define t _nt->_t
 #define dt _nt->_dt
-#define gKv1_3bar _p[0]
+#define gMax _p[0]
 #define ik _p[1]
 #define gKv1_3 _p[2]
 #define m _p[3]
@@ -136,7 +136,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  double widthB = -10.3;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
- "gKv1_3bar_Kv1_3", 0, 1e+09,
+ "gMax_Kv1_3", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
@@ -150,7 +150,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "vHalfD_Kv1_3", "mV",
  "widthD_Kv1_3", "mV",
  "hTauMult_Kv1_3", "ms/mV",
- "gKv1_3bar_Kv1_3", "pS/um2",
+ "gMax_Kv1_3", "pS/um2",
  "ik_Kv1_3", "mA/cm2",
  "gKv1_3_Kv1_3", "pS/um2",
  0,0
@@ -193,7 +193,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static const char *_mechanism[] = {
  "7.7.0",
 "Kv1_3",
- "gKv1_3bar_Kv1_3",
+ "gMax_Kv1_3",
  0,
  "ik_Kv1_3",
  "gKv1_3_Kv1_3",
@@ -211,7 +211,7 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 14, _prop);
  	/*initialize range parameters*/
- 	gKv1_3bar = 0.1;
+ 	gMax = 0.1;
  	_prop->param = _p;
  	_prop->param_size = 14;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
@@ -417,7 +417,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
-   gKv1_3 = gKv1_3bar * m * h ;
+   gKv1_3 = gMax * m * h ;
    ik = gKv1_3 * ( v - ek ) * ( 1e-12 ) * ( 1e+08 ) ;
    }
  _current += ik;
@@ -546,7 +546,7 @@ static const char* nmodl_file_text =
   "NEURON	{\n"
   "	SUFFIX Kv1_3\n"
   "	USEION k READ ek WRITE ik\n"
-  "	RANGE gKv1_3bar, gKv1_3, ik\n"
+  "	RANGE gMax, gKv1_3, ik\n"
   "}\n"
   "\n"
   "UNITS	{\n"
@@ -557,7 +557,7 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "PARAMETER	{\n"
-  "	gKv1_3bar = 0.1 (pS/um2) <0,1e9>\n"
+  "	gMax = 0.1 (pS/um2) <0,1e9>\n"
   "\n"
   "\n"
   "	:Activation\n"
@@ -593,7 +593,7 @@ static const char* nmodl_file_text =
   "\n"
   "BREAKPOINT	{\n"
   "	SOLVE states METHOD cnexp\n"
-  "	gKv1_3 = gKv1_3bar*m*h\n"
+  "	gKv1_3 = gMax*m*h\n"
   "	ik = gKv1_3*(v-ek) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
   "}\n"
   "\n"

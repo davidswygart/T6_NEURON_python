@@ -45,7 +45,7 @@ extern double hoc_Exp(double);
  
 #define t _nt->_t
 #define dt _nt->_dt
-#define gpeak _p[0]
+#define gMax _p[0]
 #define vhakt _p[1]
 #define a0t _p[2]
 #define i _p[3]
@@ -135,7 +135,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  double zetat = 1.5;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
- "gpeak_hcn2", 0, 1e+09,
+ "gMax_hcn2", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
@@ -147,7 +147,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "temp_hcn2", "degC",
  "q10_hcn2", "1",
  "qtl_hcn2", "1",
- "gpeak_hcn2", "pS/um2",
+ "gMax_hcn2", "pS/um2",
  "vhakt_hcn2", "mV",
  "a0t_hcn2", "/ms",
  "i_hcn2", "mA/cm2",
@@ -188,7 +188,7 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  static const char *_mechanism[] = {
  "7.7.0",
 "hcn2",
- "gpeak_hcn2",
+ "gMax_hcn2",
  "vhakt_hcn2",
  "a0t_hcn2",
  0,
@@ -205,7 +205,7 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 11, _prop);
  	/*initialize range parameters*/
- 	gpeak = 1.5;
+ 	gMax = 1.5;
  	vhakt = -93.6;
  	a0t = 0.00372;
  	_prop->param = _p;
@@ -410,7 +410,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
-   ghd = gpeak * l ;
+   ghd = gMax * l ;
    i = ghd * ( v - Vrev ) * ( 1e-12 ) * ( 1e+08 ) ;
    }
  _current += i;
@@ -533,7 +533,7 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "PARAMETER {\n"
-  "	gpeak = 1.5	(pS/um2) <0,1e9>\n"
+  "	gMax = 1.5	(pS/um2) <0,1e9>\n"
   "	v 		(mV)\n"
   "	Vrev  = -40	(mV)\n"
   "\n"
@@ -556,7 +556,7 @@ static const char* nmodl_file_text =
   "NEURON {\n"
   "	SUFFIX hcn2\n"
   "	NONSPECIFIC_CURRENT i\n"
-  "    	RANGE gpeak, vhakt, a0t\n"
+  "    	RANGE gMax, vhakt, a0t\n"
   "}\n"
   "\n"
   "STATE {\n"
@@ -578,7 +578,7 @@ static const char* nmodl_file_text =
   "\n"
   "BREAKPOINT {\n"
   "	SOLVE states METHOD cnexp\n"
-  "	ghd = gpeak*l\n"
+  "	ghd = gMax*l\n"
   "	i = ghd*(v-Vrev) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
   "\n"
   "}\n"

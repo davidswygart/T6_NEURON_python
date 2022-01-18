@@ -9,7 +9,7 @@ UNITS {
 }
 
 PARAMETER {
-	gpeak = 1.5	(pS/um2) <0,1e9>
+	gMax = 1.5	(pS/um2) <0,1e9>
 	v 		(mV)
 	Vrev  = -40	(mV)
 
@@ -32,7 +32,7 @@ PARAMETER {
 NEURON {
 	SUFFIX hcn2
 	NONSPECIFIC_CURRENT i
-    	RANGE gpeak, vhakt, a0t
+    	RANGE gMax, vhakt, a0t
 }
 
 STATE {
@@ -54,7 +54,7 @@ INITIAL {
 
 BREAKPOINT {
 	SOLVE states METHOD cnexp
-	ghd = gpeak*l
+	ghd = gMax*l
 	i = ghd*(v-Vrev) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
 
 }

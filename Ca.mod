@@ -6,7 +6,7 @@ NEURON
 	SUFFIX Ca
 
 	USEION Ca WRITE iCa VALENCE 2
-        RANGE gCabar,VhalfCam,SCam
+        RANGE gMax,VhalfCam,SCam
         RANGE VhalfCah,SCah
         RANGE eCa,aomCa,bomCa
         RANGE gammaohCa,deltaohCa
@@ -23,7 +23,7 @@ UNITS
 PARAMETER
 {
        : Calcium channel
-			 gCabar = 4  (pS/um2) <0,1e9>
+			 gMax = 4  (pS/um2) <0,1e9>
        eCa =  40 (mV)
 
 			 : Activation
@@ -82,7 +82,7 @@ INITIAL
 BREAKPOINT
 {
 	SOLVE states METHOD cnexp
-	gCa = gCabar*mCa*hCa
+	gCa = gMax*mCa*hCa
 	iCa = gCa*(v - eCa) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
 }
 
