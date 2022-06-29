@@ -18,3 +18,7 @@ results/highRa/baseribCai.txt
 results/highRa/baseinhV.txt
 results/highRa/baseinhIca.txt
 results/highRa/baseinhCai.txt
+*.txt
+results/passive/v.txt
+results/CaIV/Voltages.txt
+results/CaIV/Currents.txt

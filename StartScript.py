@@ -17,10 +17,11 @@ import matplotlib.pyplot as plt
 #%% record distances between recording locations
 T6 = Type6_Model()
 
-ribs = T6.ribbons.seg
-inh = T6.inhSyns.seg
-inh2Rib = calcDistances(inh,ribs)
-np.savetxt('results\\distances\\inh2ribDist.txt', inh2Rib)
+
+np.savetxt('results\\distances\\inh2ribDist.txt', calcDistances(T6.inhSyns.seg,T6.ribbons.seg))
+np.savetxt('results\\distances\\soma2ribDist.txt', calcDistances([T6.soma.seg],T6.ribbons.seg))
+np.savetxt('results\\distances\\soma2inhDist.txt', calcDistances([T6.soma.seg],T6.inhSyns.seg))
+
 
 rib_secNum = np.array(T6.ribbons.secNum)
 np.savetxt('results\\distances\\rib_secNum.txt',rib_secNum)
@@ -30,24 +31,23 @@ np.savetxt('results\\distances\\inh_secNum.txt',inh_secNum)
 #%% Passive model: tstop 200 ms
 
 T6 = Type6_Model()
-ex = Experiment(T6, 200, 32, -40)
+ex = Experiment(T6, 300, 32, -35)
 
-#%% set excitation so that average ribbon is -40 mV
-T6.settings.excSyn['gmax'] = 32 / 1000000
+#%% set excitation so that average ribbon is -35 mV
+T6.settings.excSyn['gmax'] = 4.18e-5
 T6.update()
 ex.run()
 makePlot(ex.time, ex.rec.v[T6.soma.secNum])
 ex.avgRibV()
 
 #%% set inhibition so that an individual inhibitory synapse (Vmax) is -45 mV
-ex.v_init = -50
-ex.tstop = 150
-v = ex.runSingleInh(0.787/1000, 0)
+ex.v_init = -45
+v = ex.runSingleInh(5.5e-4, 0)
 print('inhV = ', v)
 
 #%%
 #Run inhibition for each inh synapse and save data
-ex.LoopThoughInhibitorySynapses('results\\passive\\', 0.787/1000)
+ex.LoopThoughInhibitorySynapses('results\\passive\\', 5.5e-4)
 
 
 
@@ -149,16 +149,15 @@ np.savetxt('results\\CaIV\\Currents.txt', np.array(maxCurrent))
 
 #%% Run active model voltage drop
 T6 = Type6_Model()
-ex = Experiment(T6, 400, 32, -40)
+ex = Experiment(T6, 2000, 32, -35)
 
-#%%
+#%% set excitation so that average ribbon is -35 mV
 T6.settings.hcn2_gpeak = 0.38
 T6.settings.Kv1_2_gpeak = 5.6 
 T6.settings.Kv1_3_gpeak = 5.6
 T6.settings.Cav_L_gpeak = 1.6
 
-#set excitation so that average ribbon is -35 mV
-T6.settings.excSyn['gmax'] = 130 / 1000000
+T6.settings.excSyn['gmax'] = .215 / 1000
 T6.update()
 ex.run()
 makePlot(ex.time, ex.rec.v[T6.soma.secNum])
@@ -166,14 +165,46 @@ ex.avgRibV()
 
 
 #%% set inhibition so that an individual inhibitory synapse (Vmax) is -45 mV
-ex.v_init = -50
-ex.tstop = 300
-v = ex.runSingleInh(2.8/1000, 0)
+ex.v_init = -45
+v = ex.runSingleInh(2.05e-3, 0)
 print('inhV = ', v)
 
 #%%
 #Run inhibition for each inh synapse and save data
-ex.LoopThoughInhibitorySynapses('results\\active\\stim', 2.8/1000)
-ex.LoopThoughInhibitorySynapses('results\\active\\base',0)
+ex.LoopThoughInhibitorySynapses('results\\active\\', 2.05e-3)
 
+
+
+
+
+#%% get trace for figure
+T6 = Type6_Model()
+ex = Experiment(T6, 1500, 32, -43)
+
+#%% -43 to -35 to  -45
+ex.v_init = -43
+ex.tstop = 600
+T6.settings.hcn2_gpeak = 0.38
+T6.settings.Kv1_2_gpeak = 5.6 
+T6.settings.Kv1_3_gpeak = 5.6
+T6.settings.Cav_L_gpeak = 1.6
+
+T6.settings.excSyn['gmax'] = .215 / 1000
+T6.settings.excSyn['start'] = 200
+
+T6.settings.inhSyn['start'] = 400
+T6.update()
+
+for i in range(3): #turn on a few excitatory synapses to push resting membrane potential to -43 mV
+    T6.excSyns.syn[i].onset = 0
+
+v = ex.runSingleInh(2.05e-3, 9)
+
+inhTrace = np.array(ex.rec.v[T6.inhSyns.secNum[9]])
+excTrace = np.array(ex.rec.v[T6.ribbons.secNum[24]])
+time = (ex.time - 100) / 1000
+
+# inhibition at axon 67 or 43 (or even 42) --> T6.inhSyns.sec[92]
+#inh 17 = axon 98
+# ribbon at axon 36 such as --> T6.ribbons.sec[23]
 

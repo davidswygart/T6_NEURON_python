@@ -6,7 +6,7 @@ class Settings ():
         self.cm = 1.18                                                          # (uF/cm2)
         self.Ra = 132                                                           # Ohm-cm
         self.e_pas = -60                                                        #mV
-        self.g_pas =  41.6 / 1000000                                  #(S/cm2) -> (uS/e6) -> 24 kOhm cm2               
+        self.g_pas =  3.91e-5                                  #(S/cm2) -> (uS/e6) -> 25.6 kOhm cm2               
         
         # active conductances
         self.hcn2_gpeak =   0#  50 / 1000000                                      #(S/cm2) -> (uS/e6)

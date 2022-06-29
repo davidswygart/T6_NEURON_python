@@ -62,7 +62,7 @@ class Experiment():
         secNum = self.model.inhSyns.secNum[i]
         v = self.rec.v[secNum]
         makePlot(self.time, v) 
-        return v[-1]
+        return v
         
         
     def avgRibV(self):
@@ -72,7 +72,7 @@ class Experiment():
         soma2RibDist = calcDistances([self.model.soma.seg],self.model.ribbons.seg)
         plt.scatter(soma2RibDist, ribVs)
         print('average ribbon voltage = ', np.average(ribVs))
-        return np.average(ribVs)
+        return ribVs
         
         
     def LoopThoughInhibitorySynapses(self, name, newG):
