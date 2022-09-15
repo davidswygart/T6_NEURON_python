@@ -87,8 +87,6 @@ class Experiment():
         cai = np.array(self.rec.cai)
         cai_baseline = cai[:,-1]
         
-        
-        
         numRec = len(self.rec.v)
         inhSecNum = self.model.inhSyns.secNum
         numInh = len(inhSecNum)

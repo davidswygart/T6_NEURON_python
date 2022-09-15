@@ -43,7 +43,7 @@ ex.avgRibV()
 #%% set inhibition so that an individual inhibitory synapse (Vmax) is -45 mV
 ex.v_init = -45
 v = ex.runSingleInh(5.5e-4, 0)
-print('inhV = ', v)
+print('inhV = ', v[-1])
 
 #%%
 #Run inhibition for each inh synapse and save data
@@ -157,7 +157,7 @@ T6.settings.Kv1_2_gpeak = 5.6
 T6.settings.Kv1_3_gpeak = 5.6
 T6.settings.Cav_L_gpeak = 1.6
 
-T6.settings.excSyn['gmax'] = .215 / 1000
+T6.settings.excSyn['gmax'] = 2.15e-4
 T6.update()
 ex.run()
 makePlot(ex.time, ex.rec.v[T6.soma.secNum])
@@ -207,4 +207,13 @@ time = (ex.time - 100) / 1000
 # inhibition at axon 67 or 43 (or even 42) --> T6.inhSyns.sec[92]
 #inh 17 = axon 98
 # ribbon at axon 36 such as --> T6.ribbons.sec[23]
+
+
+#%% segment lengths
+allL = list()
+for s in h.allsec():
+    allL.append(s.L/s.nseg)
+    
+print(max(allL))
+print(np.average(allL))
 
