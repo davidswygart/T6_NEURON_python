@@ -211,7 +211,7 @@ static void nrn_alloc(Prop* _prop) {
 	double *_p; Datum *_ppvar;
  	_p = nrn_prop_data_alloc(_mechtype, 14, _prop);
  	/*initialize range parameters*/
- 	gMax = 0.1;
+ 	gMax = 0;
  	_prop->param = _p;
  	_prop->param_size = 14;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
@@ -557,7 +557,7 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "PARAMETER	{\n"
-  "	gMax = 0.1 (pS/um2) <0,1e9>\n"
+  "	gMax = 0 (pS/um2) <0,1e9>\n"
   "\n"
   "\n"
   "	:Activation\n"

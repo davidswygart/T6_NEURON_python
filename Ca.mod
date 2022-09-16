@@ -1,15 +1,17 @@
-: Rod  Photoreceptor Ca and Calcium  channel
-: Ref. Kourenny and  Liu 2002   ABME 30 : 1196-1203
-: Modification 2004-02-07
+: Bipolar cell Calcium  channel
+: original .Mod file from Kourenny and  Liu 2002   ABME 30 : 1196-1203
+: modified to fit data from Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.
+
 NEURON
 {
 	SUFFIX Ca
 
 	USEION Ca WRITE iCa VALENCE 2
-        RANGE gMax,VhalfCam,SCam
-        RANGE VhalfCah,SCah
-        RANGE eCa,aomCa,bomCa
-        RANGE gammaohCa,deltaohCa
+	RANGE gMax,VhalfCam,SCam
+	RANGE VhalfCah,SCah
+	RANGE eCa,aomCa,bomCa
+	RANGE gammaohCa,deltaohCa
+	RANGE mTauMult , hTauMult
 }
 
 UNITS
@@ -22,50 +24,40 @@ UNITS
 
 PARAMETER
 {
-       : Calcium channel
-			 gMax = 4  (pS/um2) <0,1e9>
-       eCa =  40 (mV)
+ 	gMax = 0  (pS/um2) <0,1e9>	:set in NEURON only for active model [Berntson, 2003]
+	eCa =  18 (mV)				:reversal potential for calcium [Berntson, 2003]
 
-			 : Activation
-       VhalfCam = -32 (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.
-			 SCam =  10    (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.
-			 aomCa = 50   (/s)  :opening rate multiplier
-			 bomCa = 50   (/s)  :closing rate multiplier
+	mTauMult = 1
+	hTauMult = 1
 
-			 : Deactivation
-			 VhalfCah = 10 (mV)
-			 SCah = 9     (mV)
-			 gammaohCa = 1 (/s) :opening rate multiplier
-			 deltaohCa = 1 (/s) :closing rate multiplier
+:Activation
+	VhalfCam = -32 (mV)		:half-max of activation: modified to match IV from Berntson, 2003
+	SCam =  10 (mV)			:slope of activation: modified to match IV from Berntson, 2003
+	aomCa = 0.05 (/ms)			:opening rate multiplier
+	bomCa = 0.05 (/ms)			:closing rate multiplier
+
+:Deactivation
+	VhalfCah = -10 (mV)		:half-max of inactivation: modified to match IV from Berntson, 2003
+	SCah = 12 (mV)			:slope of inactivation: modified to match IV from Berntson, 2003
+	gammaohCa = 0.001 (/ms)		:opening rate multiplier
+	deltaohCa = 0.001 (/ms)		:closing rate multiplier
 }
-
 
 STATE
 {
-
 	mCa
 	hCa
-
 }
 
 ASSIGNED
 {
 	gCa (pS/um2)
-
 	v (mV)
-
 	iCa (mA/cm2)
-
 	infmCa
 	taumCa  (ms)
-
-
-
 	infhCa
 	tauhCa (ms)
-
-
-
 }
 
 INITIAL
@@ -73,11 +65,7 @@ INITIAL
 	rate(v)
 	mCa = infmCa
 	hCa = infhCa
-
 }
-
-
-
 
 BREAKPOINT
 {
@@ -91,46 +79,39 @@ DERIVATIVE states
 	rate(v)
 	mCa' = (infmCa-mCa)/taumCa
 	hCa'= (infhCa-hCa)/tauhCa
-
-
 }
-
-
-
 
 FUNCTION alphamCa(v(mV))(/ms)
 {
-	alphamCa = (0.001)*aomCa*exp( (v - VhalfCam)/(2*SCam)   )
+	alphamCa = aomCa*exp((v - VhalfCam)/(2*SCam))
 }
 
 FUNCTION betamCa(v(mV))(/ms)
 {
-	betamCa = (0.001)*bomCa*exp( - ( v-VhalfCam)/(2*SCam) )
+	betamCa = bomCa*exp( - (v-VhalfCam)/(2*SCam))
 }
 FUNCTION gammahCa(v(mV))(/ms)
 {
-	gammahCa = (0.001)*gammaohCa*exp( (v - VhalfCah)/(2*SCah))
+	gammahCa = gammaohCa*exp( (v-VhalfCah)/(2*SCah))
 }
 
 FUNCTION deltahCa(v(mV))(/ms)
 {
-	deltahCa = (0.001)*deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )
+	deltahCa = deltaohCa*exp( - (v-VhalfCah)/(2*SCah))
 }
-
 
 PROCEDURE rate(v (mV))
 {
-        LOCAL a, b,c, d
-
+    LOCAL a, b,c, d
 
 	a = alphamCa(v)
 	b = betamCa(v)
-	taumCa = 1/(a + b)
+	taumCa = mTauMult* 1/(a + b)
 	infmCa = a/(a + b)
 
 	c = gammahCa(v)
 	d = deltahCa(v)
-	tauhCa = 1/(c + d)
+	tauhCa = hTauMult* 1/(c + d)
 	infhCa = d/(c + d)
-
+	
 }

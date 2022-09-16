@@ -46,19 +46,21 @@ extern double hoc_Exp(double);
 #define t _nt->_t
 #define dt _nt->_dt
 #define gMax _p[0]
-#define ik _p[1]
-#define gKv1_2 _p[2]
-#define m _p[3]
-#define h _p[4]
-#define ek _p[5]
-#define mInf _p[6]
-#define mTau _p[7]
-#define hInf _p[8]
-#define hTau _p[9]
-#define Dm _p[10]
-#define Dh _p[11]
-#define v _p[12]
-#define _g _p[13]
+#define mTauMult _p[1]
+#define hTauMult _p[2]
+#define ik _p[3]
+#define gKv1_2 _p[4]
+#define m _p[5]
+#define h _p[6]
+#define ek _p[7]
+#define mInf _p[8]
+#define mTau _p[9]
+#define hInf _p[10]
+#define hTau _p[11]
+#define Dm _p[12]
+#define Dh _p[13]
+#define v _p[14]
+#define _g _p[15]
 #define _ion_ek	*_ppvar[0]._pval
 #define _ion_ik	*_ppvar[1]._pval
 #define _ion_dikdv	*_ppvar[2]._pval
@@ -114,28 +116,24 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  0, 0
 };
  /* declare global and static user variables */
-#define a a_Kv1_2
- double a = 1;
-#define bMult bMult_Kv1_2
- double bMult = 1;
-#define c c_Kv1_2
- double c = 1;
-#define dMult dMult_Kv1_2
- double dMult = 1;
+#define hTauBase hTauBase_Kv1_2
+ double hTauBase = 7000;
 #define hTauVWidth hTauVWidth_Kv1_2
- double hTauVWidth = -44.1479;
+ double hTauVWidth = -44;
 #define hTauVHalf hTauVHalf_Kv1_2
- double hTauVHalf = -46.56;
+ double hTauVHalf = 47;
 #define hVWidth hVWidth_Kv1_2
- double hVWidth = 11.3943;
+ double hVWidth = -11;
 #define hVHalf hVHalf_Kv1_2
  double hVHalf = -22;
+#define mTauBase mTauBase_Kv1_2
+ double mTauBase = 75;
 #define mTauVWidth mTauVWidth_Kv1_2
- double mTauVWidth = 34.1479;
+ double mTauVWidth = 34;
 #define mTauVHalf mTauVHalf_Kv1_2
- double mTauVHalf = -67.56;
+ double mTauVHalf = 68;
 #define mVWidth mVWidth_Kv1_2
- double mVWidth = -11.3943;
+ double mVWidth = 11;
 #define mVHalf mVHalf_Kv1_2
  double mVHalf = -21;
  /* some parameters have upper and lower limits */
@@ -144,18 +142,16 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
- "a_Kv1_2", "/ms",
- "bMult_Kv1_2", "/ms",
  "mVHalf_Kv1_2", "mV",
  "mVWidth_Kv1_2", "mV",
  "mTauVHalf_Kv1_2", "mV",
  "mTauVWidth_Kv1_2", "mV",
- "c_Kv1_2", "/ms",
- "dMult_Kv1_2", "/ms",
+ "mTauBase_Kv1_2", "ms",
  "hVHalf_Kv1_2", "mV",
  "hVWidth_Kv1_2", "mV",
  "hTauVHalf_Kv1_2", "mV",
  "hTauVWidth_Kv1_2", "mV",
+ "hTauBase_Kv1_2", "ms",
  "gMax_Kv1_2", "pS/um2",
  "ik_Kv1_2", "mA/cm2",
  "gKv1_2_Kv1_2", "pS/um2",
@@ -166,18 +162,16 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  static double m0 = 0;
  /* connect global user variables to hoc */
  static DoubScal hoc_scdoub[] = {
- "a_Kv1_2", &a_Kv1_2,
- "bMult_Kv1_2", &bMult_Kv1_2,
  "mVHalf_Kv1_2", &mVHalf_Kv1_2,
  "mVWidth_Kv1_2", &mVWidth_Kv1_2,
  "mTauVHalf_Kv1_2", &mTauVHalf_Kv1_2,
  "mTauVWidth_Kv1_2", &mTauVWidth_Kv1_2,
- "c_Kv1_2", &c_Kv1_2,
- "dMult_Kv1_2", &dMult_Kv1_2,
+ "mTauBase_Kv1_2", &mTauBase_Kv1_2,
  "hVHalf_Kv1_2", &hVHalf_Kv1_2,
  "hVWidth_Kv1_2", &hVWidth_Kv1_2,
  "hTauVHalf_Kv1_2", &hTauVHalf_Kv1_2,
  "hTauVWidth_Kv1_2", &hTauVWidth_Kv1_2,
+ "hTauBase_Kv1_2", &hTauBase_Kv1_2,
  0,0
 };
  static DoubVec hoc_vdoub[] = {
@@ -202,6 +196,8 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  "7.7.0",
 "Kv1_2",
  "gMax_Kv1_2",
+ "mTauMult_Kv1_2",
+ "hTauMult_Kv1_2",
  0,
  "ik_Kv1_2",
  "gKv1_2_Kv1_2",
@@ -217,11 +213,13 @@ extern Prop* need_memb(Symbol*);
 static void nrn_alloc(Prop* _prop) {
 	Prop *prop_ion;
 	double *_p; Datum *_ppvar;
- 	_p = nrn_prop_data_alloc(_mechtype, 14, _prop);
+ 	_p = nrn_prop_data_alloc(_mechtype, 16, _prop);
  	/*initialize range parameters*/
- 	gMax = 0.1;
+ 	gMax = 0;
+ 	mTauMult = 1;
+ 	hTauMult = 1;
  	_prop->param = _p;
- 	_prop->param_size = 14;
+ 	_prop->param_size = 16;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
  	_prop->dparam = _ppvar;
  	/*connect ionic variables to this model*/
@@ -258,7 +256,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
-  hoc_register_prop_size(_mechtype, 14, 4);
+  hoc_register_prop_size(_mechtype, 16, 4);
   hoc_register_dparam_semantics(_mechtype, 0, "k_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "k_ion");
   hoc_register_dparam_semantics(_mechtype, 2, "k_ion");
@@ -308,10 +306,10 @@ static int _ode_spec1(_threadargsproto_);
 }
  
 static int  rates ( _threadargsproto_ ) {
-   mInf = a / ( a + bMult * exp ( ( v - mVHalf ) / mVWidth ) ) ;
-   mTau = 150.0 / ( a + bMult * exp ( ( v - mTauVHalf ) / mTauVWidth ) ) ;
-   hInf = c / ( c + dMult * exp ( ( v - hVHalf ) / hVWidth ) ) ;
-   hTau = 15000.0 / ( c + dMult * exp ( ( v - hTauVHalf ) / hTauVWidth ) ) ;
+   mInf = 1.0 / ( 1.0 + exp ( ( mVHalf - v ) / mVWidth ) ) ;
+   mTau = ( mTauBase * 2.0 * mTauMult ) / ( 1.0 + exp ( ( mTauVHalf - v ) / mTauVWidth ) ) ;
+   hInf = 1.0 / ( 1.0 + exp ( ( hVHalf - v ) / hVWidth ) ) ;
+   hTau = ( hTauBase * 2.0 * hTauMult ) / ( 1.0 + exp ( ( hTauVHalf - v ) / hTauVWidth ) ) ;
     return 0; }
  
 static void _hoc_rates(void) {
@@ -541,7 +539,7 @@ static const char* nmodl_file_text =
   "NEURON	{\n"
   "	SUFFIX Kv1_2\n"
   "	USEION k READ ek WRITE ik\n"
-  "	RANGE gMax, gKv1_2, ik\n"
+  "	RANGE gMax, gKv1_2, ik, mTauMult, hTauMult\n"
   "}\n"
   "\n"
   "UNITS	{\n"
@@ -552,24 +550,27 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "PARAMETER	{\n"
-  "	gMax = 0.1 (pS/um2) <0,1e9>\n"
+  "	gMax = 0 (pS/um2) <0,1e9>\n"
   "\n"
   "	:Activation\n"
-  "	a = 1 (/ms) :opening rate of activation (doesn't use voltage to calculate)\n"
-  "	bMult = 1 (/ms)\n"
-  "	mVHalf = -21 (mV) :voltage center for calculating activation %\n"
-  "	mVWidth = -11.3943 (mV) :voltage width for calculating activation %\n"
-  "	mTauVHalf = -67.56 (mV) :voltage center for calculating activation tau\n"
-  "	mTauVWidth =  34.1479 (mV) :voltage width for calculating activation tau\n"
+  "\n"
+  "	mVHalf = -21 (mV) :half-max of activation\n"
+  "	mVWidth = 11 (mV) :slope of activation\n"
+  "\n"
+  "	mTauVHalf = 68 (mV) :half-max of activation tau\n"
+  "	mTauVWidth =  34 (mV) :slope of activation tau\n"
+  "	mTauBase = 75 (ms)\n"
+  "	mTauMult = 1\n"
   "\n"
   "\n"
   "	:Inactivation\n"
-  "	c = 1 (/ms) :opening rate of inactivation (doesn't use voltage to calculate)\n"
-  "	dMult = 1 (/ms)\n"
-  "	hVHalf = -22 (mV)\n"
-  "	hVWidth = 11.3943 (mV)\n"
-  "	hTauVHalf = -46.5600 (mV)\n"
-  "	hTauVWidth = -44.1479 (mV)\n"
+  "	hVHalf = -22 (mV) :half-max of inactivation\n"
+  "	hVWidth = -11 (mV) :slope of inactivation\n"
+  "\n"
+  "	hTauVHalf = 47 (mV)  :half-max of inactivation tau\n"
+  "	hTauVWidth = -44 (mV) :slope of inactivation tau\n"
+  "	hTauBase = 7000 (ms)\n"
+  "	hTauMult = 1\n"
   "}\n"
   "\n"
   "ASSIGNED	{\n"
@@ -607,11 +608,11 @@ static const char* nmodl_file_text =
   "}\n"
   "\n"
   "PROCEDURE rates(){\n"
-  "	mInf = a / (a + bMult * exp((v - mVHalf) / mVWidth))\n"
-  "	mTau = 150 / (a + bMult * exp((v - mTauVHalf) / mTauVWidth))\n"
+  "	mInf = 1 / (1+ exp((mVHalf-v) / mVWidth))\n"
+  "	mTau = (mTauBase * 2 * mTauMult) / (1 + exp((mTauVHalf-v) / mTauVWidth))\n"
   "\n"
-  "	hInf = c / (c + dMult * exp((v - hVHalf) / hVWidth))\n"
-  "	hTau = 15000 / (c + dMult * exp((v - hTauVHalf) / hTauVWidth))\n"
+  "	hInf = 1 / (1 + exp((hVHalf-v) / hVWidth))\n"
+  "	hTau = (hTauBase * 2 * hTauMult) / (1 + exp((hTauVHalf-v) / hTauVWidth))\n"
   "}\n"
   ;
 #endif

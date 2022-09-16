@@ -15,21 +15,25 @@ NEURON {
 UNITS {
 	(nA) = (nanoamp)
 	(mV) = (millivolt)
-	(uS) = (microsiemens)
+	(pS) = (picosiemens)
 }
 
 PARAMETER {
 	onset=0 (ms)
-	gmax=0 	(uS)	<0,1e9>
+	gmax=0 	(pS)	<0,1e9>
 	e=0	(mV)
 }
 
-ASSIGNED { v (mV) i (nA)  g (uS)}
+ASSIGNED {
+	v (mV)
+	i (nA)  
+	g (pS)
+	}
 
 BREAKPOINT {
 	if (gmax) { at_time(onset) }
 	g = gmax * isT((t - onset)/onset)
-	i = g*(v - e)
+	i = g*(v - e) * (1e-06)
 }
 
 FUNCTION isT(x) {

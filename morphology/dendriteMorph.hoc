@@ -610,7 +610,7 @@ proc subsets() { local i
 }
 
 proc geom_nseg() {
-  forsec all {nseg = int((L/(0.1*lambda_f(100))+.999)/2)*2 + 1 }
+  forsec all {nseg = int((L/(0.1*lambda_f(1000))+.999)/2)*2 + 1 }
 }
 
 func lambda_f() {local i, x1, x2, d1, d2, lam, axialR, capacitance

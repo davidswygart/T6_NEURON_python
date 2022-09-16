@@ -47,26 +47,28 @@ extern double hoc_Exp(double);
 #define dt _nt->_dt
 #define gMax _p[0]
 #define eCa _p[1]
-#define VhalfCam _p[2]
-#define SCam _p[3]
-#define aomCa _p[4]
-#define bomCa _p[5]
-#define VhalfCah _p[6]
-#define SCah _p[7]
-#define gammaohCa _p[8]
-#define deltaohCa _p[9]
-#define mCa _p[10]
-#define hCa _p[11]
-#define DmCa _p[12]
-#define DhCa _p[13]
-#define gCa _p[14]
-#define iCa _p[15]
-#define infmCa _p[16]
-#define taumCa _p[17]
-#define infhCa _p[18]
-#define tauhCa _p[19]
-#define v _p[20]
-#define _g _p[21]
+#define mTauMult _p[2]
+#define hTauMult _p[3]
+#define VhalfCam _p[4]
+#define SCam _p[5]
+#define aomCa _p[6]
+#define bomCa _p[7]
+#define VhalfCah _p[8]
+#define SCah _p[9]
+#define gammaohCa _p[10]
+#define deltaohCa _p[11]
+#define mCa _p[12]
+#define hCa _p[13]
+#define DmCa _p[14]
+#define DhCa _p[15]
+#define gCa _p[16]
+#define iCa _p[17]
+#define infmCa _p[18]
+#define taumCa _p[19]
+#define infhCa _p[20]
+#define tauhCa _p[21]
+#define v _p[22]
+#define _g _p[23]
 #define _ion_iCa	*_ppvar[0]._pval
 #define _ion_diCadv	*_ppvar[1]._pval
  
@@ -147,12 +149,12 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "eCa_Ca", "mV",
  "VhalfCam_Ca", "mV",
  "SCam_Ca", "mV",
- "aomCa_Ca", "/s",
- "bomCa_Ca", "/s",
+ "aomCa_Ca", "/ms",
+ "bomCa_Ca", "/ms",
  "VhalfCah_Ca", "mV",
  "SCah_Ca", "mV",
- "gammaohCa_Ca", "/s",
- "deltaohCa_Ca", "/s",
+ "gammaohCa_Ca", "/ms",
+ "deltaohCa_Ca", "/ms",
  0,0
 };
  static double delta_t = 0.01;
@@ -185,6 +187,8 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
 "Ca",
  "gMax_Ca",
  "eCa_Ca",
+ "mTauMult_Ca",
+ "hTauMult_Ca",
  "VhalfCam_Ca",
  "SCam_Ca",
  "aomCa_Ca",
@@ -206,20 +210,22 @@ extern Prop* need_memb(Symbol*);
 static void nrn_alloc(Prop* _prop) {
 	Prop *prop_ion;
 	double *_p; Datum *_ppvar;
- 	_p = nrn_prop_data_alloc(_mechtype, 22, _prop);
+ 	_p = nrn_prop_data_alloc(_mechtype, 24, _prop);
  	/*initialize range parameters*/
- 	gMax = 4;
- 	eCa = 40;
+ 	gMax = 0;
+ 	eCa = 18;
+ 	mTauMult = 1;
+ 	hTauMult = 1;
  	VhalfCam = -32;
  	SCam = 10;
  	aomCa = 50;
  	bomCa = 50;
- 	VhalfCah = 10;
- 	SCah = 9;
+ 	VhalfCah = -10;
+ 	SCah = 12;
  	gammaohCa = 1;
  	deltaohCa = 1;
  	_prop->param = _p;
- 	_prop->param_size = 22;
+ 	_prop->param_size = 24;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 3, _prop);
  	_prop->dparam = _ppvar;
  	/*connect ionic variables to this model*/
@@ -254,7 +260,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
-  hoc_register_prop_size(_mechtype, 22, 3);
+  hoc_register_prop_size(_mechtype, 24, 3);
   hoc_register_dparam_semantics(_mechtype, 0, "Ca_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "Ca_ion");
   hoc_register_dparam_semantics(_mechtype, 2, "cvodeieq");
@@ -304,7 +310,7 @@ static int _ode_spec1(_threadargsproto_);
  
 double alphamCa ( _threadargsprotocomma_ double _lv ) {
    double _lalphamCa;
- _lalphamCa = ( 0.001 ) * aomCa * exp ( ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
+ _lalphamCa = aomCa * exp ( ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
    
 return _lalphamCa;
  }
@@ -321,7 +327,7 @@ static void _hoc_alphamCa(void) {
  
 double betamCa ( _threadargsprotocomma_ double _lv ) {
    double _lbetamCa;
- _lbetamCa = ( 0.001 ) * bomCa * exp ( - ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
+ _lbetamCa = bomCa * exp ( - ( _lv - VhalfCam ) / ( 2.0 * SCam ) ) ;
    
 return _lbetamCa;
  }
@@ -338,7 +344,7 @@ static void _hoc_betamCa(void) {
  
 double gammahCa ( _threadargsprotocomma_ double _lv ) {
    double _lgammahCa;
- _lgammahCa = ( 0.001 ) * gammaohCa * exp ( ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
+ _lgammahCa = gammaohCa * exp ( ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
    
 return _lgammahCa;
  }
@@ -355,7 +361,7 @@ static void _hoc_gammahCa(void) {
  
 double deltahCa ( _threadargsprotocomma_ double _lv ) {
    double _ldeltahCa;
- _ldeltahCa = ( 0.001 ) * deltaohCa * exp ( - ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
+ _ldeltahCa = deltaohCa * exp ( - ( _lv - VhalfCah ) / ( 2.0 * SCah ) ) ;
    
 return _ldeltahCa;
  }
@@ -374,11 +380,11 @@ static int  rate ( _threadargsprotocomma_ double _lv ) {
    double _la , _lb , _lc , _ld ;
  _la = alphamCa ( _threadargscomma_ _lv ) ;
    _lb = betamCa ( _threadargscomma_ _lv ) ;
-   taumCa = 1.0 / ( _la + _lb ) ;
+   taumCa = mTauMult * 1.0 / ( _la + _lb ) ;
    infmCa = _la / ( _la + _lb ) ;
    _lc = gammahCa ( _threadargscomma_ _lv ) ;
    _ld = deltahCa ( _threadargscomma_ _lv ) ;
-   tauhCa = 1.0 / ( _lc + _ld ) ;
+   tauhCa = hTauMult * 1.0 / ( _lc + _ld ) ;
    infhCa = _ld / ( _lc + _ld ) ;
     return 0; }
  
@@ -593,18 +599,20 @@ _first = 0;
 #if NMODL_TEXT
 static const char* nmodl_filename = "Ca.mod";
 static const char* nmodl_file_text = 
-  ": Rod  Photoreceptor Ca and Calcium  channel\n"
-  ": Ref. Kourenny and  Liu 2002   ABME 30 : 1196-1203\n"
-  ": Modification 2004-02-07\n"
+  ": Bipolar cell Calcium  channel\n"
+  ": original .Mod file from Kourenny and  Liu 2002   ABME 30 : 1196-1203\n"
+  ": modified to fit data from Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.\n"
+  "\n"
   "NEURON\n"
   "{\n"
   "	SUFFIX Ca\n"
   "\n"
   "	USEION Ca WRITE iCa VALENCE 2\n"
-  "        RANGE gMax,VhalfCam,SCam\n"
-  "        RANGE VhalfCah,SCah\n"
-  "        RANGE eCa,aomCa,bomCa\n"
-  "        RANGE gammaohCa,deltaohCa\n"
+  "	RANGE gMax,VhalfCam,SCam\n"
+  "	RANGE VhalfCah,SCah\n"
+  "	RANGE eCa,aomCa,bomCa\n"
+  "	RANGE gammaohCa,deltaohCa\n"
+  "	RANGE mTauMult , hTauMult\n"
   "}\n"
   "\n"
   "UNITS\n"
@@ -617,50 +625,40 @@ static const char* nmodl_file_text =
   "\n"
   "PARAMETER\n"
   "{\n"
-  "       : Calcium channel\n"
-  "			 gMax = 4  (pS/um2) <0,1e9>\n"
-  "       eCa =  40 (mV)\n"
+  " 	gMax = 0  (pS/um2) <0,1e9>	:set in NEURON only for active model [Berntson, 2003]\n"
+  "	eCa =  18 (mV)				:reversal potential for calcium [Berntson, 2003]\n"
   "\n"
-  "			 : Activation\n"
-  "       VhalfCam = -32 (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.\n"
-  "			 SCam =  10    (mV) : modified to match IV from; Berntson A, Taylor WR, Morgans CW. (2003) PMID: 12478624.\n"
-  "			 aomCa = 50   (/s)  :opening rate multiplier\n"
-  "			 bomCa = 50   (/s)  :closing rate multiplier\n"
+  "	mTauMult = 1\n"
+  "	hTauMult = 1\n"
   "\n"
-  "			 : Deactivation\n"
-  "			 VhalfCah = 10 (mV)\n"
-  "			 SCah = 9     (mV)\n"
-  "			 gammaohCa = 1 (/s) :opening rate multiplier\n"
-  "			 deltaohCa = 1 (/s) :closing rate multiplier\n"
+  ":Activation\n"
+  "	VhalfCam = -32 (mV)		:half-max of activation: modified to match IV from Berntson, 2003\n"
+  "	SCam =  10 (mV)			:slope of activation: modified to match IV from Berntson, 2003\n"
+  "	aomCa = 50 (/ms)			:opening rate multiplier\n"
+  "	bomCa = 50 (/ms)			:closing rate multiplier\n"
+  "\n"
+  ":Deactivation\n"
+  "	VhalfCah = -10 (mV)		:half-max of inactivation: modified to match IV from Berntson, 2003\n"
+  "	SCah = 12 (mV)			:slope of inactivation: modified to match IV from Berntson, 2003\n"
+  "	gammaohCa = 1 (/ms)		:opening rate multiplier\n"
+  "	deltaohCa = 1 (/ms)		:closing rate multiplier\n"
   "}\n"
-  "\n"
   "\n"
   "STATE\n"
   "{\n"
-  "\n"
   "	mCa\n"
   "	hCa\n"
-  "\n"
   "}\n"
   "\n"
   "ASSIGNED\n"
   "{\n"
   "	gCa (pS/um2)\n"
-  "\n"
   "	v (mV)\n"
-  "\n"
   "	iCa (mA/cm2)\n"
-  "\n"
   "	infmCa\n"
   "	taumCa  (ms)\n"
-  "\n"
-  "\n"
-  "\n"
   "	infhCa\n"
   "	tauhCa (ms)\n"
-  "\n"
-  "\n"
-  "\n"
   "}\n"
   "\n"
   "INITIAL\n"
@@ -668,11 +666,7 @@ static const char* nmodl_file_text =
   "	rate(v)\n"
   "	mCa = infmCa\n"
   "	hCa = infhCa\n"
-  "\n"
   "}\n"
-  "\n"
-  "\n"
-  "\n"
   "\n"
   "BREAKPOINT\n"
   "{\n"
@@ -686,48 +680,45 @@ static const char* nmodl_file_text =
   "	rate(v)\n"
   "	mCa' = (infmCa-mCa)/taumCa\n"
   "	hCa'= (infhCa-hCa)/tauhCa\n"
-  "\n"
-  "\n"
   "}\n"
-  "\n"
-  "\n"
-  "\n"
   "\n"
   "FUNCTION alphamCa(v(mV))(/ms)\n"
   "{\n"
-  "	alphamCa = (0.001)*aomCa*exp( (v - VhalfCam)/(2*SCam)   )\n"
+  "	alphamCa = aomCa*exp( (v - VhalfCam)/(2*SCam)   )\n"
   "}\n"
   "\n"
   "FUNCTION betamCa(v(mV))(/ms)\n"
   "{\n"
-  "	betamCa = (0.001)*bomCa*exp( - ( v-VhalfCam)/(2*SCam) )\n"
+  "	betamCa = bomCa*exp( - ( v-VhalfCam)/(2*SCam) )\n"
   "}\n"
   "FUNCTION gammahCa(v(mV))(/ms)\n"
   "{\n"
-  "	gammahCa = (0.001)*gammaohCa*exp( (v - VhalfCah)/(2*SCah))\n"
+  "	gammahCa = gammaohCa*exp( (v - VhalfCah)/(2*SCah))\n"
   "}\n"
   "\n"
   "FUNCTION deltahCa(v(mV))(/ms)\n"
   "{\n"
-  "	deltahCa = (0.001)*deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )\n"
+  "	deltahCa = deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )\n"
   "}\n"
-  "\n"
   "\n"
   "PROCEDURE rate(v (mV))\n"
   "{\n"
+  "\n"
+  "\n"
+  "\n"
   "        LOCAL a, b,c, d\n"
   "\n"
   "\n"
   "	a = alphamCa(v)\n"
   "	b = betamCa(v)\n"
-  "	taumCa = 1/(a + b)\n"
+  "	taumCa = mTauMult* 1/(a + b)\n"
   "	infmCa = a/(a + b)\n"
   "\n"
   "	c = gammahCa(v)\n"
   "	d = deltahCa(v)\n"
-  "	tauhCa = 1/(c + d)\n"
+  "	tauhCa = hTauMult* 1/(c + d)\n"
   "	infhCa = d/(c + d)\n"
-  "\n"
+  "	\n"
   "}\n"
   ;
 #endif

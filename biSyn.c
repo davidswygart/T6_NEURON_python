@@ -130,7 +130,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static HocParmUnits _hoc_parm_units[] = {
  "onset", "ms",
- "gmax", "uS",
+ "gmax", "pS",
  "e", "mV",
  "i", "nA",
  0,0
@@ -283,7 +283,7 @@ static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread
      at_time ( _nt, onset ) ;
      }
    g = gmax * isT ( _threadargscomma_ ( t - onset ) / onset ) ;
-   i = g * ( v - e ) ;
+   i = g * ( v - e ) * ( 1e-06 ) ;
    }
  _current += i;
 
@@ -389,21 +389,25 @@ static const char* nmodl_file_text =
   "UNITS {\n"
   "	(nA) = (nanoamp)\n"
   "	(mV) = (millivolt)\n"
-  "	(uS) = (microsiemens)\n"
+  "	(pS) = (picosiemens)\n"
   "}\n"
   "\n"
   "PARAMETER {\n"
   "	onset=0 (ms)\n"
-  "	gmax=0 	(uS)	<0,1e9>\n"
+  "	gmax=0 	(pS)	<0,1e9>\n"
   "	e=0	(mV)\n"
   "}\n"
   "\n"
-  "ASSIGNED { v (mV) i (nA)  g (uS)}\n"
+  "ASSIGNED {\n"
+  "	v (mV)\n"
+  "	i (nA)  \n"
+  "	g (pS)\n"
+  "	}\n"
   "\n"
   "BREAKPOINT {\n"
   "	if (gmax) { at_time(onset) }\n"
   "	g = gmax * isT((t - onset)/onset)\n"
-  "	i = g*(v - e)\n"
+  "	i = g*(v - e) * (1e-06)\n"
   "}\n"
   "\n"
   "FUNCTION isT(x) {\n"

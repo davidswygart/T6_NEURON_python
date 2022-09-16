@@ -8,7 +8,7 @@
 NEURON	{
 	SUFFIX Kv1_2
 	USEION k READ ek WRITE ik
-	RANGE gMax, gKv1_2, ik
+	RANGE gMax, gKv1_2, ik, mTauMult, hTauMult
 }
 
 UNITS	{
@@ -19,24 +19,27 @@ UNITS	{
 }
 
 PARAMETER	{
-	gMax = 0.1 (pS/um2) <0,1e9>
+	gMax = 0 (pS/um2) <0,1e9>
 
 	:Activation
-	a = 1 (/ms) :opening rate of activation (doesn't use voltage to calculate)
-	bMult = 1 (/ms)
-	mVHalf = -21 (mV) :voltage center for calculating activation %
-	mVWidth = -11.3943 (mV) :voltage width for calculating activation %
-	mTauVHalf = -67.56 (mV) :voltage center for calculating activation tau
-	mTauVWidth =  34.1479 (mV) :voltage width for calculating activation tau
+
+	mVHalf = -21 (mV) :half-max of activation
+	mVWidth = 11 (mV) :slope of activation
+
+	mTauVHalf = 68 (mV) :half-max of activation tau
+	mTauVWidth =  34 (mV) :slope of activation tau
+	mTauBase = 75 (ms)
+	mTauMult = 1
 
 
 	:Inactivation
-	c = 1 (/ms) :opening rate of inactivation (doesn't use voltage to calculate)
-	dMult = 1 (/ms)
-	hVHalf = -22 (mV)
-	hVWidth = 11.3943 (mV)
-	hTauVHalf = -46.5600 (mV)
-	hTauVWidth = -44.1479 (mV)
+	hVHalf = -22 (mV) :half-max of inactivation
+	hVWidth = -11 (mV) :slope of inactivation
+
+	hTauVHalf = 47 (mV)  :half-max of inactivation tau
+	hTauVWidth = -44 (mV) :slope of inactivation tau
+	hTauBase = 7000 (ms)
+	hTauMult = 1
 }
 
 ASSIGNED	{
@@ -74,9 +77,9 @@ INITIAL{
 }
 
 PROCEDURE rates(){
-	mInf = a / (a + bMult * exp((v - mVHalf) / mVWidth))
-	mTau = 150 / (a + bMult * exp((v - mTauVHalf) / mTauVWidth))
+	mInf = 1 / (1+ exp((mVHalf-v) / mVWidth))
+	mTau = (mTauBase * 2 * mTauMult) / (1 + exp((mTauVHalf-v) / mTauVWidth))
 
-	hInf = c / (c + dMult * exp((v - hVHalf) / hVWidth))
-	hTau = 15000 / (c + dMult * exp((v - hTauVHalf) / hTauVWidth))
+	hInf = 1 / (1 + exp((hVHalf-v) / hVWidth))
+	hTau = (hTauBase * 2 * hTauMult) / (1 + exp((hTauVHalf-v) / hTauVWidth))
 }

@@ -29,7 +29,7 @@ extern double hoc_Exp(double);
 #define nrn_jacob _nrn_jacob__hcn2
 #define nrn_state _nrn_state__hcn2
 #define _net_receive _net_receive__hcn2 
-#define rate rate__hcn2 
+#define rates rates__hcn2 
 #define states states__hcn2 
  
 #define _threadargscomma_ _p, _ppvar, _thread, _nt,
@@ -46,16 +46,15 @@ extern double hoc_Exp(double);
 #define t _nt->_t
 #define dt _nt->_dt
 #define gMax _p[0]
-#define vhakt _p[1]
-#define a0t _p[2]
-#define i _p[3]
-#define l _p[4]
-#define Dl _p[5]
-#define linf _p[6]
-#define taul _p[7]
-#define ghd _p[8]
-#define v _p[9]
-#define _g _p[10]
+#define mTauMult _p[1]
+#define ihcn _p[2]
+#define gHCN2 _p[3]
+#define m _p[4]
+#define mInf _p[5]
+#define mTau _p[6]
+#define Dm _p[7]
+#define v _p[8]
+#define _g _p[9]
  
 #if MAC
 #if !defined(v)
@@ -73,11 +72,8 @@ extern "C" {
  static Datum* _extcall_thread;
  static Prop* _extcall_prop;
  /* external NEURON variables */
- extern double celsius;
  /* declaration of user functions */
- static void _hoc_alpt(void);
- static void _hoc_bett(void);
- static void _hoc_rate(void);
+ static void _hoc_rates(void);
  static int _mechtype;
 extern void _nrn_cacheloop_reg(int, int);
 extern void hoc_register_prop_size(int, int, int);
@@ -107,64 +103,41 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  /* connect user functions to hoc names */
  static VoidFunc hoc_intfunc[] = {
  "setdata_hcn2", _hoc_setdata,
- "alpt_hcn2", _hoc_alpt,
- "bett_hcn2", _hoc_bett,
- "rate_hcn2", _hoc_rate,
+ "rates_hcn2", _hoc_rates,
  0, 0
 };
-#define alpt alpt_hcn2
-#define bett bett_hcn2
- extern double alpt( _threadargsprotocomma_ double );
- extern double bett( _threadargsprotocomma_ double );
  /* declare global and static user variables */
-#define Vrev Vrev_hcn2
- double Vrev = -40;
-#define gmt gmt_hcn2
- double gmt = 0.561;
-#define k k_hcn2
- double k = -11.9;
-#define qtl qtl_hcn2
- double qtl = 1;
-#define q10 q10_hcn2
- double q10 = 4.5;
-#define temp temp_hcn2
- double temp = 23;
-#define vhtau vhtau_hcn2
- double vhtau = -84.6;
-#define zetat zetat_hcn2
- double zetat = 1.5;
+#define ehcn ehcn_hcn2
+ double ehcn = -23.4;
+#define mTauBaseline mTauBaseline_hcn2
+ double mTauBaseline = 184;
+#define mVWidth mVWidth_hcn2
+ double mVWidth = 6.2;
+#define mVHalf mVHalf_hcn2
+ double mVHalf = -99;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
  "gMax_hcn2", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
- "Vrev_hcn2", "mV",
- "k_hcn2", "mV",
- "vhtau_hcn2", "mV",
- "zetat_hcn2", "/mV",
- "gmt_hcn2", "1",
- "temp_hcn2", "degC",
- "q10_hcn2", "1",
- "qtl_hcn2", "1",
+ "ehcn_hcn2", "mV",
+ "mVHalf_hcn2", "mV",
+ "mVWidth_hcn2", "mV",
+ "mTauBaseline_hcn2", "ms",
  "gMax_hcn2", "pS/um2",
- "vhakt_hcn2", "mV",
- "a0t_hcn2", "/ms",
- "i_hcn2", "mA/cm2",
+ "ihcn_hcn2", "mA/cm2",
+ "gHCN2_hcn2", "S/cm2",
  0,0
 };
  static double delta_t = 0.01;
- static double l0 = 0;
+ static double m0 = 0;
  /* connect global user variables to hoc */
  static DoubScal hoc_scdoub[] = {
- "Vrev_hcn2", &Vrev_hcn2,
- "k_hcn2", &k_hcn2,
- "vhtau_hcn2", &vhtau_hcn2,
- "zetat_hcn2", &zetat_hcn2,
- "gmt_hcn2", &gmt_hcn2,
- "temp_hcn2", &temp_hcn2,
- "q10_hcn2", &q10_hcn2,
- "qtl_hcn2", &qtl_hcn2,
+ "ehcn_hcn2", &ehcn_hcn2,
+ "mVHalf_hcn2", &mVHalf_hcn2,
+ "mVWidth_hcn2", &mVWidth_hcn2,
+ "mTauBaseline_hcn2", &mTauBaseline_hcn2,
  0,0
 };
  static DoubVec hoc_vdoub[] = {
@@ -189,12 +162,12 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  "7.7.0",
 "hcn2",
  "gMax_hcn2",
- "vhakt_hcn2",
- "a0t_hcn2",
+ "mTauMult_hcn2",
  0,
- "i_hcn2",
+ "ihcn_hcn2",
+ "gHCN2_hcn2",
  0,
- "l_hcn2",
+ "m_hcn2",
  0,
  0};
  
@@ -203,13 +176,12 @@ extern Prop* need_memb(Symbol*);
 static void nrn_alloc(Prop* _prop) {
 	Prop *prop_ion;
 	double *_p; Datum *_ppvar;
- 	_p = nrn_prop_data_alloc(_mechtype, 11, _prop);
+ 	_p = nrn_prop_data_alloc(_mechtype, 10, _prop);
  	/*initialize range parameters*/
- 	gMax = 1.5;
- 	vhakt = -93.6;
- 	a0t = 0.00372;
+ 	gMax = 0;
+ 	mTauMult = 1;
  	_prop->param = _p;
- 	_prop->param_size = 11;
+ 	_prop->param_size = 10;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 1, _prop);
  	_prop->dparam = _ppvar;
  	/*connect ionic variables to this model*/
@@ -227,7 +199,7 @@ extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThre
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
- void _HCN2r_reg() {
+ void _HCN2_reg() {
 	int _vectorized = 1;
   _initlists();
  	register_mech(_mechanism, nrn_alloc,nrn_cur, nrn_jacob, nrn_state, nrn_init, hoc_nrnpointerindex, 1);
@@ -237,100 +209,62 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
-  hoc_register_prop_size(_mechtype, 11, 1);
+  hoc_register_prop_size(_mechtype, 10, 1);
   hoc_register_dparam_semantics(_mechtype, 0, "cvodeieq");
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 hcn2 C:/Users/david/Documents/Code/Github/T6_NEURON_python/HCN2r.mod\n");
+ 	ivoc_help("help ?1 hcn2 C:/Users/david/Documents/Code/Github/T6_NEURON_python/HCN2.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
 static int _reset;
-static char *modelname = "HCN2 with one time constant";
+static char *modelname = "";
 
 static int error;
 static int _ninits = 0;
 static int _match_recurse=1;
 static void _modl_cleanup(){ _match_recurse=1;}
-static int rate(_threadargsprotocomma_ double);
+static int rates(_threadargsproto_);
  
 static int _ode_spec1(_threadargsproto_);
 /*static int _ode_matsol1(_threadargsproto_);*/
  static int _slist1[1], _dlist1[1];
  static int states(_threadargsproto_);
  
-double alpt ( _threadargsprotocomma_ double _lv ) {
-   double _lalpt;
- _lalpt = exp ( 0.0378 * zetat * ( _lv - vhtau ) ) ;
-   
-return _lalpt;
- }
- 
-static void _hoc_alpt(void) {
-  double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
-   if (_extcall_prop) {_p = _extcall_prop->param; _ppvar = _extcall_prop->dparam;}else{ _p = (double*)0; _ppvar = (Datum*)0; }
-  _thread = _extcall_thread;
-  _nt = nrn_threads;
- _r =  alpt ( _p, _ppvar, _thread, _nt, *getarg(1) );
- hoc_retpushx(_r);
-}
- 
-double bett ( _threadargsprotocomma_ double _lv ) {
-   double _lbett;
- _lbett = exp ( 0.0378 * zetat * gmt * ( _lv - vhtau ) ) ;
-   
-return _lbett;
- }
- 
-static void _hoc_bett(void) {
-  double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
-   if (_extcall_prop) {_p = _extcall_prop->param; _ppvar = _extcall_prop->dparam;}else{ _p = (double*)0; _ppvar = (Datum*)0; }
-  _thread = _extcall_thread;
-  _nt = nrn_threads;
- _r =  bett ( _p, _ppvar, _thread, _nt, *getarg(1) );
- hoc_retpushx(_r);
-}
- 
 /*CVODE*/
  static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {int _reset = 0; {
-   rate ( _threadargscomma_ v ) ;
-   Dl = ( linf - l ) / taul ;
+   rates ( _threadargs_ ) ;
+   Dm = ( mInf - m ) / mTau ;
    }
  return _reset;
 }
  static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
- rate ( _threadargscomma_ v ) ;
- Dl = Dl  / (1. - dt*( ( ( ( - 1.0 ) ) ) / taul )) ;
+ rates ( _threadargs_ ) ;
+ Dm = Dm  / (1. - dt*( ( ( ( - 1.0 ) ) ) / mTau )) ;
   return 0;
 }
  /*END CVODE*/
  static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
-   rate ( _threadargscomma_ v ) ;
-    l = l + (1. - exp(dt*(( ( ( - 1.0 ) ) ) / taul)))*(- ( ( ( linf ) ) / taul ) / ( ( ( ( - 1.0 ) ) ) / taul ) - l) ;
+   rates ( _threadargs_ ) ;
+    m = m + (1. - exp(dt*(( ( ( - 1.0 ) ) ) / mTau)))*(- ( ( ( mInf ) ) / mTau ) / ( ( ( ( - 1.0 ) ) ) / mTau ) - m) ;
    }
   return 0;
 }
  
-static int  rate ( _threadargsprotocomma_ double _lv ) {
-   double _la , _lb , _lqt ;
- _lqt = pow( q10 , ( ( celsius - temp ) / 10.0 ) ) ;
-   _la = alpt ( _threadargscomma_ _lv ) ;
-   _lb = bett ( _threadargscomma_ _lv ) ;
-   linf = 1.0 / ( 1.0 + exp ( - ( _lv - vhakt ) / k ) ) ;
-   taul = _lb / ( qtl * _lqt * a0t * ( 1.0 + _la ) ) ;
+static int  rates ( _threadargsproto_ ) {
+   mInf = 1.0 / ( 1.0 + exp ( ( mVHalf - v ) / mVWidth ) ) ;
+   mTau = mTauBaseline * mTauMult ;
     return 0; }
  
-static void _hoc_rate(void) {
+static void _hoc_rates(void) {
   double _r;
    double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
    if (_extcall_prop) {_p = _extcall_prop->param; _ppvar = _extcall_prop->dparam;}else{ _p = (double*)0; _ppvar = (Datum*)0; }
   _thread = _extcall_thread;
   _nt = nrn_threads;
  _r = 1.;
- rate ( _p, _ppvar, _thread, _nt, *getarg(1) );
+ rates ( _p, _ppvar, _thread, _nt );
  hoc_retpushx(_r);
 }
  
@@ -376,10 +310,10 @@ static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 
 static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
   int _i; double _save;{
-  l = l0;
+  m = m0;
  {
-   rate ( _threadargscomma_ v ) ;
-   l = linf ;
+   rates ( _threadargs_ ) ;
+   m = mInf ;
    }
  
 }
@@ -410,10 +344,10 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
-   ghd = gMax * l ;
-   i = ghd * ( v - Vrev ) * ( 1e-12 ) * ( 1e+08 ) ;
+   gHCN2 = gMax * ( 1e-4 ) * m ;
+   ihcn = gHCN2 * ( v - ehcn ) ;
    }
- _current += i;
+ _current += ihcn;
 
 } return _current;
 }
@@ -511,7 +445,7 @@ static void _initlists(){
  double _x; double* _p = &_x;
  int _i; static int _first = 1;
   if (!_first) return;
- _slist1[0] = &(l) - _p;  _dlist1[0] = &(Dl) - _p;
+ _slist1[0] = &(m) - _p;  _dlist1[0] = &(Dm) - _p;
 _first = 0;
 }
 
@@ -520,91 +454,69 @@ _first = 0;
 #endif
 
 #if NMODL_TEXT
-static const char* nmodl_filename = "HCN2r.mod";
+static const char* nmodl_filename = "HCN2.mod";
 static const char* nmodl_file_text = 
-  "TITLE HCN2 with one time constant\n"
-  ": Konstantin Stadler 2009\n"
+  ": HCN2 channel\n"
+  ": original .Mod file Channelpedia https://channelpedia.epfl.ch/wiki/ionchannels/62 ; Model HCN2 (ID=10) \n"
+  ": Reference :Cellular expression and functional characterization of four hyperpolarization-activated pacemaker channels in cardiac and neuronal tissues. Eur. J. Biochem., 2001, 268, 1646-52\n"
   "\n"
-  "UNITS {\n"
+  "NEURON	{\n"
+  "	SUFFIX hcn2\n"
+  "	NONSPECIFIC_CURRENT ihcn\n"
+  "	RANGE gMax, gHCN2, ihcn, mTauMult\n"
+  "}\n"
+  "\n"
+  "UNITS	{\n"
+  "	(S) = (siemens)\n"
   "	(pS) = (picosiemens)\n"
   "	(um) = (micron)\n"
   "	(mA) = (milliamp)\n"
   "	(mV) = (millivolt)\n"
   "}\n"
   "\n"
-  "PARAMETER {\n"
-  "	gMax = 1.5	(pS/um2) <0,1e9>\n"
-  "	v 		(mV)\n"
-  "	Vrev  = -40	(mV)\n"
+  "PARAMETER	{\n"
+  "	gMax = 0 (pS/um2) <0,1e9> :set in NEURON only for active model\n"
+  "	ehcn = -23.4 (mV)	:HCN reversal potential [ref. Byczkowicz 2009, PMID: 31496517]\n"
+  "	mVHalf = -99 (mV) :half-max of activation\n"
+  "	mVWidth = 6.2 (mV) :slope of activation\n"
+  "\n"
+  "	mTauBaseline = 184 (ms)\n"
+  "	mTauMult = 1\n"
   "\n"
   "\n"
-  "	vhakt = -93.6		(mV)\n"
-  "	k     = -11.9		(mV)\n"
-  "\n"
-  "	vhtau = -84.6		(mV)\n"
-  "	a0t   = 0.00372		(/ms)\n"
-  "	zetat = 1.5		(/mV)\n"
-  "	gmt   = .561	(1)\n"
-  "\n"
-  "	celsius		(degC)\n"
-  "	temp  = 23	(degC)\n"
-  "	q10   = 4.5		(1)\n"
-  "	qtl   = 1		(1)\n"
   "}\n"
   "\n"
-  "\n"
-  "NEURON {\n"
-  "	SUFFIX hcn2\n"
-  "	NONSPECIFIC_CURRENT i\n"
-  "    	RANGE gMax, vhakt, a0t\n"
+  "ASSIGNED	{\n"
+  "	v		(mV)\n"
+  "	ihcn	(mA/cm2)\n"
+  "	gHCN2	(S/cm2)\n"
+  "	mInf\n"
+  "	mTau	(ms)\n"
   "}\n"
   "\n"
-  "STATE {\n"
-  "        l\n"
+  "STATE	{\n"
+  "	m\n"
   "}\n"
   "\n"
-  "ASSIGNED {\n"
-  "	i (mA/cm2)\n"
-  "    	linf (1)\n"
-  "    	taul (ms)\n"
-  "    	ghd (pS/um2)\n"
-  "}\n"
-  "\n"
-  "INITIAL {\n"
-  "	rate(v)\n"
-  "	l=linf\n"
-  "}\n"
-  "\n"
-  "\n"
-  "BREAKPOINT {\n"
+  "BREAKPOINT	{\n"
   "	SOLVE states METHOD cnexp\n"
-  "	ghd = gMax*l\n"
-  "	i = ghd*(v-Vrev) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
-  "\n"
+  "	gHCN2 = gMax*(1e-4) * m :to convert gMax from pS/um2 to S/cm2 multiply by 1e-4\n"
+  "	ihcn = gHCN2*(v-ehcn)\n"
   "}\n"
   "\n"
-  "\n"
-  "FUNCTION alpt(v(mV)) (1) {\n"
-  "  alpt = exp(0.0378*zetat*(v-vhtau))\n"
+  "DERIVATIVE states	{\n"
+  "	rates()\n"
+  "	m' = (mInf-m)/mTau\n"
   "}\n"
   "\n"
-  "FUNCTION bett(v(mV)) (1) {\n"
-  "  bett = exp(0.0378*zetat*gmt*(v-vhtau))\n"
+  "INITIAL{\n"
+  "	rates()\n"
+  "	m = mInf\n"
   "}\n"
   "\n"
-  "DERIVATIVE states {\n"
-  "        rate(v)\n"
-  "        l' =  (linf - l)/taul\n"
-  "}\n"
-  "\n"
-  "PROCEDURE rate(v (mV)) {\n"
-  "        LOCAL a,b,qt\n"
-  "\n"
-  "        qt=q10^((celsius-temp)/10(degC))\n"
-  "        a = alpt(v)			:a und b fuer tau\n"
-  "        b = bett(v)\n"
-  "        linf = 1/(1 + exp(-(v-vhakt)/k))\n"
-  "        taul = b/(qtl*qt*a0t*(1+a))\n"
+  "PROCEDURE rates(){\n"
+  "		mInf = 1/(1+exp((mVHalf-v)/mVWidth))\n"
+  "		mTau = mTauBaseline * mTauMult\n"
   "}\n"
   ;
 #endif

@@ -120,7 +120,6 @@ class Type6_Model():
             sec.insert('pas')
             sec.insert('hcn2')
             sec.insert('Kv1_2')
-            sec.insert('Kv1_3')
             sec.insert('Ca')
             sec.insert('Cad')
 
@@ -140,18 +139,17 @@ class Type6_Model():
                 seg.pas.e = self.settings.e_pas
                 seg.pas.g = self.settings.g_pas
 
-                seg.hcn2.gMax = self.settings.hcn2_gpeak
-
                 seg.Kv1_2.gMax = self.settings.Kv1_2_gpeak
-                seg.Kv1_3.gMax = self.settings.Kv1_3_gpeak
 
-        #Calcium only has conductance in axons
+        #Calcium and HC2 channels are only in axons
         for sec in h.axon:
             for seg in sec:
                 seg.Ca.gMax = self.settings.Cav_L_gpeak
+                seg.hcn2.gMax = self.settings.hcn2_gpeak
         for sec in h.dend:
             for seg in sec:
                 seg.Ca.gMax = 0 
+                seg.hcn2.gMax = 0
 
     def updateSynapses(self):
         print('....updating synapse values')

@@ -19,7 +19,7 @@ UNITS	{
 }
 
 PARAMETER	{
-	gMax = 0.1 (pS/um2) <0,1e9>
+	gMax = 0 (pS/um2) <0,1e9>
 
 
 	:Activation
