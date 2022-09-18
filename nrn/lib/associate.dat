@@ -1,0 +1,1 @@
+If c:\nrn\lib\associate.dat exists then, on uninstall, .hoc and .nrnzip associations will be removed.

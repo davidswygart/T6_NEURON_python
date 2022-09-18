@@ -8,7 +8,6 @@ extern void _Cad_reg();
 extern void _HCN2_reg();
 extern void _Kv1_2_reg();
 extern void _biSyn_reg();
-extern void _kv1_3_reg();
 
 void modl_reg(){
 	//nrn_mswindll_stdio(stdin, stdout, stderr);
@@ -20,7 +19,6 @@ fprintf(stderr," Cad.mod");
 fprintf(stderr," HCN2.mod");
 fprintf(stderr," Kv1_2.mod");
 fprintf(stderr," biSyn.mod");
-fprintf(stderr," kv1_3.mod");
 fprintf(stderr, "\n");
     }
 _Ca_reg();
@@ -28,5 +26,4 @@ _Cad_reg();
 _HCN2_reg();
 _Kv1_2_reg();
 _biSyn_reg();
-_kv1_3_reg();
 }

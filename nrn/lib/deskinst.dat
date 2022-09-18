@@ -1,0 +1,1 @@
+If c:\nrn\lib\deskinst.dat exists then, on uninstall, the NEURON 8.2.0 AMD64 Desktop folder will be removed.

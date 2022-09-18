@@ -9,7 +9,7 @@ ENDCOMMENT
 
 NEURON {
 	POINT_PROCESS biSyn
-	RANGE onset, gmax, e, i
+	RANGE onset, gmax, basePropG, e, i
 	NONSPECIFIC_CURRENT i
 }
 UNITS {
@@ -21,6 +21,7 @@ UNITS {
 PARAMETER {
 	onset=0 (ms)
 	gmax=0 	(pS)	<0,1e9>
+	basePropG=0 <0,1> :baseline conductance can be used for dark current
 	e=0	(mV)
 }
 
@@ -38,7 +39,7 @@ BREAKPOINT {
 
 FUNCTION isT(x) {
 	if (x < 0) {
-		isT = 0
+		isT = basePropG
 	}else{
 		isT = 1
 	}

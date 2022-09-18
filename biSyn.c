@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "scoplib_ansi.h"
+#include "mech_api.h"
 #undef PI
 #define nil 0
 #include "md1redef.h"
@@ -31,9 +31,9 @@ extern double hoc_Exp(double);
 #define _net_receive _net_receive__biSyn 
  
 #define _threadargscomma_ _p, _ppvar, _thread, _nt,
-#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt,
+#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt,
 #define _threadargs_ _p, _ppvar, _thread, _nt
-#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt
+#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt
  	/*SUPPRESS 761*/
 	/*SUPPRESS 762*/
 	/*SUPPRESS 763*/
@@ -44,12 +44,21 @@ extern double hoc_Exp(double);
 #define t _nt->_t
 #define dt _nt->_dt
 #define onset _p[0]
+#define onset_columnindex 0
 #define gmax _p[1]
-#define e _p[2]
-#define i _p[3]
-#define g _p[4]
-#define v _p[5]
-#define _g _p[6]
+#define gmax_columnindex 1
+#define basePropG _p[2]
+#define basePropG_columnindex 2
+#define e _p[3]
+#define e_columnindex 3
+#define i _p[4]
+#define i_columnindex 4
+#define g _p[5]
+#define g_columnindex 5
+#define v _p[6]
+#define v_columnindex 6
+#define _g _p[7]
+#define _g_columnindex 7
 #define _nd_area  *_ppvar[0]._pval
  
 #if MAC
@@ -69,7 +78,7 @@ extern "C" {
  static Prop* _extcall_prop;
  /* external NEURON variables */
  /* declaration of user functions */
- static double _hoc_isT();
+ static double _hoc_isT(void*);
  static int _mechtype;
 extern void _nrn_cacheloop_reg(int, int);
 extern void hoc_register_prop_size(int, int, int);
@@ -88,18 +97,18 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 
  extern Prop* nrn_point_prop_;
  static int _pointtype;
- static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
+ static void* _hoc_create_pnt(Object* _ho) { void* create_point_process(int, Object*);
  return create_point_process(_pointtype, _ho);
 }
- static void _hoc_destroy_pnt();
- static double _hoc_loc_pnt(_vptr) void* _vptr; {double loc_point_process();
+ static void _hoc_destroy_pnt(void*);
+ static double _hoc_loc_pnt(void* _vptr) {double loc_point_process(int, void*);
  return loc_point_process(_pointtype, _vptr);
 }
- static double _hoc_has_loc(_vptr) void* _vptr; {double has_loc_point();
+ static double _hoc_has_loc(void* _vptr) {double has_loc_point(void*);
  return has_loc_point(_vptr);
 }
- static double _hoc_get_loc_pnt(_vptr)void* _vptr; {
- double get_loc_point_process(); return (get_loc_point_process(_vptr));
+ static double _hoc_get_loc_pnt(void* _vptr) {
+ double get_loc_point_process(void*); return (get_loc_point_process(_vptr));
 }
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
@@ -125,6 +134,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  /* declare global and static user variables */
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
+ "basePropG", 0, 1,
  "gmax", 0, 1e+09,
  0,0,0
 };
@@ -144,11 +154,11 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static double _sav_indep;
  static void nrn_alloc(Prop*);
-static void  nrn_init(_NrnThread*, _Memb_list*, int);
-static void nrn_state(_NrnThread*, _Memb_list*, int);
- static void nrn_cur(_NrnThread*, _Memb_list*, int);
-static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
- static void _hoc_destroy_pnt(_vptr) void* _vptr; {
+static void  nrn_init(NrnThread*, _Memb_list*, int);
+static void nrn_state(NrnThread*, _Memb_list*, int);
+ static void nrn_cur(NrnThread*, _Memb_list*, int);
+static void  nrn_jacob(NrnThread*, _Memb_list*, int);
+ static void _hoc_destroy_pnt(void* _vptr) {
    destroy_point_process(_vptr);
 }
  /* connect range variables in _p that hoc is supposed to know about */
@@ -157,6 +167,7 @@ static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
 "biSyn",
  "onset",
  "gmax",
+ "basePropG",
  "e",
  0,
  "i",
@@ -174,14 +185,15 @@ static void nrn_alloc(Prop* _prop) {
 	_p = nrn_point_prop_->param;
 	_ppvar = nrn_point_prop_->dparam;
  }else{
- 	_p = nrn_prop_data_alloc(_mechtype, 7, _prop);
+ 	_p = nrn_prop_data_alloc(_mechtype, 8, _prop);
  	/*initialize range parameters*/
  	onset = 0;
  	gmax = 0;
+ 	basePropG = 0;
  	e = 0;
   }
  	_prop->param = _p;
- 	_prop->param_size = 7;
+ 	_prop->param_size = 8;
   if (!nrn_point_prop_) {
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 2, _prop);
   }
@@ -192,7 +204,7 @@ static void nrn_alloc(Prop* _prop) {
  static void _initlists();
  extern Symbol* hoc_lookup(const char*);
 extern void _nrn_thread_reg(int, int, void(*)(Datum*));
-extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThread*, int));
+extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, NrnThread*, int));
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
@@ -209,11 +221,11 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
-  hoc_register_prop_size(_mechtype, 7, 2);
+  hoc_register_prop_size(_mechtype, 8, 2);
   hoc_register_dparam_semantics(_mechtype, 0, "area");
   hoc_register_dparam_semantics(_mechtype, 1, "pntproc");
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 biSyn C:/Users/david/Documents/Code/Github/T6_NEURON_python/biSyn.mod\n");
+ 	ivoc_help("help ?1 biSyn biSyn.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -228,7 +240,7 @@ static void _modl_cleanup(){ _match_recurse=1;}
 double isT ( _threadargsprotocomma_ double _lx ) {
    double _lisT;
  if ( _lx < 0.0 ) {
-     _lisT = 0.0 ;
+     _lisT = basePropG ;
      }
    else {
      _lisT = 1.0 ;
@@ -239,22 +251,22 @@ return _lisT;
  
 static double _hoc_isT(void* _vptr) {
  double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
+   double* _p; Datum* _ppvar; Datum* _thread; NrnThread* _nt;
    _p = ((Point_process*)_vptr)->_prop->param;
   _ppvar = ((Point_process*)_vptr)->_prop->dparam;
   _thread = _extcall_thread;
-  _nt = (_NrnThread*)((Point_process*)_vptr)->_vnt;
+  _nt = (NrnThread*)((Point_process*)_vptr)->_vnt;
  _r =  isT ( _p, _ppvar, _thread, _nt, *getarg(1) );
  return(_r);
 }
 
-static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
+static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
   int _i; double _save;{
 
 }
 }
 
-static void nrn_init(_NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_init(NrnThread* _nt, _Memb_list* _ml, int _type){
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -278,7 +290,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 }
 
-static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
+static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    if ( gmax ) {
      at_time ( _nt, onset ) ;
      }
@@ -290,7 +302,7 @@ static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread
 } return _current;
 }
 
-static void nrn_cur(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_cur(NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; double _rhs, _v; int _iml, _cntml;
 #if CACHEVEC
@@ -328,7 +340,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_jacob(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_jacob(NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -352,7 +364,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_state(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_state(NrnThread* _nt, _Memb_list* _ml, int _type) {
 
 }
 
@@ -383,7 +395,7 @@ static const char* nmodl_file_text =
   "\n"
   "NEURON {\n"
   "	POINT_PROCESS biSyn\n"
-  "	RANGE onset, gmax, e, i\n"
+  "	RANGE onset, gmax, basePropG, e, i\n"
   "	NONSPECIFIC_CURRENT i\n"
   "}\n"
   "UNITS {\n"
@@ -395,6 +407,7 @@ static const char* nmodl_file_text =
   "PARAMETER {\n"
   "	onset=0 (ms)\n"
   "	gmax=0 	(pS)	<0,1e9>\n"
+  "	basePropG=0 <0,1> :baseline conductance can be used for dark current\n"
   "	e=0	(mV)\n"
   "}\n"
   "\n"
@@ -412,7 +425,7 @@ static const char* nmodl_file_text =
   "\n"
   "FUNCTION isT(x) {\n"
   "	if (x < 0) {\n"
-  "		isT = 0\n"
+  "		isT = basePropG\n"
   "	}else{\n"
   "		isT = 1\n"
   "	}\n"

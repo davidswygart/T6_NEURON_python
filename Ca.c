@@ -218,12 +218,12 @@ static void nrn_alloc(Prop* _prop) {
  	hTauMult = 1;
  	VhalfCam = -32;
  	SCam = 10;
- 	aomCa = 50;
- 	bomCa = 50;
+ 	aomCa = 0.05;
+ 	bomCa = 0.05;
  	VhalfCah = -10;
  	SCah = 12;
- 	gammaohCa = 1;
- 	deltaohCa = 1;
+ 	gammaohCa = 0.001;
+ 	deltaohCa = 0.001;
  	_prop->param = _p;
  	_prop->param_size = 24;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 3, _prop);
@@ -267,7 +267,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 Ca C:/Users/david/Documents/Code/Github/T6_NEURON_python/Ca.mod\n");
+ 	ivoc_help("help ?1 Ca C:/Users/david/Documents/Code/Github/T6_NEURON_python/lib/Ca.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -634,14 +634,14 @@ static const char* nmodl_file_text =
   ":Activation\n"
   "	VhalfCam = -32 (mV)		:half-max of activation: modified to match IV from Berntson, 2003\n"
   "	SCam =  10 (mV)			:slope of activation: modified to match IV from Berntson, 2003\n"
-  "	aomCa = 50 (/ms)			:opening rate multiplier\n"
-  "	bomCa = 50 (/ms)			:closing rate multiplier\n"
+  "	aomCa = 0.05 (/ms)			:opening rate multiplier\n"
+  "	bomCa = 0.05 (/ms)			:closing rate multiplier\n"
   "\n"
   ":Deactivation\n"
   "	VhalfCah = -10 (mV)		:half-max of inactivation: modified to match IV from Berntson, 2003\n"
   "	SCah = 12 (mV)			:slope of inactivation: modified to match IV from Berntson, 2003\n"
-  "	gammaohCa = 1 (/ms)		:opening rate multiplier\n"
-  "	deltaohCa = 1 (/ms)		:closing rate multiplier\n"
+  "	gammaohCa = 0.001 (/ms)		:opening rate multiplier\n"
+  "	deltaohCa = 0.001 (/ms)		:closing rate multiplier\n"
   "}\n"
   "\n"
   "STATE\n"
@@ -684,30 +684,26 @@ static const char* nmodl_file_text =
   "\n"
   "FUNCTION alphamCa(v(mV))(/ms)\n"
   "{\n"
-  "	alphamCa = aomCa*exp( (v - VhalfCam)/(2*SCam)   )\n"
+  "	alphamCa = aomCa*exp((v - VhalfCam)/(2*SCam))\n"
   "}\n"
   "\n"
   "FUNCTION betamCa(v(mV))(/ms)\n"
   "{\n"
-  "	betamCa = bomCa*exp( - ( v-VhalfCam)/(2*SCam) )\n"
+  "	betamCa = bomCa*exp( - (v-VhalfCam)/(2*SCam))\n"
   "}\n"
   "FUNCTION gammahCa(v(mV))(/ms)\n"
   "{\n"
-  "	gammahCa = gammaohCa*exp( (v - VhalfCah)/(2*SCah))\n"
+  "	gammahCa = gammaohCa*exp( (v-VhalfCah)/(2*SCah))\n"
   "}\n"
   "\n"
   "FUNCTION deltahCa(v(mV))(/ms)\n"
   "{\n"
-  "	deltahCa = deltaohCa*exp( - ( v-VhalfCah)/(2*SCah) )\n"
+  "	deltahCa = deltaohCa*exp( - (v-VhalfCah)/(2*SCah))\n"
   "}\n"
   "\n"
   "PROCEDURE rate(v (mV))\n"
   "{\n"
-  "\n"
-  "\n"
-  "\n"
-  "        LOCAL a, b,c, d\n"
-  "\n"
+  "    LOCAL a, b,c, d\n"
   "\n"
   "	a = alphamCa(v)\n"
   "	b = betamCa(v)\n"

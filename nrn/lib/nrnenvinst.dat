@@ -1,0 +1,1 @@
+If c:\nrn\lib\nrnenvinst.dat exists then, on uninstall, the NEURONHOME and PYTHONPATH environment variables will be removed.

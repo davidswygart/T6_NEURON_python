@@ -1,13 +1,18 @@
-import numpy as np
+import os
+import sys
+dir_path = os.path.dirname(os.path.realpath(__file__))
+os.chdir(dir_path)
+sys.path.append("/nrn/lib/python")
 from neuron import h
-from UtilityFuncs import readLocation
-from settings import Settings
-from collections import namedtuple 
 
+import numpy as np
+from collections import namedtuple 
+from settings import Settings
 
 class Type6_Model():
     def __init__(self):
         """Build the model cell."""
+        self.h = h
         self.settings = Settings()
         
         [secList, p3d] = self._loadMorphology()
@@ -77,7 +82,7 @@ class Type6_Model():
       
     def nearestPnt3D(self, LocationFile):
         """A list of the closest xyz index given a list of XYZ points"""
-        locList = readLocation(LocationFile)
+        locList = self.readLocation(LocationFile)
         iList = []
         for Num in range(len(locList)):
             xyz = locList[Num,:]
@@ -140,16 +145,16 @@ class Type6_Model():
                 seg.pas.g = self.settings.g_pas
 
                 seg.Kv1_2.gMax = self.settings.Kv1_2_gpeak
-
-        #Calcium and HC2 channels are only in axons
+                
+                #Calcium and HC2 channels are only in axons
+                seg.Ca.gMax = 0 
+                seg.hcn2.gMax = 0
+        
         for sec in h.axon:
             for seg in sec:
                 seg.Ca.gMax = self.settings.Cav_L_gpeak
                 seg.hcn2.gMax = self.settings.hcn2_gpeak
-        for sec in h.dend:
-            for seg in sec:
-                seg.Ca.gMax = 0 
-                seg.hcn2.gMax = 0
+
 
     def updateSynapses(self):
         print('....updating synapse values')
@@ -162,6 +167,32 @@ class Type6_Model():
             syn.onset = self.settings.excSyn['start']
             syn.gmax = self.settings.excSyn['gmax']
             syn.e = self.settings.excSyn['e']
+            syn.basePropG = self.settings.excSyn['darkProp']
+            
+    def readLocation(self, fileName):
+        """Read the XYZ locations from a txt file"""
+        with open(fileName) as file_object:
+            lines = file_object.readlines()
+        XYZ = np.zeros([len(lines), 3])
+        for lineNum, line in enumerate(lines):
+            XYZ[lineNum,:] = line.split()
+        return XYZ
+    
+    def calcDistances(self, segList1, segList2):
+        """calculate the path distances between sets of locations"""
+        num1 = len(segList1)
+        num2 = len(segList2)  
+        distMatrix = np.zeros([num1, num2])
+
+        for n1 in range(num1):
+            seg1 = segList1[n1]
+            for n2 in range(num2):
+                seg2 = segList2[n2]
+
+                dist = h.distance(seg1, seg2)
+                distMatrix[n1, n2] = dist
+        return distMatrix
+        
 
 
 

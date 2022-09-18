@@ -20,7 +20,7 @@ PARAMETER	{
 	gMax = 0 (pS/um2) <0,1e9> :set in NEURON only for active model
 	ehcn = -23.4 (mV)	:HCN reversal potential [ref. Byczkowicz 2009, PMID: 31496517]
 	mVHalf = -99 (mV) :half-max of activation
-	mVWidth = 6.2 (mV) :slope of activation
+	mVWidth = -6.2 (mV) :slope of activation
 
 	mTauBaseline = 184 (ms)
 	mTauMult = 1
