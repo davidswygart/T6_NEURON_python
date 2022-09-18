@@ -8,7 +8,7 @@
 NEURON	{
 	SUFFIX Kv1_2
 	USEION k READ ek WRITE ik
-	RANGE gMax, gKv1_2, ik, mTauMult, hTauMult
+	RANGE gMax, gKv1_2, ik, mTauMult, hTauMult, mVHalf, mVWidth, hVHalf, hVWidth
 }
 
 UNITS	{
@@ -25,20 +25,12 @@ PARAMETER	{
 
 	mVHalf = -21 (mV) :half-max of activation
 	mVWidth = 11 (mV) :slope of activation
-
-	mTauVHalf = 68 (mV) :half-max of activation tau
-	mTauVWidth =  34 (mV) :slope of activation tau
-	mTauBase = 75 (ms)
 	mTauMult = 1
 
 
 	:Inactivation
 	hVHalf = -22 (mV) :half-max of inactivation
 	hVWidth = -11 (mV) :slope of inactivation
-
-	hTauVHalf = 47 (mV)  :half-max of inactivation tau
-	hTauVWidth = -44 (mV) :slope of inactivation tau
-	hTauBase = 7000 (ms)
 	hTauMult = 1
 }
 
@@ -78,8 +70,8 @@ INITIAL{
 
 PROCEDURE rates(){
 	mInf = 1 / (1+ exp((mVHalf-v) / mVWidth))
-	mTau = (mTauBase * 2 * mTauMult) / (1 + exp((mTauVHalf-v) / mTauVWidth))
+	mTau = mTauMult*(150.0000/(1+ exp((v - -67.5600)/34.1479)))
 
 	hInf = 1 / (1 + exp((hVHalf-v) / hVWidth))
-	hTau = (hTauBase * 2 * hTauMult) / (1 + exp((hTauVHalf-v) / hTauVWidth))
+	hTau = hTauMult*(15000.0000/(1+ exp((v - -46.5600)/-44.1479)))
 }

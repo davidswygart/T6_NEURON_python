@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "scoplib_ansi.h"
+#include "mech_api.h"
 #undef PI
 #define nil 0
 #include "md1redef.h"
@@ -33,9 +33,9 @@ extern double hoc_Exp(double);
 #define states states__Kv1_2 
  
 #define _threadargscomma_ _p, _ppvar, _thread, _nt,
-#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt,
+#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt,
 #define _threadargs_ _p, _ppvar, _thread, _nt
-#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt
+#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt
  	/*SUPPRESS 761*/
 	/*SUPPRESS 762*/
 	/*SUPPRESS 763*/
@@ -46,21 +46,45 @@ extern double hoc_Exp(double);
 #define t _nt->_t
 #define dt _nt->_dt
 #define gMax _p[0]
-#define mTauMult _p[1]
-#define hTauMult _p[2]
-#define ik _p[3]
-#define gKv1_2 _p[4]
-#define m _p[5]
-#define h _p[6]
-#define ek _p[7]
-#define mInf _p[8]
-#define mTau _p[9]
-#define hInf _p[10]
-#define hTau _p[11]
-#define Dm _p[12]
-#define Dh _p[13]
-#define v _p[14]
-#define _g _p[15]
+#define gMax_columnindex 0
+#define mVHalf _p[1]
+#define mVHalf_columnindex 1
+#define mVWidth _p[2]
+#define mVWidth_columnindex 2
+#define mTauMult _p[3]
+#define mTauMult_columnindex 3
+#define hVHalf _p[4]
+#define hVHalf_columnindex 4
+#define hVWidth _p[5]
+#define hVWidth_columnindex 5
+#define hTauMult _p[6]
+#define hTauMult_columnindex 6
+#define ik _p[7]
+#define ik_columnindex 7
+#define gKv1_2 _p[8]
+#define gKv1_2_columnindex 8
+#define m _p[9]
+#define m_columnindex 9
+#define h _p[10]
+#define h_columnindex 10
+#define ek _p[11]
+#define ek_columnindex 11
+#define mInf _p[12]
+#define mInf_columnindex 12
+#define mTau _p[13]
+#define mTau_columnindex 13
+#define hInf _p[14]
+#define hInf_columnindex 14
+#define hTau _p[15]
+#define hTau_columnindex 15
+#define Dm _p[16]
+#define Dm_columnindex 16
+#define Dh _p[17]
+#define Dh_columnindex 17
+#define v _p[18]
+#define v_columnindex 18
+#define _g _p[19]
+#define _g_columnindex 19
 #define _ion_ek	*_ppvar[0]._pval
 #define _ion_ik	*_ppvar[1]._pval
 #define _ion_dikdv	*_ppvar[2]._pval
@@ -116,43 +140,17 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  0, 0
 };
  /* declare global and static user variables */
-#define hTauBase hTauBase_Kv1_2
- double hTauBase = 7000;
-#define hTauVWidth hTauVWidth_Kv1_2
- double hTauVWidth = -44;
-#define hTauVHalf hTauVHalf_Kv1_2
- double hTauVHalf = 47;
-#define hVWidth hVWidth_Kv1_2
- double hVWidth = -11;
-#define hVHalf hVHalf_Kv1_2
- double hVHalf = -22;
-#define mTauBase mTauBase_Kv1_2
- double mTauBase = 75;
-#define mTauVWidth mTauVWidth_Kv1_2
- double mTauVWidth = 34;
-#define mTauVHalf mTauVHalf_Kv1_2
- double mTauVHalf = 68;
-#define mVWidth mVWidth_Kv1_2
- double mVWidth = 11;
-#define mVHalf mVHalf_Kv1_2
- double mVHalf = -21;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
  "gMax_Kv1_2", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
+ "gMax_Kv1_2", "pS/um2",
  "mVHalf_Kv1_2", "mV",
  "mVWidth_Kv1_2", "mV",
- "mTauVHalf_Kv1_2", "mV",
- "mTauVWidth_Kv1_2", "mV",
- "mTauBase_Kv1_2", "ms",
  "hVHalf_Kv1_2", "mV",
  "hVWidth_Kv1_2", "mV",
- "hTauVHalf_Kv1_2", "mV",
- "hTauVWidth_Kv1_2", "mV",
- "hTauBase_Kv1_2", "ms",
- "gMax_Kv1_2", "pS/um2",
  "ik_Kv1_2", "mA/cm2",
  "gKv1_2_Kv1_2", "pS/um2",
  0,0
@@ -162,16 +160,6 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  static double m0 = 0;
  /* connect global user variables to hoc */
  static DoubScal hoc_scdoub[] = {
- "mVHalf_Kv1_2", &mVHalf_Kv1_2,
- "mVWidth_Kv1_2", &mVWidth_Kv1_2,
- "mTauVHalf_Kv1_2", &mTauVHalf_Kv1_2,
- "mTauVWidth_Kv1_2", &mTauVWidth_Kv1_2,
- "mTauBase_Kv1_2", &mTauBase_Kv1_2,
- "hVHalf_Kv1_2", &hVHalf_Kv1_2,
- "hVWidth_Kv1_2", &hVWidth_Kv1_2,
- "hTauVHalf_Kv1_2", &hTauVHalf_Kv1_2,
- "hTauVWidth_Kv1_2", &hTauVWidth_Kv1_2,
- "hTauBase_Kv1_2", &hTauBase_Kv1_2,
  0,0
 };
  static DoubVec hoc_vdoub[] = {
@@ -179,15 +167,15 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static double _sav_indep;
  static void nrn_alloc(Prop*);
-static void  nrn_init(_NrnThread*, _Memb_list*, int);
-static void nrn_state(_NrnThread*, _Memb_list*, int);
- static void nrn_cur(_NrnThread*, _Memb_list*, int);
-static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
+static void  nrn_init(NrnThread*, _Memb_list*, int);
+static void nrn_state(NrnThread*, _Memb_list*, int);
+ static void nrn_cur(NrnThread*, _Memb_list*, int);
+static void  nrn_jacob(NrnThread*, _Memb_list*, int);
  
 static int _ode_count(int);
 static void _ode_map(int, double**, double**, double*, Datum*, double*, int);
-static void _ode_spec(_NrnThread*, _Memb_list*, int);
-static void _ode_matsol(_NrnThread*, _Memb_list*, int);
+static void _ode_spec(NrnThread*, _Memb_list*, int);
+static void _ode_matsol(NrnThread*, _Memb_list*, int);
  
 #define _cvode_ieq _ppvar[3]._i
  static void _ode_matsol_instance1(_threadargsproto_);
@@ -196,7 +184,11 @@ static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  "7.7.0",
 "Kv1_2",
  "gMax_Kv1_2",
+ "mVHalf_Kv1_2",
+ "mVWidth_Kv1_2",
  "mTauMult_Kv1_2",
+ "hVHalf_Kv1_2",
+ "hVWidth_Kv1_2",
  "hTauMult_Kv1_2",
  0,
  "ik_Kv1_2",
@@ -213,13 +205,17 @@ extern Prop* need_memb(Symbol*);
 static void nrn_alloc(Prop* _prop) {
 	Prop *prop_ion;
 	double *_p; Datum *_ppvar;
- 	_p = nrn_prop_data_alloc(_mechtype, 16, _prop);
+ 	_p = nrn_prop_data_alloc(_mechtype, 20, _prop);
  	/*initialize range parameters*/
  	gMax = 0;
+ 	mVHalf = -21;
+ 	mVWidth = 11;
  	mTauMult = 1;
+ 	hVHalf = -22;
+ 	hVWidth = -11;
  	hTauMult = 1;
  	_prop->param = _p;
- 	_prop->param_size = 16;
+ 	_prop->param_size = 20;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
  	_prop->dparam = _ppvar;
  	/*connect ionic variables to this model*/
@@ -239,7 +235,7 @@ static void nrn_alloc(Prop* _prop) {
  static void _update_ion_pointer(Datum*);
  extern Symbol* hoc_lookup(const char*);
 extern void _nrn_thread_reg(int, int, void(*)(Datum*));
-extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThread*, int));
+extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, NrnThread*, int));
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
@@ -256,7 +252,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
   hoc_reg_nmodl_text(_mechtype, nmodl_file_text);
   hoc_reg_nmodl_filename(_mechtype, nmodl_filename);
 #endif
-  hoc_register_prop_size(_mechtype, 16, 4);
+  hoc_register_prop_size(_mechtype, 20, 4);
   hoc_register_dparam_semantics(_mechtype, 0, "k_ion");
   hoc_register_dparam_semantics(_mechtype, 1, "k_ion");
   hoc_register_dparam_semantics(_mechtype, 2, "k_ion");
@@ -264,7 +260,7 @@ extern void _cvode_abstol( Symbol**, double*, int);
  	hoc_register_cvode(_mechtype, _ode_count, _ode_map, _ode_spec, _ode_matsol);
  	hoc_register_tolerance(_mechtype, _hoc_state_tol, &_atollist);
  	hoc_register_var(hoc_scdoub, hoc_vdoub, hoc_intfunc);
- 	ivoc_help("help ?1 Kv1_2 C:/Users/david/Documents/Code/Github/T6_NEURON_python/lib/Kv1_2.mod\n");
+ 	ivoc_help("help ?1 Kv1_2 Kv1_2.mod\n");
  hoc_register_limits(_mechtype, _hoc_parm_limits);
  hoc_register_units(_mechtype, _hoc_parm_units);
  }
@@ -283,21 +279,21 @@ static int _ode_spec1(_threadargsproto_);
  static int states(_threadargsproto_);
  
 /*CVODE*/
- static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {int _reset = 0; {
+ static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {int _reset = 0; {
    rates ( _threadargs_ ) ;
    Dm = ( mInf - m ) / mTau ;
    Dh = ( hInf - h ) / hTau ;
    }
  return _reset;
 }
- static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
+ static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
  rates ( _threadargs_ ) ;
  Dm = Dm  / (1. - dt*( ( ( ( - 1.0 ) ) ) / mTau )) ;
  Dh = Dh  / (1. - dt*( ( ( ( - 1.0 ) ) ) / hTau )) ;
   return 0;
 }
  /*END CVODE*/
- static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
+ static int states (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) { {
    rates ( _threadargs_ ) ;
     m = m + (1. - exp(dt*(( ( ( - 1.0 ) ) ) / mTau)))*(- ( ( ( mInf ) ) / mTau ) / ( ( ( ( - 1.0 ) ) ) / mTau ) - m) ;
     h = h + (1. - exp(dt*(( ( ( - 1.0 ) ) ) / hTau)))*(- ( ( ( hInf ) ) / hTau ) / ( ( ( ( - 1.0 ) ) ) / hTau ) - h) ;
@@ -307,14 +303,14 @@ static int _ode_spec1(_threadargsproto_);
  
 static int  rates ( _threadargsproto_ ) {
    mInf = 1.0 / ( 1.0 + exp ( ( mVHalf - v ) / mVWidth ) ) ;
-   mTau = ( mTauBase * 2.0 * mTauMult ) / ( 1.0 + exp ( ( mTauVHalf - v ) / mTauVWidth ) ) ;
+   mTau = mTauMult * ( 150.0000 / ( 1.0 + exp ( ( v - - 67.5600 ) / 34.1479 ) ) ) ;
    hInf = 1.0 / ( 1.0 + exp ( ( hVHalf - v ) / hVWidth ) ) ;
-   hTau = ( hTauBase * 2.0 * hTauMult ) / ( 1.0 + exp ( ( hTauVHalf - v ) / hTauVWidth ) ) ;
+   hTau = hTauMult * ( 15000.0000 / ( 1.0 + exp ( ( v - - 46.5600 ) / - 44.1479 ) ) ) ;
     return 0; }
  
 static void _hoc_rates(void) {
   double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
+   double* _p; Datum* _ppvar; Datum* _thread; NrnThread* _nt;
    if (_extcall_prop) {_p = _extcall_prop->param; _ppvar = _extcall_prop->dparam;}else{ _p = (double*)0; _ppvar = (Datum*)0; }
   _thread = _extcall_thread;
   _nt = nrn_threads;
@@ -325,7 +321,7 @@ static void _hoc_rates(void) {
  
 static int _ode_count(int _type){ return 2;}
  
-static void _ode_spec(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_spec(NrnThread* _nt, _Memb_list* _ml, int _type) {
    double* _p; Datum* _ppvar; Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -352,7 +348,7 @@ static void _ode_matsol_instance1(_threadargsproto_) {
  _ode_matsol1 (_p, _ppvar, _thread, _nt);
  }
  
-static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_matsol(NrnThread* _nt, _Memb_list* _ml, int _type) {
    double* _p; Datum* _ppvar; Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -371,7 +367,7 @@ static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
    nrn_update_ion_pointer(_k_sym, _ppvar, 2, 4);
  }
 
-static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
+static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
   int _i; double _save;{
   h = h0;
   m = m0;
@@ -384,7 +380,7 @@ static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt
 }
 }
 
-static void nrn_init(_NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_init(NrnThread* _nt, _Memb_list* _ml, int _type){
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -409,7 +405,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  }
 }
 
-static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
+static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    gKv1_2 = gMax * m * h ;
    ik = gKv1_2 * ( v - ek ) * ( 1e-12 ) * ( 1e+08 ) ;
    }
@@ -418,7 +414,7 @@ static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread
 } return _current;
 }
 
-static void nrn_cur(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_cur(NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; double _rhs, _v; int _iml, _cntml;
 #if CACHEVEC
@@ -459,7 +455,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_jacob(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_jacob(NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -483,7 +479,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_state(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_state(NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v = 0.0; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -517,8 +513,8 @@ static void _initlists(){
  double _x; double* _p = &_x;
  int _i; static int _first = 1;
   if (!_first) return;
- _slist1[0] = &(m) - _p;  _dlist1[0] = &(Dm) - _p;
- _slist1[1] = &(h) - _p;  _dlist1[1] = &(Dh) - _p;
+ _slist1[0] = m_columnindex;  _dlist1[0] = Dm_columnindex;
+ _slist1[1] = h_columnindex;  _dlist1[1] = Dh_columnindex;
 _first = 0;
 }
 
@@ -539,7 +535,7 @@ static const char* nmodl_file_text =
   "NEURON	{\n"
   "	SUFFIX Kv1_2\n"
   "	USEION k READ ek WRITE ik\n"
-  "	RANGE gMax, gKv1_2, ik, mTauMult, hTauMult\n"
+  "	RANGE gMax, gKv1_2, ik, mTauMult, hTauMult, mVHalf, mVWidth, hVHalf, hVWidth\n"
   "}\n"
   "\n"
   "UNITS	{\n"
@@ -556,20 +552,12 @@ static const char* nmodl_file_text =
   "\n"
   "	mVHalf = -21 (mV) :half-max of activation\n"
   "	mVWidth = 11 (mV) :slope of activation\n"
-  "\n"
-  "	mTauVHalf = 68 (mV) :half-max of activation tau\n"
-  "	mTauVWidth =  34 (mV) :slope of activation tau\n"
-  "	mTauBase = 75 (ms)\n"
   "	mTauMult = 1\n"
   "\n"
   "\n"
   "	:Inactivation\n"
   "	hVHalf = -22 (mV) :half-max of inactivation\n"
   "	hVWidth = -11 (mV) :slope of inactivation\n"
-  "\n"
-  "	hTauVHalf = 47 (mV)  :half-max of inactivation tau\n"
-  "	hTauVWidth = -44 (mV) :slope of inactivation tau\n"
-  "	hTauBase = 7000 (ms)\n"
   "	hTauMult = 1\n"
   "}\n"
   "\n"
@@ -609,10 +597,10 @@ static const char* nmodl_file_text =
   "\n"
   "PROCEDURE rates(){\n"
   "	mInf = 1 / (1+ exp((mVHalf-v) / mVWidth))\n"
-  "	mTau = (mTauBase * 2 * mTauMult) / (1 + exp((mTauVHalf-v) / mTauVWidth))\n"
+  "	mTau = mTauMult*(150.0000/(1+ exp((v - -67.5600)/34.1479)))\n"
   "\n"
   "	hInf = 1 / (1 + exp((hVHalf-v) / hVWidth))\n"
-  "	hTau = (hTauBase * 2 * hTauMult) / (1 + exp((hTauVHalf-v) / hTauVWidth))\n"
+  "	hTau = hTauMult*(15000.0000/(1+ exp((v - -46.5600)/-44.1479)))\n"
   "}\n"
   ;
 #endif

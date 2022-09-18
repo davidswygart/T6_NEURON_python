@@ -1,63 +1,40 @@
-import os
-import sys
-dir_path = os.path.dirname(os.path.realpath(__file__))
-os.chdir(dir_path)
-sys.path.append("/nrn/lib/python")
-
-
-from neuron import h
-import numpy as np
 from T6_Sim import Type6_Model
 from Experiment import Experiment
-from UtilityFuncs import makePlot
-from UtilityFuncs import calcDistances
+
+# Only make the model once. NEURON can do weird things if you remake it
+T6 = Type6_Model()
+
+#%% create experiment object
+ex = Experiment(T6)
+
+T6.settings.excSyn['start'] = 200
+T6.settings.inhSyn['start'] = 400
+ex.tstop = 600
 
 #%%%%%%%%%%%%%%%%%% Passive Model %%%%%%%%%%%%%%%%%%%%%%%%
-T6 = Type6_Model()
-ex = Experiment(T6, 100, 32, -40)
+# set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
+T6.settings.excSyn['gmax'] = 334 / 8 # conductance at each excitatory input synapse (8 total)
+T6.settings.excSyn['darkProp'] = 0.5 # proportion that is dark current
+T6.settings.inhSyn['gmax'] = 1550  #conductance at single inhibitory synapse
 
-# all active conductances = 0
-T6.settings.hcn2_gpeak = 0
-T6.settings.Kv1_2_gpeak = 0
-T6.settings.Cav_L_gpeak = 0
-
-# set exc and inh conductances for passive model determined in Estimate_Exc_and_Inh.py
-T6.settings.excSyn['gmax'] = 370
-T6.settings.inhSyn['gmax'] = 0 # turn off all inhibitory synapses. We will turn them on one-by-one below.
-
-#Run inhibition for each inh synapse and save data
 T6.update()
-ex.LoopThoughInhibitorySynapses('results\\passive\\', 1.5e-3)
 
+data = ex.LoopThoughInhibitorySynapses(folder ='results\\passive\\');
+# inh #9 and ribbon #24 are the ones used in the example trace
 
 #%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
-T6 = Type6_Model()
-ex = Experiment(T6, 750, 32, -35)
-
-#%% set up active conductances, synapse strengths, and experiment timing
 T6.settings.hcn2_gpeak = .78
 T6.settings.Kv1_2_gpeak = 11
-T6.settings.Cav_L_gpeak = 2.1
+T6.settings.Cav_L_gpeak = 1.62
 
-T6.settings.excSyn['gmax'] = 370
-inhG = 9400
-
-T6.settings.excSyn['start'] = 500
-T6.settings.inhSyn['start'] = 700
+# set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
+T6.settings.excSyn['gmax'] = 4000 / 8 # conductance at each excitatory input synapse (8 total)
+T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
+T6.settings.inhSyn['gmax'] = 9600  #conductance at single inhibitory synapse
 
 T6.update()
 
-#%% increas all taus
-for sec in h.allsec():
-    for seg in sec:
-        seg.Ca.mTauMult = 1
-        seg.Ca.hTauMult = 1
-        seg.Kv1_2.mTauMult = 1
-        seg.Kv1_2.hTauMult = 1
-        
-        
+data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
 
-
-#%%
-#Run inhibition for each inh synapse and save data
-ex.LoopThoughInhibitorySynapses('results\\active\\', 6.2e-3)
+# %%%%%%%%%%%%%%%%%% create example trace for figure %%%%%%%%%%%%%%%%%%%%%%%%
+ex.LoopThoughInhibitorySynapses(inhInds=[9]);
