@@ -24,17 +24,70 @@ data = ex.LoopThoughInhibitorySynapses(folder ='results\\passive\\');
 
 #%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
 T6.settings.hcn2_gpeak = .78
-T6.settings.Kv1_2_gpeak = 11
+T6.settings.Kv1_2_gpeak = 12
 T6.settings.Cav_L_gpeak = 1.62
 
+
 # set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
-T6.settings.excSyn['gmax'] = 4000 / 8 # conductance at each excitatory input synapse (8 total)
+T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
 T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
-T6.settings.inhSyn['gmax'] = 9600  #conductance at single inhibitory synapse
+T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
 
 T6.update()
 
 data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
 
+
 # %%%%%%%%%%%%%%%%%% create example trace for figure %%%%%%%%%%%%%%%%%%%%%%%%
 ex.LoopThoughInhibitorySynapses(inhInds=[9]);
+
+for sec in T6.h.allsec():
+    for seg in sec:
+        seg.Kv1_2.mVHalf = -9
+        seg.Kv1_2.mVWidth = 14
+        seg.Kv1_2.mTauMult = .001#1
+        
+        seg.Kv1_2.hVHalf = 8
+        seg.Kv1_2.hVWidth = -9
+        seg.Kv1_2.hTauMult = .0001#.1
+        
+        seg.hcn2.mTauMult = .001
+        seg.Ca.mTauMult = .001
+        seg.Ca.hTauMult = .001
+
+# %%%%%%%%%%%%%%%%%% create example trace for figure %%%%%%%%%%%%%%%%%%%%%%%%      
+for sec in T6.h.allsec():
+    for seg in sec:
+        seg.Kv1_2.mVHalf = -9
+        seg.Kv1_2.mVWidth = 14
+        seg.Kv1_2.mTauMult = 1
+        
+        seg.Kv1_2.hVHalf = 8
+        seg.Kv1_2.hVWidth = -9
+        seg.Kv1_2.hTauMult = 0.1
+        
+        seg.hcn2.mTauMult = 1
+        seg.Ca.mTauMult = 1
+        seg.Ca.hTauMult = 1
+        T6.settings.cm = 1.18
+        
+        #%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
+        T6.settings.hcn2_gpeak = .78
+        T6.settings.Kv1_2_gpeak = 12
+        T6.settings.Cav_L_gpeak = 1.62
+        
+        T6.settings.excSyn['start'] = 300
+        T6.settings.inhSyn['start'] = 300
+        ex.tstop = 400
+
+        # set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
+        T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
+        T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
+        T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
+
+        T6.update()
+
+        data = ex.LoopThoughInhibitorySynapses(inhInds=[9]);
+
+
+        
