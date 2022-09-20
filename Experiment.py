@@ -14,23 +14,28 @@ class Experiment():
         
              
     def _setRecordingVectors(self, secList):
-        """Set recording points at each section"""
+        """Set recording points at inhibitory and ribbon synapses"""
         print('....setting recording points')
         
-        RecordingStruct = namedtuple("RecordingStruct", "v iCa cai") #create a datastructure to recording vectors
-        rec = RecordingStruct([], [], []) # create an instance of this data structure with empty lists
-
-        for sec in secList:
-            h = self.model.h
-            vVec = h.Vector().record(sec(0.5)._ref_v)
-            rec.v.append(vVec)
+        RecordingStruct = namedtuple("RecordingStruct", "ribV ribCai inhV inhCai") #create a datastructure to recording vectors
+        rec = RecordingStruct([],[],[],[]) # create an instance of this data structure with empty lists
+        
+        h = self.model.h
+        
+        for seg in self.model.ribbons.seg:
+            vVec = h.Vector().record(seg._ref_v)
+            rec.ribV.append(vVec)
             
-            iCaVec = h.Vector().record(sec(0.5)._ref_Cai)
-            rec.iCa.append(iCaVec)
+            caiVec = h.Vector().record(seg._ref_Cai)
+            rec.ribCai.append(caiVec)
+        
+        for seg in self.model.inhSyns.seg:
+            vVec = h.Vector().record(seg._ref_v)
+            rec.inhV.append(vVec)
             
-            caiVec = h.Vector().record(sec(0.5)._ref_iCa)
-            rec.cai.append(caiVec)
-
+            caiVec = h.Vector().record(seg._ref_Cai)
+            rec.inhCai.append(caiVec)
+        
         return rec
   
     def run(self):
@@ -44,23 +49,22 @@ class Experiment():
         h.frecord_init()
         h.continuerun(self.tstop)
         
-        recVec = self.rec.v[0] #grab an example recording vector to see how many points it has
+        recVec = self.rec[0][0] #grab an example recording vector to see how many points it has
         self.time = np.linspace(0,self.tstop, len(recVec))
+        
     
         
     def LoopThoughInhibitorySynapses(self, folder='no save', inhInds='all'):
         """Run function looping though and providing inhibition at each synapse"""   
         
         if inhInds=='all': inhInds=list(range(len(self.model.inhSyns.syn)))
-        numInh = len(inhInds)
         
-        ribSecs = self.model.ribbons.secNum
-        numRibs = len(ribSecs)
+        numInh = len(inhInds)
+        numRibs = len(self.rec.ribV)
         
         inhStart = self.model.settings.inhSyn['start']
         excTime = round((inhStart-1) / self.model.h.dt) #excitation is recorded 1 ms before inhibition onset
 
-        
         dimension2 = ['exc', 'inh', 'delta', 'ratio']
         dimension3 = ['volts','Cai']
         
@@ -71,39 +75,44 @@ class Experiment():
             
         np.seterr(divide='ignore', invalid='ignore')
         
-        for i in range(numInh):
-            print('running ', i , ' of ', numInh)
+        for i, inhInd in enumerate(inhInds):
+            print('running ', i , ' of ', numInh, ', inh Syn #', inhInd)
         
-            inhSyn = self.model.inhSyns.syn[i]
+            inhSyn = self.model.inhSyns.syn[inhInd]
             inhSyn.gmax = self.model.settings.inhSyn['gmax']
             
             self.run()
             
             inhSyn.gmax = 0
             
-            volts = np.array(self.rec.v)
-            cai = np.array(self.rec.cai)
-            resp = np.stack((volts, cai), axis=2)
             
-            # the first row is data for the activated inh synapse
-            inhSec = self.model.inhSyns.secNum[i]
-            dataOut[i,0,0,:] = resp[inhSec, excTime, :]
-            dataOut[i,0,1,:] = resp[inhSec, -1, :]
-            dataOut[i,0,2,:] = resp[inhSec, -1, :] - resp[inhSec, excTime, :]
+            # the first column is data for the activated inh synapse
+            volts = np.array(self.rec.inhV[inhInd])
+            cai = np.array(self.rec.inhCai[inhInd])
+            resp = np.stack((volts, cai), axis=1)
+            
+            dataOut[i,0,0,:] = resp[excTime, :]
+            dataOut[i,0,1,:] = resp[-1, :]
+            dataOut[i,0,2,:] = resp[-1, :] - resp[excTime, :]
+            dataOut[i,0,3,:] = dataOut[i,0,2,:] / dataOut[i,0,2,:]
+            
             
             # the remaining rows are for the ribbons
-            ribSecs = self.model.ribbons.secNum
-            dataOut[i,1:,0,:] = resp[ribSecs, excTime, :]
-            dataOut[i,1:,1,:] = resp[ribSecs, -1, :]
-            dataOut[i,1:,2,:] = resp[ribSecs, -1] - resp[ribSecs, excTime, :]
+            volts = np.array(self.rec.ribV)
+            cai = np.array(self.rec.ribCai)
+            resp = np.stack((volts, cai), axis=2)
+
+            dataOut[i,1:,0,:] = resp[:, excTime, :]
+            dataOut[i,1:,1,:] = resp[:, -1, :]
+            dataOut[i,1:,2,:] = resp[:, -1, :] - resp[:, excTime, :]
             dataOut[i,1:,3,:] = dataOut[i,1:,2,:] / dataOut[i,0,2,:]
             
-            print('avg. rib mV = ', np.average(volts[ribSecs, excTime]))
-            print('inh. Syn mV = ', volts[inhSec, -1])
+            print('avg. rib mV = ', np.average(dataOut[i,1:,0,0]))
+            print('inh. Syn mV = ', dataOut[i,0,1,0])
             print('avg. ratio = ', np.average(dataOut[i,1:,3,0]), '\n')
             
-            self.makePlot(self.time, volts[inhSec,:], title='inhibition', xlabel='time (ms)', ylabel='mV')
-            self.makePlot(self.time, volts[ribSecs[24],:], title='ribbon 24',xlabel='time (ms)', ylabel='mV')
+            self.makePlot(self.time, np.array(self.rec.inhV[inhInd]), title='inhibition', xlabel='time (ms)', ylabel='mV')
+            self.makePlot(self.time, volts[24,:], title='ribbon 24',xlabel='time (ms)', ylabel='mV')
 
         if folder != 'no save':
             import os
