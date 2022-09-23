@@ -20,9 +20,9 @@ T6.settings.inhSyn['gmax'] = 1530  #conductance at single inhibitory synapse
 
 T6.update()
 
-data = ex.LoopThoughInhibitorySynapses(folder ='results\\passive\\');
-# inh #9 and ribbon #24 are the ones used in the example trace
-#ex.LoopThoughInhibitorySynapses(inhInds=[9]);
+#data = ex.LoopThoughInhibitorySynapses(folder ='results\\passive\\');
+
+ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 #%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
 for sec in T6.h.allsec():
     for seg in sec:
@@ -51,48 +51,41 @@ T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
 
 T6.update()
 
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[9]);
+#data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
+data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 # %%%%%%%%%%%%%%%%%% create example trace for figure %%%%%%%%%%%%%%%%%%%%%%%%
-ex.LoopThoughInhibitorySynapses(inhInds=[9]);
-i9_trace = np.array(ex.rec.inhV[9])
-r24_trace = np.array(ex.rec.ribV[24])
+# inh #16 (axon[98](0.551036)) and ribbon #90 (axon[36](0.818943)) are the ones used in the example trace
+
+ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+i9_trace = np.array(ex.rec.inhV[16])
+r24_trace = np.array(ex.rec.ribV[90])
 t = (ex.time-T6.settings.excSyn['start']) / 1000
 
 import os
 folder = 'results\\exampleTrace\\'
 os.makedirs(folder, exist_ok = True)
 np.savetxt(folder+ 'time.csv', t, delimiter=',')
-np.savetxt(folder+ 'inhibitory9.csv', i9_trace, delimiter=',')
-np.savetxt(folder+ 'ribbon24.csv', r24_trace, delimiter=',')
+np.savetxt(folder+ 'inhibitory16.csv', i9_trace, delimiter=',')
+np.savetxt(folder+ 'ribbon90.csv', r24_trace, delimiter=',')
 
-# %% for setting taus really small to reach steady state faster
+
+# %% calculating cumalative currents
+excCurrent = 0
+for syn in T6.excSyns.syn:
+    excCurrent += syn.i
+print('excitatory current = ', round(excCurrent*1000), ' (pA)')
+
+inhCurrent = 0
+for syn in T6.inhSyns.syn:
+    inhCurrent += syn.i
+print('inhibitory current = ', round(inhCurrent*1000), ' (pA)')
+
+kCurrent = 0
 for sec in T6.h.allsec():
     for seg in sec:
-        seg.Kv1_2.mVHalf = -9
-        seg.Kv1_2.mVWidth = 14
-        seg.Kv1_2.mTauMult = .001#1
+        kCurrent += seg.ik
+print('k+ current = ', round(kCurrent*1000), ' (pA)') #471 pA difference between exc and inh
         
-        seg.Kv1_2.hVHalf = 8
-        seg.Kv1_2.hVWidth = -9
-        seg.Kv1_2.hTauMult = .0001#.1
-        
-        seg.hcn2.mTauMult = .001
-        seg.Ca.mTauMult = .001
-        seg.Ca.hTauMult = .001
-        
-# %% for setting taus really small to reach steady state faster
-for sec in T6.h.allsec():
-    for seg in sec:
-        seg.Kv1_2.mVHalf = -9
-        seg.Kv1_2.mVWidth = 14
-        seg.Kv1_2.mTauMult = 1
-        
-        seg.Kv1_2.hVHalf = 8
-        seg.Kv1_2.hVWidth = -9
-        seg.Kv1_2.hTauMult = 0.1
-        
-        seg.hcn2.mTauMult = 1
-        seg.Ca.mTauMult = 1
-        seg.Ca.hTauMult = 1
-        T6.settings.cm = 1.18
+    
+
+
