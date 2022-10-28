@@ -55,23 +55,5 @@ T6.update()
 data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
 
-# %% calculating cumalative currents
-excCurrent = 0
-for syn in T6.excSyns.syn:
-    excCurrent += syn.i
-print('excitatory current = ', round(excCurrent*1000), ' (pA)')
-
-inhCurrent = 0
-for syn in T6.inhSyns.syn:
-    inhCurrent += syn.i
-print('inhibitory current = ', round(inhCurrent*1000), ' (pA)')
-
-kCurrent = 0
-for sec in T6.h.allsec():
-    for seg in sec:
-        kCurrent += seg.ik
-print('k+ current = ', round(kCurrent*1000), ' (pA)') #471 pA difference between exc and inh
-        
-    
 
 
