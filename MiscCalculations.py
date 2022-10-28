@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Oct 28 13:13:13 2022
+
+@author: david
+"""
+
 import numpy as np
 from T6_Sim import Type6_Model
 import os
@@ -17,6 +24,24 @@ np.savetxt(folder+ 'rib_secNum.txt',rib_secNum)
 inh_secNum = np.array(T6.inhSyns.secNum)
 np.savetxt(folder+ 'inh_secNum.txt',inh_secNum)
 
+# %% calculating cumalative currents
+excCurrent = 0
+for syn in T6.excSyns.syn:
+    excCurrent += syn.i
+print('excitatory current = ', round(excCurrent*1000), ' (pA)')
+
+inhCurrent = 0
+for syn in T6.inhSyns.syn:
+    inhCurrent += syn.i
+print('inhibitory current = ', round(inhCurrent*1000), ' (pA)')
+
+kCurrent = 0
+for sec in T6.h.allsec():
+    for seg in sec:
+        kCurrent += seg.ik
+print('k+ current = ', round(kCurrent*1000), ' (pA)') #471 pA difference between exc and inh
+        
+    
 
 
 
