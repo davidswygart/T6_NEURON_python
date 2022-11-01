@@ -52,8 +52,6 @@ class Experiment():
         recVec = self.rec[0][0] #grab an example recording vector to see how many points it has
         self.time = np.linspace(0,self.tstop, len(recVec))
         
-    
-        
     def LoopThoughInhibitorySynapses(self, folder='no save', inhLists='all'):
         """Run function looping though and providing inhibition at each synapse"""  
         # inhLists is a list of lists of inhibitory synapses that should be simultaneously turned on

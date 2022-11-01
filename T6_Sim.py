@@ -192,6 +192,12 @@ class Type6_Model():
                 dist = h.distance(seg1, seg2)
                 distMatrix[n1, n2] = dist
         return distMatrix
+    
+    def nNearestInh(self, n):
+        dists = self.calcDistances(self.inhSyns.seg,self.inhSyns.seg)
+        nearest = np.argsort(dists, axis = 1)
+        inds = nearest[:,0:n]
+        return inds.tolist()
         
 
 
