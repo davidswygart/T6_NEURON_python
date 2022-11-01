@@ -20,20 +20,6 @@ ex.tstop = 600
 
 
 #%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
-for sec in T6.h.allsec():
-    for seg in sec:
-        seg.Kv1_2.mVHalf = -9
-        seg.Kv1_2.mVWidth = 14
-        seg.Kv1_2.mTauMult = 1
-        
-        seg.Kv1_2.hVHalf = 8
-        seg.Kv1_2.hVWidth = -9
-        seg.Kv1_2.hTauMult = 0.1
-        
-        seg.hcn2.mTauMult = 1
-        seg.Ca.mTauMult = 1
-        seg.Ca.hTauMult = 1
-        T6.settings.cm = 1.18
 
 T6.settings.hcn2_gpeak = .78
 T6.settings.Kv1_2_gpeak = 12

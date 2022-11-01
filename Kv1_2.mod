@@ -23,15 +23,15 @@ PARAMETER	{
 
 	:Activation
 
-	mVHalf = -21 (mV) :half-max of activation
-	mVWidth = 11 (mV) :slope of activation
+	mVHalf = -9 (mV) :half-max of activation
+	mVWidth = 14 (mV) :slope of activation
 	mTauMult = 1
 
 
 	:Inactivation
-	hVHalf = -22 (mV) :half-max of inactivation
-	hVWidth = -11 (mV) :slope of inactivation
-	hTauMult = 1
+	hVHalf = 8 (mV) :half-max of inactivation
+	hVWidth = -9 (mV) :slope of inactivation
+	hTauMult = 0.1
 }
 
 ASSIGNED	{

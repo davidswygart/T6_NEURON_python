@@ -208,12 +208,12 @@ static void nrn_alloc(Prop* _prop) {
  	_p = nrn_prop_data_alloc(_mechtype, 20, _prop);
  	/*initialize range parameters*/
  	gMax = 0;
- 	mVHalf = -21;
- 	mVWidth = 11;
+ 	mVHalf = -9;
+ 	mVWidth = 14;
  	mTauMult = 1;
- 	hVHalf = -22;
- 	hVWidth = -11;
- 	hTauMult = 1;
+ 	hVHalf = 8;
+ 	hVWidth = -9;
+ 	hTauMult = 0.1;
  	_prop->param = _p;
  	_prop->param_size = 20;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
@@ -550,15 +550,15 @@ static const char* nmodl_file_text =
   "\n"
   "	:Activation\n"
   "\n"
-  "	mVHalf = -21 (mV) :half-max of activation\n"
-  "	mVWidth = 11 (mV) :slope of activation\n"
+  "	mVHalf = -9 (mV) :half-max of activation\n"
+  "	mVWidth = 14 (mV) :slope of activation\n"
   "	mTauMult = 1\n"
   "\n"
   "\n"
   "	:Inactivation\n"
-  "	hVHalf = -22 (mV) :half-max of inactivation\n"
-  "	hVWidth = -11 (mV) :slope of inactivation\n"
-  "	hTauMult = 1\n"
+  "	hVHalf = 8 (mV) :half-max of inactivation\n"
+  "	hVWidth = -9 (mV) :slope of inactivation\n"
+  "	hTauMult = 0.1\n"
   "}\n"
   "\n"
   "ASSIGNED	{\n"

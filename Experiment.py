@@ -113,6 +113,8 @@ class Experiment():
             
             self.makePlot(self.time, np.array(self.rec.inhV[inhInd]), title='inhibition', xlabel='time (ms)', ylabel='mV')
             self.makePlot(self.time, volts[90,:], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
+            
+        print('avg. ratio = ', np.average(dataOut[:,1:,3,0]), ' +- ', np.std(dataOut[:,1:,3,0]), '\n')
 
         if folder != 'no save':
             import os
