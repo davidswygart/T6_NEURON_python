@@ -54,79 +54,83 @@ class Experiment():
         
     
         
-    def LoopThoughInhibitorySynapses(self, folder='no save', inhInds='all'):
-        """Run function looping though and providing inhibition at each synapse"""   
+    def LoopThoughInhibitorySynapses(self, folder='no save', inhLists='all'):
+        """Run function looping though and providing inhibition at each synapse"""  
+        # inhLists is a list of lists of inhibitory synapses that should be simultaneously turned on
         
-        if inhInds=='all': inhInds=list(range(len(self.model.inhSyns.syn)))
+        for inhSyn in self.model.inhSyns.syn:
+            inhSyn.gmax = 0 #double check that all inhibition is turned off for start of experiment
         
-        numInh = len(inhInds)
+        if inhLists=='all':
+            inhLists = []
+            for i in range(len(self.model.inhSyns.syn)):
+                inhLists.append([i])
+    
+        numLoops = len(inhLists)
         numRibs = len(self.rec.ribV)
         
         inhStart = self.model.settings.inhSyn['start']
         excTime = round((inhStart-1) / self.model.h.dt) #excitation is recorded 1 ms before inhibition onset
-
-        dimension2 = ['exc', 'inh', 'delta', 'ratio']
-        dimension3 = ['volts','Cai']
         
-        dataOut = np.zeros((numInh, numRibs+1, len(dimension2), len(dimension3))) #the first value is for the inhibitory synapse
+        excV = np.zeros((numLoops, numRibs+1)) #the first column value is for the inhibitory synapse
+        inhV = np.zeros((numLoops, numRibs+1)) #the first column value is for the inhibitory synapse
         
-        for inhSyn in self.model.inhSyns.syn:
-            inhSyn.gmax = 0 #double check that all inhibtion is turned off
-            
-        np.seterr(divide='ignore', invalid='ignore')
+        for i, loopInhInds in enumerate(inhLists):
+            print('running ', i , ' of ', numLoops, ', inh Syn #', loopInhInds)
         
-        for i, inhInd in enumerate(inhInds):
-            print('running ', i , ' of ', numInh, ', inh Syn #', inhInd)
-        
-            inhSyn = self.model.inhSyns.syn[inhInd]
-            inhSyn.gmax = self.model.settings.inhSyn['gmax']
+            for ind in loopInhInds:
+                syn = self.model.inhSyns.syn[ind]
+                syn.gmax = self.model.settings.inhSyn['gmax']
             
             self.run()
             
-            inhSyn.gmax = 0
-            
+            for ind in loopInhInds:
+                syn = self.model.inhSyns.syn[ind]
+                inhSyn.gmax = 0
             
             # the first column is data for the activated inh synapse
-            volts = np.array(self.rec.inhV[inhInd])
-            cai = np.array(self.rec.inhCai[inhInd])
-            resp = np.stack((volts, cai), axis=1)
-            
-            dataOut[i,0,0,:] = resp[excTime, :]
-            dataOut[i,0,1,:] = resp[-1, :]
-            dataOut[i,0,2,:] = resp[-1, :] - resp[excTime, :]
-            dataOut[i,0,3,:] = dataOut[i,0,2,:] / dataOut[i,0,2,:]
-            
-            
-            # the remaining rows are for the ribbons
-            volts = np.array(self.rec.ribV)
-            cai = np.array(self.rec.ribCai)
-            resp = np.stack((volts, cai), axis=2)
+            avgInhV = np.zeros(len(self.rec.inhV[0]))
+            for ind in loopInhInds:
+                avgInhV += np.array(self.rec.inhV[ind])
+            avgInhV = avgInhV / len(loopInhInds) #average voltage at the activated inhibitory synapses
+                
+            excV[i,0] = avgInhV[excTime] # voltage at time of excitation
+            inhV[i,0] = avgInhV[-1] # voltage at time of inhibition
 
-            dataOut[i,1:,0,:] = resp[:, excTime, :]
-            dataOut[i,1:,1,:] = resp[:, -1, :]
-            dataOut[i,1:,2,:] = resp[:, -1, :] - resp[:, excTime, :]
-            dataOut[i,1:,3,:] = dataOut[i,1:,2,:] / dataOut[i,0,2,:]
+            # the remaining columns are for the ribbons
+            ribV = np.array(self.rec.ribV)
+
+            excV[i,1:] = ribV[:, excTime]
+            inhV[i,1:] = ribV[:, -1]
+            delta = excV
+
             
-            print('avg. rib mV = ', np.average(dataOut[i,1:,0,0]))
-            print('inh. Syn mV = ', dataOut[i,0,1,0])
-            print('avg. ratio = ', np.average(dataOut[i,1:,3,0]), '\n')
+            print('avg. rib mV = ', np.average(excV[i,1:]))
+            print('avg inh. Syn mV = ', inhV[i,0])
             
-            self.makePlot(self.time, np.array(self.rec.inhV[inhInd]), title='inhibition', xlabel='time (ms)', ylabel='mV')
-            self.makePlot(self.time, volts[90,:], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
-            
-        print('avg. ratio = ', np.average(dataOut[:,1:,3,0]), ' +- ', np.std(dataOut[:,1:,3,0]), '\n')
+            self.makePlot(self.time, avgInhV, title='inhibition', xlabel='time (ms)', ylabel='mV')
+            self.makePlot(self.time, ribV[90,:], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
+        
+        delta = excV - inhV
+        ratio = delta / delta[:,[0]]
+        print('avg. ratio = ', np.average(ratio[:,1:]), ' +- ', np.std(ratio[:,1:]), '\n')
 
         if folder != 'no save':
             import os
-            for r,rType in enumerate(dimension2):
-                for u,unit in enumerate(dimension3):
-                    fullPath = folder + unit + '\\'
-                    os.makedirs(fullPath, exist_ok = True)
-                    
-                    fullFile = fullPath + rType + '.csv'
-                    np.savetxt(fullFile, dataOut[:,:,r,u], delimiter=',' , header="inh,ribbons")
-                
-        return dataOut
+            os.makedirs(folder, exist_ok = True)
+            
+            file = folder + '\\excV.csv'
+            np.savetxt(file, excV, delimiter=',' , header="inh,ribbons")
+            
+            file = folder + '\\inhV.csv'
+            np.savetxt(file, delta, delimiter=',' , header="inh,ribbons")
+            
+            file = folder + '\\delta.csv'
+            np.savetxt(file, delta, delimiter=',' , header="inh,ribbons")
+            
+            file = folder + '\\ratio.csv'
+            np.savetxt(file, ratio, delimiter=',' , header="inh,ribbons")
+        return ratio
     
     def hist(vals, title = '', ylabel = '', xlabel = '', xmin = 'calc', xmax = 'calc'):
         fig, ax = plt.subplots()

@@ -28,9 +28,3 @@ class Settings ():
         'gmax' : 0,                 # pS for each synapse (activated 1 at a time for main experiment)                        
         'e' : -50.4,                # reversal potential (mV)
         }
-        
-        -5
-        S -> uS == +6
-        cm2 -> m == +4
-        m -> um == -12
-        == -9
