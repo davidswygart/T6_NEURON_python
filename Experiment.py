@@ -58,8 +58,8 @@ class Experiment():
         """Run function looping though and providing inhibition at each synapse"""  
         # inhLists is a list of lists of inhibitory synapses that should be simultaneously turned on
         
-        for inhSyn in self.model.inhSyns.syn:
-            inhSyn.gmax = 0 #double check that all inhibition is turned off for start of experiment
+        for syn in self.model.inhSyns.syn:
+            syn.gmax = 0 #double check that all inhibition is turned off for start of experiment
         
         if inhLists=='all':
             inhLists = []
@@ -86,7 +86,7 @@ class Experiment():
             
             for ind in loopInhInds:
                 syn = self.model.inhSyns.syn[ind]
-                inhSyn.gmax = 0
+                syn.gmax = 0
             
             # the first column is data for the activated inh synapse
             avgInhV = np.zeros(len(self.rec.inhV[0]))
@@ -106,7 +106,7 @@ class Experiment():
 
             
             print('avg. rib mV = ', np.average(excV[i,1:]))
-            print('avg inh. Syn mV = ', inhV[i,0])
+            print('avg inh. Syn mV = ', inhV[i,0],'\n')
             
             self.makePlot(self.time, avgInhV, title='inhibition', xlabel='time (ms)', ylabel='mV')
             self.makePlot(self.time, ribV[90,:], title='ribbon 90',xlabel='time (ms)', ylabel='mV')

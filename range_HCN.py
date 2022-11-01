@@ -22,7 +22,7 @@ T6.settings.hcn2_gpeak = .78 * 0
 T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
 T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
 T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0_');
+data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0');
 #data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 #%%%%%%%%%%%%%%%%%% HCN conductance * 0.25 %%%%%%%%%%%%%%%%%%%%%%%%
 T6.settings.hcn2_gpeak = .78 * 0.25
@@ -43,7 +43,7 @@ T6.settings.hcn2_gpeak = .78 * 0.75
 T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
 T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
 T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0p75_');
+data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0p75');
 #data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 #%%%%%%%%%%%%%%%%%% HCN conductance = normal %%%%%%%%%%%%%%%%%%%%%%%%
 T6.settings.hcn2_gpeak = .78
