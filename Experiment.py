@@ -87,29 +87,33 @@ class Experiment():
                 syn.gmax = 0
             
             # the first column is data for the activated inh synapse
-            avgInhV = np.zeros(len(self.rec.inhV[0]))
-            for ind in loopInhInds:
-                avgInhV += np.array(self.rec.inhV[ind])
-            avgInhV = avgInhV / len(loopInhInds) #average voltage at the activated inhibitory synapses
+            inhSynV = np.array(self.rec.inhV)
+            
+            inhSynExc = inhSynV[:, excTime]
+            inhSynInh = inhSynV[:,-1]
+            inhSynDelta = inhSynExc - inhSynInh
+            maxDeltaInhSynInd = np.argmax(inhSynDelta)
                 
-            excV[i,0] = avgInhV[excTime] # voltage at time of excitation
-            inhV[i,0] = avgInhV[-1] # voltage at time of inhibition
+            excV[i,0] = inhSynExc[maxDeltaInhSynInd] # voltage at time of excitation
+            inhV[i,0] = inhSynInh[maxDeltaInhSynInd] # voltage at time of inhibition
 
             # the remaining columns are for the ribbons
             ribV = np.array(self.rec.ribV)
 
             excV[i,1:] = ribV[:, excTime]
             inhV[i,1:] = ribV[:, -1]
-            delta = excV
 
             
             print('avg. rib mV = ', np.average(excV[i,1:]))
-            print('avg inh. Syn mV = ', inhV[i,0],'\n')
+            print('inh. Syn mV (max delta) = ', inhV[i,0],'\n')
             
-            self.makePlot(self.time, avgInhV, title='inhibition', xlabel='time (ms)', ylabel='mV')
+            self.makePlot(self.time, inhSynV[maxDeltaInhSynInd,:], title='inhibition', xlabel='time (ms)', ylabel='mV')
             self.makePlot(self.time, ribV[90,:], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
         
         delta = excV - inhV
+        # trace_Rib1 = ribV[np.argmax(delta),:]
+        # trace_rib2 = ribV[np.argmin(delta),:]
+        
         ratio = delta / delta[:,[0]]
         print('avg. ratio = ', np.average(ratio[:,1:]), ' +- ', np.std(ratio[:,1:]), '\n')
 

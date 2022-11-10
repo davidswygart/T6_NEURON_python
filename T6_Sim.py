@@ -199,13 +199,3 @@ class Type6_Model():
         inds = nearest[:,0:n]
         return inds.tolist()
         
-
-
-
-        
-
-
-
-
-
-
