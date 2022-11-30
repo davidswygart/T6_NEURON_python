@@ -140,6 +140,14 @@ data = ex.LoopThoughInhibitorySynapses(inhLists=inds, folder = 'results\\range\\
 # data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n=60
+T6.settings.inhSyn['gmax'] = 8650 /n  #conductance at single inhibitory synapse
+T6.update()
+inds = T6.nNearestInh(n)
+data = ex.LoopThoughInhibitorySynapses(inhLists=inds, folder = 'results\\range\\nNearest\\n' + str(n));
+# data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n=64
 T6.settings.inhSyn['gmax'] = 8700 /n  #conductance at single inhibitory synapse
 T6.update()
@@ -148,8 +156,24 @@ data = ex.LoopThoughInhibitorySynapses(inhLists=inds, folder = 'results\\range\\
 # data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n=80
+T6.settings.inhSyn['gmax'] = 9000 /n  #conductance at single inhibitory synapse
+T6.update()
+inds = T6.nNearestInh(n)
+data = ex.LoopThoughInhibitorySynapses(inhLists=inds, folder = 'results\\range\\nNearest\\n' + str(n));
+# data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n=100
 T6.settings.inhSyn['gmax'] = 9400 /n  #conductance at single inhibitory synapse
+T6.update()
+inds = T6.nNearestInh(n)
+data = ex.LoopThoughInhibitorySynapses(inhLists=inds, folder = 'results\\range\\nNearest\\n' + str(n));
+# data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n=110
+T6.settings.inhSyn['gmax'] = 9600 /n  #conductance at single inhibitory synapse
 T6.update()
 inds = T6.nNearestInh(n)
 data = ex.LoopThoughInhibitorySynapses(inhLists=inds, folder = 'results\\range\\nNearest\\n' + str(n));
