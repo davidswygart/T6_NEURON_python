@@ -21,8 +21,8 @@ T6.settings.inhSyn['gmax'] = 1530  #conductance at single inhibitory synapse
 T6.update()
 
 #data = ex.LoopThoughInhibitorySynapses(folder ='results\\passive\\');
-
-ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+inds = T6.nNearestInh(1)
+ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
 #%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
 
 T6.settings.hcn2_gpeak = .78
@@ -38,7 +38,8 @@ T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
 T6.update()
 
 #data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
-data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+inds = T6.nNearestInh(1)
+data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
 
 
 
