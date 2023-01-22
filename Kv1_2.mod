@@ -16,6 +16,7 @@ UNITS	{
 	(um) = (micron)
 	(mV) = (millivolt)
 	(mA) = (milliamp)
+	(S) = (siemens)
 }
 
 PARAMETER	{
@@ -25,20 +26,26 @@ PARAMETER	{
 
 	mVHalf = -9 (mV) :half-max of activation
 	mVWidth = 14 (mV) :slope of activation
-	mTauMult = 1
+
+	mTauVHalf = -67.56 (mV) :half-max of activation tau
+	mTauVWidth = 34.1479 (mV) :slope of activation tau
+	mTauMult = 150 (ms)
 
 
 	:Inactivation
 	hVHalf = 8 (mV) :half-max of inactivation
 	hVWidth = -9 (mV) :slope of inactivation
-	hTauMult = 0.1
+
+	hTauVHalf = -46.56 (mV) :half-max of inactivation tau
+	hTauVWidth = -44.1479 (mV) :slope of inactivation tau
+	hTauMult = 1500 (ms)
 }
 
 ASSIGNED	{
 	v	(mV)
 	ek	(mV)
 	ik	(mA/cm2)
-	gKv1_2	(pS/um2)
+	gKv1_2	(S/cm2)
 	mInf
 	mTau (ms)
 	hInf
@@ -52,8 +59,8 @@ STATE	{
 
 BREAKPOINT	{
 	SOLVE states METHOD cnexp
-	gKv1_2 = gMax*m*h
-	ik = gKv1_2*(v-ek) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
+	gKv1_2 = gMax*m*h * (1e-4)
+	ik = gKv1_2*(v-ek)
 }
 
 DERIVATIVE states	{
@@ -70,8 +77,8 @@ INITIAL{
 
 PROCEDURE rates(){
 	mInf = 1 / (1+ exp((mVHalf-v) / mVWidth))
-	mTau = mTauMult*(150.0000/(1+ exp((v - -67.5600)/34.1479)))
+	mTau = mTauMult/(1+ exp((v-mTauVHalf) / mTauVWidth))
 
 	hInf = 1 / (1 + exp((hVHalf-v) / hVWidth))
-	hTau = hTauMult*(15000.0000/(1+ exp((v - -46.5600)/-44.1479)))
+	hTau = hTauMult/(1+ exp((v - hTauVHalf)/hTauVWidth))
 }

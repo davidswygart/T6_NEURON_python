@@ -21,6 +21,7 @@ UNITS
 	(um) = (micron)
 	(mA) = (milliamp)
 	(mV) = (millivolt)
+	(S) = (siemens)
 }
 
 PARAMETER
@@ -52,7 +53,7 @@ STATE
 
 ASSIGNED
 {
-	gCa (pS/um2)
+	gCa (S/cm2)
 	v (mV)
 	iCa (mA/cm2)
 	infmCa
@@ -71,8 +72,8 @@ INITIAL
 BREAKPOINT
 {
 	SOLVE states METHOD cnexp
-	gCa = gMax*mCa*hCa
-	iCa = gCa*(v - eCa) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm
+	gCa = gMax*mCa*hCa * (1e-4)
+	iCa = gCa*(v - eCa)
 }
 
 DERIVATIVE states

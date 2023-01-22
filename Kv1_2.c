@@ -140,19 +140,33 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  0, 0
 };
  /* declare global and static user variables */
+#define hTauVWidth hTauVWidth_Kv1_2
+ double hTauVWidth = -44.1479;
+#define hTauVHalf hTauVHalf_Kv1_2
+ double hTauVHalf = -46.56;
+#define mTauVWidth mTauVWidth_Kv1_2
+ double mTauVWidth = 34.1479;
+#define mTauVHalf mTauVHalf_Kv1_2
+ double mTauVHalf = -67.56;
  /* some parameters have upper and lower limits */
  static HocParmLimits _hoc_parm_limits[] = {
  "gMax_Kv1_2", 0, 1e+09,
  0,0,0
 };
  static HocParmUnits _hoc_parm_units[] = {
+ "mTauVHalf_Kv1_2", "mV",
+ "mTauVWidth_Kv1_2", "mV",
+ "hTauVHalf_Kv1_2", "mV",
+ "hTauVWidth_Kv1_2", "mV",
  "gMax_Kv1_2", "pS/um2",
  "mVHalf_Kv1_2", "mV",
  "mVWidth_Kv1_2", "mV",
+ "mTauMult_Kv1_2", "ms",
  "hVHalf_Kv1_2", "mV",
  "hVWidth_Kv1_2", "mV",
+ "hTauMult_Kv1_2", "ms",
  "ik_Kv1_2", "mA/cm2",
- "gKv1_2_Kv1_2", "pS/um2",
+ "gKv1_2_Kv1_2", "S/cm2",
  0,0
 };
  static double delta_t = 0.01;
@@ -160,6 +174,10 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  static double m0 = 0;
  /* connect global user variables to hoc */
  static DoubScal hoc_scdoub[] = {
+ "mTauVHalf_Kv1_2", &mTauVHalf_Kv1_2,
+ "mTauVWidth_Kv1_2", &mTauVWidth_Kv1_2,
+ "hTauVHalf_Kv1_2", &hTauVHalf_Kv1_2,
+ "hTauVWidth_Kv1_2", &hTauVWidth_Kv1_2,
  0,0
 };
  static DoubVec hoc_vdoub[] = {
@@ -210,10 +228,10 @@ static void nrn_alloc(Prop* _prop) {
  	gMax = 0;
  	mVHalf = -9;
  	mVWidth = 14;
- 	mTauMult = 1;
+ 	mTauMult = 150;
  	hVHalf = 8;
  	hVWidth = -9;
- 	hTauMult = 0.1;
+ 	hTauMult = 1500;
  	_prop->param = _p;
  	_prop->param_size = 20;
  	_ppvar = nrn_prop_datum_alloc(_mechtype, 4, _prop);
@@ -303,9 +321,9 @@ static int _ode_spec1(_threadargsproto_);
  
 static int  rates ( _threadargsproto_ ) {
    mInf = 1.0 / ( 1.0 + exp ( ( mVHalf - v ) / mVWidth ) ) ;
-   mTau = mTauMult * ( 150.0000 / ( 1.0 + exp ( ( v - - 67.5600 ) / 34.1479 ) ) ) ;
+   mTau = mTauMult / ( 1.0 + exp ( ( v - mTauVHalf ) / mTauVWidth ) ) ;
    hInf = 1.0 / ( 1.0 + exp ( ( hVHalf - v ) / hVWidth ) ) ;
-   hTau = hTauMult * ( 15000.0000 / ( 1.0 + exp ( ( v - - 46.5600 ) / - 44.1479 ) ) ) ;
+   hTau = hTauMult / ( 1.0 + exp ( ( v - hTauVHalf ) / hTauVWidth ) ) ;
     return 0; }
  
 static void _hoc_rates(void) {
@@ -406,8 +424,8 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
-   gKv1_2 = gMax * m * h ;
-   ik = gKv1_2 * ( v - ek ) * ( 1e-12 ) * ( 1e+08 ) ;
+   gKv1_2 = gMax * m * h * ( 1e-4 ) ;
+   ik = gKv1_2 * ( v - ek ) ;
    }
  _current += ik;
 
@@ -543,6 +561,7 @@ static const char* nmodl_file_text =
   "	(um) = (micron)\n"
   "	(mV) = (millivolt)\n"
   "	(mA) = (milliamp)\n"
+  "	(S) = (siemens)\n"
   "}\n"
   "\n"
   "PARAMETER	{\n"
@@ -552,20 +571,26 @@ static const char* nmodl_file_text =
   "\n"
   "	mVHalf = -9 (mV) :half-max of activation\n"
   "	mVWidth = 14 (mV) :slope of activation\n"
-  "	mTauMult = 1\n"
+  "\n"
+  "	mTauVHalf = -67.56 (mV) :half-max of activation tau\n"
+  "	mTauVWidth = 34.1479 (mV) :slope of activation tau\n"
+  "	mTauMult = 150 (ms)\n"
   "\n"
   "\n"
   "	:Inactivation\n"
   "	hVHalf = 8 (mV) :half-max of inactivation\n"
   "	hVWidth = -9 (mV) :slope of inactivation\n"
-  "	hTauMult = 0.1\n"
+  "\n"
+  "	hTauVHalf = -46.56 (mV) :half-max of inactivation tau\n"
+  "	hTauVWidth = -44.1479 (mV) :slope of inactivation tau\n"
+  "	hTauMult = 1500 (ms)\n"
   "}\n"
   "\n"
   "ASSIGNED	{\n"
   "	v	(mV)\n"
   "	ek	(mV)\n"
   "	ik	(mA/cm2)\n"
-  "	gKv1_2	(pS/um2)\n"
+  "	gKv1_2	(S/cm2)\n"
   "	mInf\n"
   "	mTau (ms)\n"
   "	hInf\n"
@@ -579,8 +604,8 @@ static const char* nmodl_file_text =
   "\n"
   "BREAKPOINT	{\n"
   "	SOLVE states METHOD cnexp\n"
-  "	gKv1_2 = gMax*m*h\n"
-  "	ik = gKv1_2*(v-ek) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
+  "	gKv1_2 = gMax*m*h * (1e-4)\n"
+  "	ik = gKv1_2*(v-ek)\n"
   "}\n"
   "\n"
   "DERIVATIVE states	{\n"
@@ -597,10 +622,10 @@ static const char* nmodl_file_text =
   "\n"
   "PROCEDURE rates(){\n"
   "	mInf = 1 / (1+ exp((mVHalf-v) / mVWidth))\n"
-  "	mTau = mTauMult*(150.0000/(1+ exp((v - -67.5600)/34.1479)))\n"
+  "	mTau = mTauMult/(1+ exp((v-mTauVHalf) / mTauVWidth))\n"
   "\n"
   "	hInf = 1 / (1 + exp((hVHalf-v) / hVWidth))\n"
-  "	hTau = hTauMult*(15000.0000/(1+ exp((v - -46.5600)/-44.1479)))\n"
+  "	hTau = hTauMult/(1+ exp((v - hTauVHalf)/hTauVWidth))\n"
   "}\n"
   ;
 #endif

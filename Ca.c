@@ -179,7 +179,7 @@ extern void hoc_reg_nmodl_filename(int, const char*);
  "SCah_Ca", "mV",
  "gammaohCa_Ca", "/ms",
  "deltaohCa_Ca", "/ms",
- "gCa_Ca", "pS/um2",
+ "gCa_Ca", "S/cm2",
  0,0
 };
  static double delta_t = 0.01;
@@ -508,8 +508,8 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
 }
 
 static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
-   gCa = gMax * mCa * hCa ;
-   iCa = gCa * ( v - eCa ) * ( 1e-12 ) * ( 1e+08 ) ;
+   gCa = gMax * mCa * hCa * ( 1e-4 ) ;
+   iCa = gCa * ( v - eCa ) ;
    }
  _current += iCa;
 
@@ -648,6 +648,7 @@ static const char* nmodl_file_text =
   "	(um) = (micron)\n"
   "	(mA) = (milliamp)\n"
   "	(mV) = (millivolt)\n"
+  "	(S) = (siemens)\n"
   "}\n"
   "\n"
   "PARAMETER\n"
@@ -679,7 +680,7 @@ static const char* nmodl_file_text =
   "\n"
   "ASSIGNED\n"
   "{\n"
-  "	gCa (pS/um2)\n"
+  "	gCa (S/cm2)\n"
   "	v (mV)\n"
   "	iCa (mA/cm2)\n"
   "	infmCa\n"
@@ -698,8 +699,8 @@ static const char* nmodl_file_text =
   "BREAKPOINT\n"
   "{\n"
   "	SOLVE states METHOD cnexp\n"
-  "	gCa = gMax*mCa*hCa\n"
-  "	iCa = gCa*(v - eCa) * (1e-12) * (1e+08) :conversion factors for femtosiemens -> S and um -> cm\n"
+  "	gCa = gMax*mCa*hCa * (1e-4)\n"
+  "	iCa = gCa*(v - eCa)\n"
   "}\n"
   "\n"
   "DERIVATIVE states\n"

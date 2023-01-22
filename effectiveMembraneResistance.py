@@ -40,7 +40,6 @@ data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
 
 #%% calculate membrane area for each segment (um2)
 
-
 segArea = []
 
 for sec in T6.h.allsec():
@@ -53,18 +52,20 @@ plt.hist(segArea)
 #%% calculate conductance in each section
 plt.figure()
 t = np.array(ex.time)
-#  Kv and Cav are in units of pS/um2
-pStoS = 1e-12
-gCa = np.array(ex.rec.gCa) * segArea * pStoS
-gCaTotal = np.sum(gCa, axis=0)
-plt.plot(t,gCaTotal)
 
-gKv = np.array(ex.rec.gKv1_2) * segArea * pStoS
-gKvTotal = np.sum(gKv, axis=0)
-plt.plot(t,gKvTotal)
 
 # HCN2 and leak conductance are in units of S/cm2
 Um2Tocm2 = 1e-8
+
+gCa = np.array(ex.rec.gCa) * segArea * Um2Tocm2
+gCaTotal = np.sum(gCa, axis=0)
+plt.plot(t,gCaTotal)
+
+
+gKv = np.array(ex.rec.gKv1_2) * segArea * Um2Tocm2
+gKvTotal = np.sum(gKv, axis=0)
+plt.plot(t,gKvTotal)
+
 
 gHCN2 = np.array(ex.rec.gHCN2)  * segArea * Um2Tocm2
 gHCN2Total = np.sum(gHCN2, axis=0)
@@ -93,4 +94,27 @@ plt.title('effective membrane resistance')
 plt.ylabel("MOhm")
 plt.xlabel('ms')
 plt.legend(['passive', 'active'])
+
+#%%%%%%%%%%%%%%%%%% increase leak conductance equally accross whole cell in place of active conductances %%%%%%%%%%%%%%%%%%%%%%%%
+
+
+# no active conductances
+T6.settings.hcn2_gpeak = 0
+T6.settings.Kv1_2_gpeak = 0
+T6.settings.Cav_L_gpeak = 0
+
+
+
+
+# set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
+T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
+T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
+T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
+
+#T6.update()
+
+#data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
+#inds = T6.nNearestInh(1)
+#data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
+
         
