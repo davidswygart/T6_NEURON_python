@@ -17,8 +17,8 @@ class Experiment():
         """Set recording points at inhibitory and ribbon synapses"""
         print('....setting recording points')
         
-        RecordingStruct = namedtuple("RecordingStruct", "ribV ribCai inhV inhCai") #create a datastructure to recording vectors
-        rec = RecordingStruct([],[],[],[]) # create an instance of this data structure with empty lists
+        RecordingStruct = namedtuple("RecordingStruct", "ribV ribCai inhV inhCai gKv1_2 gHCN2 gCa") #create a datastructure to recording vectors
+        rec = RecordingStruct([],[],[],[], [], [], []) # create an instance of this data structure with empty lists
         
         h = self.model.h
         
@@ -35,7 +35,13 @@ class Experiment():
             
             caiVec = h.Vector().record(seg._ref_Cai)
             rec.inhCai.append(caiVec)
-        
+            
+        for sec in h.allsec():
+            for seg in sec:
+                rec.gKv1_2.append(h.Vector().record(seg.Kv1_2._ref_gKv1_2))
+                rec.gHCN2.append(h.Vector().record(seg.hcn2._ref_gHCN2))
+                rec.gCa.append(h.Vector().record(seg.Ca._ref_gCa))
+                
         return rec
   
     def run(self):

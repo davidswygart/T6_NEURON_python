@@ -12,6 +12,7 @@ NEURON
 	RANGE eCa,aomCa,bomCa
 	RANGE gammaohCa,deltaohCa
 	RANGE mTauMult , hTauMult
+	RANGE gCa
 }
 
 UNITS

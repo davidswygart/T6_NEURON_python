@@ -42,9 +42,10 @@ for sec in T6.h.allsec():
 print('k+ current = ', round(kCurrent*1000), ' (pA)') #471 pA difference between exc and inh
         
     
-
-
-
+b.hcn2.gHCN2
+b.Kv1_2.gKv1_2
+b.pas.g
+b.Ca.gCa
 
 #%% segment lengths
 # allL = list()
