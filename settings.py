@@ -13,18 +13,26 @@ class Settings ():
         self.Kv1_2_gpeak = 0        # max channel conductance (accross entire cell) (pS/um2)
         self.Cav_L_gpeak = 0        # max channel conductance (restricted to axon arbors) (pS/um2)
         
-        ############ Excitatory Synapses (on dendrites) ############
-        # excitatory and inhibitory inputs
-        self.excSyn = {
-        'start' : 0,                # opening delay from start of experiment (ms)
-        'gmax' : 0,                 # pS for each synapse (8 synapses total)
-        'darkProp' : 0,             # proportion of gmax that is always active (dark current)
-        'e' : 10.1,                 # reversal potential (mV)
-        }
         
-        ############ Inhibitory Synapses (on axonal arbors) ############
-        self.inhSyn = {
-        'start' : 0,                # opening delay from start of experiment (ms)
-        'gmax' : 0,                 # pS for each synapse (activated 1 at a time for main experiment)                        
-        'e' : -50.4,                # reversal potential (mV)
-        }
+        #### Structure for synapse settings
+        from collections import namedtuple
+
+        ############ Excitatory Synapses (on dendrites) ############
+        self.excSyn = namedtuple("SynapseSettings", "start stop frequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
+        self.excSyn.start = 200
+        self.excSyn.stop = 400
+        self.excSyn.frequency = 10
+        self.excSyn.tauRise = 1
+        self.excSyn.tauDecay = 5
+        self.excSyn.reversalPotential = 10.1
+        self.excSyn.gMax = .001
+        
+        ############ Inhibitory Synapses (on axonal arbors) ############        
+        self.inhSyn= namedtuple("SynapseSettings", "start stop frequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
+        self.inhSyn.start = 100
+        self.inhSyn.stop = 400
+        self.inhSyn.frequency = 20
+        self.inhSyn.tauRise = 1
+        self.inhSyn.tauDecay = 5
+        self.inhSyn.reversalPotential = -150.4
+        self.inhSyn.gMax = .00001

@@ -19,20 +19,20 @@ class Type6_Model():
         self.secList = secList
         self.pnt3D = p3d
         
-        self.inhSyns = self._addSynapses("morphology/InhSynLocations.txt", self.settings.inhSyn)
-        self.excSyns = self._addSynapses("morphology/InputRibbonLocations.txt", self.settings.excSyn)
+        self.inhSyns = self._addSynapses("morphology/InhSynLocations.txt")
+        self.excSyns = self._addSynapses("morphology/InputRibbonLocations.txt")
         self.ribbons = self._findRibbons("morphology/RibbonLocations.txt")
         self.soma = self._findSoma()
         self._biophys()
         self.update()
         
-    def _addSynapses(self, LocationFile, settings):
+    def _addSynapses(self, LocationFile):
         """Add synapses to the locations specified in LocationFile"""
         print('....adding synapses: ', LocationFile)
         iList = self.nearestPnt3D(LocationFile)   
         
-        Synapse = namedtuple("Synapse", "syn secNum sec secDist seg") #create a datastructure to hold synapse info
-        synStruct = Synapse([],[],[],[],[])
+        Synapse = namedtuple("Synapse", "seg stim syn con") #create a datastructure to hold synapse info
+        synStruct = Synapse([],[],[],[])
         
         for i in iList:
             secNum = self.pnt3D.secNum[i]
@@ -40,13 +40,24 @@ class Type6_Model():
             
             sec = self.secList[secNum]
             seg = sec(secDist)
-            syn = h.biSyn(seg)
             
-            synStruct.syn.append(syn)
-            synStruct.secNum.append(secNum)
-            synStruct.sec.append(sec)
-            synStruct.secDist.append(secDist)
-            synStruct.seg.append(seg)            
+            #Make presynaptic vesicle event train
+            stim = h.NetStim()
+            stim.noise = 1 #random events acording to negexp interval
+
+            #Make the NEURON synapse
+            syn = h.Exp2Syn(seg)
+            
+            #Create the connection between the event train and the synapse
+            con = h.NetCon(stim, syn)
+
+            # Put all of these elements in a list for easy retrieval
+            synStruct.seg.append(seg)
+            synStruct.stim.append(stim)
+            synStruct.syn.append(syn)         
+            synStruct.con.append(con)
+                    
+
             
         return synStruct
 
@@ -131,7 +142,8 @@ class Type6_Model():
     def update(self):
         """Update all synapses and sections with current model settings"""
         self.updateBiophys()
-        self.updateSynapses()
+        self.updateSynapses(self.inhSyns, self.settings.inhSyn)
+        self.updateSynapses(self.excSyns, self.settings.excSyn)
 
     def updateBiophys(self):
         """Adjust channels settings"""
@@ -156,18 +168,22 @@ class Type6_Model():
                 seg.hcn2.gMax = self.settings.hcn2_gpeak
 
 
-    def updateSynapses(self):
+    def updateSynapses(self, synapseStruct, settings):
         print('....updating synapse values')
-        for syn in self.inhSyns.syn:
-            syn.onset = self.settings.inhSyn['start']
-            syn.gmax = self.settings.inhSyn['gmax']
-            syn.e = self.settings.inhSyn['e']
+        for i, syn in enumerate(synapseStruct.syn):
             
-        for syn in self.excSyns.syn:
-            syn.onset = self.settings.excSyn['start']
-            syn.gmax = self.settings.excSyn['gmax']
-            syn.e = self.settings.excSyn['e']
-            syn.basePropG = self.settings.excSyn['darkProp']
+            # Update the event train
+            synapseStruct.stim[i].start = settings.start
+            inhDur = (settings.stop - settings.start)
+            synapseStruct.stim[i].interval = (1000 / settings.frequency) # mean time between spikes
+            synapseStruct.stim[i].number = inhDur * settings.frequency / 1000
+ 
+            #Update the synapse
+            syn.tau1 = settings.tauRise
+            syn.tau2 = settings.tauDecay
+            syn.e = settings.reversalPotential
+            
+            synapseStruct.con[i].weight[0] = settings.gMax
             
     def readLocation(self, fileName):
         """Read the XYZ locations from a txt file"""
