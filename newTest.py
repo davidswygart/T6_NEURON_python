@@ -13,14 +13,29 @@ import matplotlib.pyplot as plt
 
 # Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
+T6.settings.Cav_L_gpeak = 1.62
+T6.settings.Kv1_2_gpeak = 12
+T6.settings.hcn2_gpeak = .78
 
 #%% create experiment object
 ex = Experiment(T6)
-ex.tstop = 600
+ex.tstop = 1500
 
 #%%
+T6.settings.excSyn.start = 500
+T6.settings.excSyn.stop = 1000
+
+
+
+T6.settings.excSyn.frequency = 2000
+T6.settings.excDark.frequency = 600
+
+T6.settings.excSyn.gMax = 5e-6
+T6.settings.excDark.gMax = T6.settings.excSyn.gMax
+
+T6.update()
 ex.run()
-ex.makePlot(ex.time, ex.rec.ribV[0])
+ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
 
 #data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
 #inds = T6.nNearestInh(1)

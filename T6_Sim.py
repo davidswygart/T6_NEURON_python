@@ -21,6 +21,7 @@ class Type6_Model():
         
         self.inhSyns = self._addSynapses("morphology/InhSynLocations.txt")
         self.excSyns = self._addSynapses("morphology/InputRibbonLocations.txt")
+        self.excDark = self._addSynapses("morphology/InputRibbonLocations.txt")
         self.ribbons = self._findRibbons("morphology/RibbonLocations.txt")
         self.soma = self._findSoma()
         self._biophys()
@@ -41,10 +42,11 @@ class Type6_Model():
             sec = self.secList[secNum]
             seg = sec(secDist)
             
-            #Make presynaptic vesicle event train
+            #Make presynaptic vesicle event train for stimulation
             stim = h.NetStim()
             stim.noise = 1 #random events acording to negexp interval
-
+            stim.noiseFromRandom123(i,i,i)
+ 
             #Make the NEURON synapse
             syn = h.Exp2Syn(seg)
             
@@ -55,8 +57,7 @@ class Type6_Model():
             synStruct.seg.append(seg)
             synStruct.stim.append(stim)
             synStruct.syn.append(syn)         
-            synStruct.con.append(con)
-                    
+            synStruct.con.append(con)                    
 
             
         return synStruct
@@ -144,6 +145,7 @@ class Type6_Model():
         self.updateBiophys()
         self.updateSynapses(self.inhSyns, self.settings.inhSyn)
         self.updateSynapses(self.excSyns, self.settings.excSyn)
+        self.updateSynapses(self.excDark, self.settings.excDark)
 
     def updateBiophys(self):
         """Adjust channels settings"""
@@ -175,14 +177,18 @@ class Type6_Model():
             # Update the event train
             synapseStruct.stim[i].start = settings.start
             inhDur = (settings.stop - settings.start)
-            synapseStruct.stim[i].interval = (1000 / settings.frequency) # mean time between spikes
             synapseStruct.stim[i].number = inhDur * settings.frequency / 1000
+            if settings.frequency == 0:
+                synapseStruct.stim[i].interval = 1e9 #arbitrary high time between spikes
+            else:
+                synapseStruct.stim[i].interval = (1000 / settings.frequency) # mean time between spikes
  
             #Update the synapse
             syn.tau1 = settings.tauRise
             syn.tau2 = settings.tauDecay
             syn.e = settings.reversalPotential
             
+            #Update the synapse weight
             synapseStruct.con[i].weight[0] = settings.gMax
             
     def readLocation(self, fileName):
