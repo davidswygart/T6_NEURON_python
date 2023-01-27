@@ -46,5 +46,8 @@ ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
 ribV = ex.averageRibVoltage()
 
 #%%
-
-ex.loopThroughInhibitorySynapses([[*range(0,119)]])
+base = 1e-5
+n=1
+inds = T6.nNearestInh(n)
+T6.settings.inhSyn.gMax = base * 120 / n
+a = ex.loopThroughInhibitorySynapses(inds)
