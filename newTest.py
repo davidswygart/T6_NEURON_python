@@ -35,7 +35,7 @@ ex.run()
 ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
 ribV = ex.averageRibVoltage()
 
-#%% large spot
+#%% large spot (all inhibitory activated)
 T6.settings.inhSyn.frequency = 1000
 
 T6.settings.inhSyn.gMax = 1e-5
@@ -45,12 +45,6 @@ ex.run()
 ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
 ribV = ex.averageRibVoltage()
 
-
 #%%
-a = ex.averageRibVoltage()
 
-
-#data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
-#inds = T6.nNearestInh(1)
-#data = ex.LoopThoughInhibitorySynapses(inhLists= [inds[16]]);
-
+ex.loopThroughInhibitorySynapses([[*range(0,119)]])

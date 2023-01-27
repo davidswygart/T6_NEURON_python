@@ -58,7 +58,37 @@ class Experiment():
         recVec = self.rec[0][0] #grab an example recording vector to see how many points it has
         self.time = np.linspace(0,self.tstop, len(recVec))
         
-    def LoopThoughInhibitorySynapses(self, folder='no save', inhLists='all'):
+    def loopThroughInhibitorySynapses(self, inhLists):
+        # inhLists is a list of lists of lists inhibitory synapses that should be simultaneously turned on
+        
+
+    
+        numLoops = len(inhLists)
+        numRibs = len(self.model.ribbons.sec)
+          
+        ribbonV = np.zeros((numLoops, numRibs))
+        
+        for i, loopInhInds in enumerate(inhLists):
+            print('running ', i , ' of ', numLoops, ', inh Syn #', loopInhInds)
+            
+            #turn off all ihibitory synapses
+            for con in self.model.inhSyns.con:
+                con.weight[0] = 0
+                
+            #turn on select ihibitory synapses
+            for ind in loopInhInds:
+                self.model.inhSyns.con[ind].weight[0] = self.model.settings.inhSyn.gMax
+
+            
+            self.run()
+            ribbonV[i,:] = self.averageRibVoltage()
+            
+            self.makePlot(self.time, self.rec.ribV[90], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
+
+        return ribbonV
+        
+        
+    def LoopThoughInhibitorySynapses2(self, folder='no save', inhLists='all'):
         """Run function looping though and providing inhibition at each synapse"""  
         # inhLists is a list of lists of inhibitory synapses that should be simultaneously turned on
         
