@@ -21,21 +21,40 @@ T6.settings.hcn2_gpeak = .78
 ex = Experiment(T6)
 ex.tstop = 1500
 
-#%%
+#%% small spot
 T6.settings.excSyn.start = 500
 T6.settings.excSyn.stop = 1000
 
+T6.settings.excSyn.frequency = 3000
+T6.settings.excDark.frequency = 1000
 
-
-T6.settings.excSyn.frequency = 2000
-T6.settings.excDark.frequency = 600
-
-T6.settings.excSyn.gMax = 5e-6
+T6.settings.excSyn.gMax = 4e-6
 T6.settings.excDark.gMax = T6.settings.excSyn.gMax
+
+T6.settings.inhSyn.gMax = 0
 
 T6.update()
 ex.run()
 ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
+ribV = ex.averageRibVoltage()
+
+#%% large spot
+T6.settings.inhSyn.start = T6.settings.excSyn.start
+T6.settings.inhSyn.stop = T6.settings.excSyn.stop
+
+T6.settings.inhSyn.frequency = 1000
+
+T6.settings.inhSyn.gMax = 1e-5
+
+T6.update()
+ex.run()
+ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
+ribV = ex.averageRibVoltage()
+
+
+#%%
+a = ex.averageRibVoltage()
+
 
 #data = ex.LoopThoughInhibitorySynapses(folder = 'results\\active\\');
 #inds = T6.nNearestInh(1)

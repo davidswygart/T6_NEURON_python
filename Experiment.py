@@ -18,7 +18,7 @@ class Experiment():
         print('....setting recording points')
         
         RecordingStruct = namedtuple("RecordingStruct", "ribV ribCai inhV inhCai gKv1_2 gHCN2 gCa") #create a datastructure to recording vectors
-        rec = RecordingStruct([],[],[],[], [], [], []) # create an instance of this data structure with empty lists
+        rec = RecordingStruct([],[],[],[],[],[],[]) # create an instance of this data structure with empty lists
         
         h = self.model.h
         
@@ -187,3 +187,23 @@ class Experiment():
         plt.ylim(ymin, ymax)
         plt.xlim(xmin, xmax)
         plt.show()
+    
+    def averageRibVoltage(self, startTimeMs = 500, endTimeMs = 1000):
+        """ Average voltage of ribbons between two time points"""
+        
+        startInd = np.argmin(np.abs(self.time - startTimeMs))
+        endInd = np.argmin(np.abs(self.time - endTimeMs))
+        
+        ribV = np.array(self.rec.ribV)
+        ribV = ribV[:,startInd:endInd]
+        ribV = np.mean(ribV, axis=1)
+        
+        print('average ribbon = ', np.round(np.mean(ribV),1), ' V')
+        
+        return ribV
+
+
+
+
+
+
