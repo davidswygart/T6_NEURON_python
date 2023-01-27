@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Experiment():
-    def __init__(self, model, tstop=1000, temp=32, v_init=-45):
+    def __init__(self, model, tstop=1500, temp=32, v_init=-45):
         self.model = model
         self.rec = self._setRecordingVectors(model.secList)
         self.time = []

@@ -22,9 +22,6 @@ ex = Experiment(T6)
 ex.tstop = 1500
 
 #%% small spot
-T6.settings.excSyn.start = 500
-T6.settings.excSyn.stop = 1000
-
 T6.settings.excSyn.frequency = 3000
 T6.settings.excDark.frequency = 1000
 
@@ -39,9 +36,6 @@ ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
 ribV = ex.averageRibVoltage()
 
 #%% large spot
-T6.settings.inhSyn.start = T6.settings.excSyn.start
-T6.settings.inhSyn.stop = T6.settings.excSyn.stop
-
 T6.settings.inhSyn.frequency = 1000
 
 T6.settings.inhSyn.gMax = 1e-5
