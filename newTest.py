@@ -32,7 +32,8 @@ T6.settings.inhSyn.gMax = 0
 
 T6.update()
 ex.run()
-ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
+smallSpotV = np.array(ex.rec.ribV[0])
+ex.makePlot(ex.time,smallSpotV ,  xmin = 200)
 ribV = ex.averageRibVoltage()
 
 #%% large spot (all inhibitory activated)
@@ -42,7 +43,9 @@ T6.settings.inhSyn.gMax = 1e-5
 
 T6.update()
 ex.run()
-ex.makePlot(ex.time, ex.rec.ribV[0],  xmin = 200)
+bigSpotV = np.array(ex.rec.ribV[0])
+
+ex.makePlot(ex.time, bigSpotV,  xmin = 200)
 ribV = ex.averageRibVoltage()
 
 #%%
@@ -50,4 +53,24 @@ base = 1e-5
 n=1
 inds = T6.nNearestInh(n)
 T6.settings.inhSyn.gMax = base * 120 / n
-a = ex.loopThroughInhibitorySynapses(inds)
+T6.update()
+inhV = ex.loopThroughInhibitorySynapses(inds)
+
+#%%
+inds = T6.nNearestInh(100)
+
+T6.settings.inhSyn.gMax = 0
+T6.update()
+excV = ex.loopThroughInhibitorySynapses([[0]])
+
+#%%
+delta = excV - inhV
+delta = np.sort(delta, axis = 1)# sort by low to high hyperpolarization for each trial
+
+nRibbons = len(T6.ribbons.sec)
+quartileN = round(nRibbons/4)
+
+quartile1 = np.mean(delta[:, 0 : quartileN], axis = 1)
+quartile4 = np.mean(delta[:, quartileN*3-1 : ], axis = 1)
+
+q1Toq4Decay = 1 - quartile1 / quartile4

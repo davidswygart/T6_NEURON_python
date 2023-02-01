@@ -219,9 +219,9 @@ class Type6_Model():
         dists = self.calcDistances(self.inhSyns.seg,self.inhSyns.seg)
         nearest = np.argsort(dists, axis = 1)
         inds = nearest[:,0:n]
-        inds = inds.tolist()
-        inds = {tuple(sorted(i)) for i in inds} # Make a set of tuples to remove duplicates
-        inds = list(inds) # convert back into a list of lists
-        inds = [list(i) for i in inds]  # convert back into a list of lists        
+        #inds = inds.tolist()
+        #inds = {tuple(sorted(i)) for i in inds} # Make a set of tuples to remove duplicates
+        #inds = list(inds) # convert back into a list of lists
+        #inds = [list(i) for i in inds]  # convert back into a list of lists        
         return inds
         
