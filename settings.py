@@ -22,8 +22,8 @@ class Settings ():
         self.excSyn.start = 500
         self.excSyn.stop = 1000
         self.excSyn.frequency = 2000
-        self.excSyn.tauRise = 5
-        self.excSyn.tauDecay = 20
+        self.excSyn.tauRise = 10
+        self.excSyn.tauDecay = 100
         self.excSyn.reversalPotential = 10.1
         self.excSyn.gMax = 5e-6
         
@@ -42,7 +42,7 @@ class Settings ():
         self.inhSyn.start = 500
         self.inhSyn.stop = 1000
         self.inhSyn.frequency = 20
-        self.inhSyn.tauRise = 1
-        self.inhSyn.tauDecay = 5
+        self.inhSyn.tauRise = 1.8
+        self.inhSyn.tauDecay = 100
         self.inhSyn.reversalPotential = -50.4
         self.inhSyn.gMax = 0#.00001
