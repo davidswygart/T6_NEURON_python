@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Feb  6 13:23:09 2023
+
+@author: david
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Mon Jan 23 14:33:51 2023
 
 @author: dis006
@@ -52,9 +59,6 @@ bigSpotVRib2 = np.array(ex.rec.ribV[24])
 ex.makePlot(ex.time, bigSpotVRib1,  xmin = 100)
 ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
 
-
-
-
 #%% large spot (but only 2 inhibitory synapses activated) (far left example inh = inh #9 & 11 on section axon[83])
 T6.settings.inhSyn.frequency = 79
 
@@ -91,7 +95,6 @@ plt.legend()
 plt.plot([500,500],[-60,-20])
 plt.plot([1000,1000],[-60,-20])
 plt.show()
-
 
 
 # #%%
