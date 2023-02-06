@@ -21,41 +21,78 @@ T6.settings.hcn2_gpeak = .78
 ex = Experiment(T6)
 ex.tstop = 1500
 
-#%% small spot
-T6.settings.excSyn.frequency = 1200
-T6.settings.excDark.frequency = 180
+#%% small spot (-45 mV -> -30 mV)
+T6.settings.excDark.frequency = 70
+T6.settings.excSyn.frequency = 500
 
-T6.settings.excSyn.gMax = 4e-6
+
+T6.settings.excSyn.gMax = 1.12e-5
 T6.settings.excDark.gMax = T6.settings.excSyn.gMax
 
 T6.settings.inhSyn.gMax = 0
 
 T6.update()
 ex.run()
-smallSpotV = np.array(ex.rec.ribV[0])
-ex.makePlot(ex.time,smallSpotV ,  xmin = 100)
-ex.averageRibVoltage(startTimeMs=300, endTimeMs =500)
-ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000)
+smallSpotVRib1 = np.array(ex.rec.ribV[0])
+smallSpotVRib2 = np.array(ex.rec.ribV[24])
+ex.makePlot(ex.time,smallSpotVRib1 ,  xmin = 100)
+ex.averageRibVoltage(startTimeMs=300, endTimeMs =500) #preTime average
+a=ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
 
-#%% large spot (all inhibitory activated)
-T6.settings.inhSyn.frequency = 100
+#%% large spot (all inhibitory activated) (-39.1 mV == CSR 1.1)
+T6.settings.inhSyn.frequency = 79
 
 T6.settings.inhSyn.gMax = 1e-5
 
 T6.update()
 ex.run()
-bigSpotV = np.array(ex.rec.ribV[0])
+bigSpotVRib1 = np.array(ex.rec.ribV[0])
+bigSpotVRib2 = np.array(ex.rec.ribV[24])
 
-ex.makePlot(ex.time, bigSpotV,  xmin = 100)
-ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000)
+ex.makePlot(ex.time, bigSpotVRib1,  xmin = 100)
+ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
 
 
-#%% plot large and small simultaneously
-plt.figure()
-plt.plot(ex.time, smallSpotV, label='no inh.')
-plt.plot(ex.time, bigSpotV, label='with inh.')
+
+
+#%% large spot (but only 2 inhibitory synapses activated) (far left example inh = inh #9 & 11 on section axon[83])
+T6.settings.inhSyn.frequency = 79
+
+T6.settings.inhSyn.gMax = 1e-5
+T6.update()
+
+for con in T6.inhSyns.con: #turn off all ihibitory synapses
+    con.weight[0] = 0
+
+inds = [9,11] # example pair of inh synapses
+for i in inds: #turn on select ihibitory synapses
+    T6.inhSyns.con[i].weight[0] = T6.settings.inhSyn.gMax * 120 / 2 # inhibition normalized by number activated
+
+ex.run()
+bigSpotVRib1 = np.array(ex.rec.ribV[0])
+bigSpotVRib2 = np.array(ex.rec.ribV[24])
+
+#%% plot large and small simultaneously for both examples
+
+f, (ax1, ax2)  = plt.subplots(nrows = 2)
+
+ax1.plot(ex.time, smallSpotVRib1, label='no inh.')
+ax1.plot(ex.time, bigSpotVRib1, label='with inh.')
+ax1.plot([500,500],[-60,-20])
+ax1.plot([1000,1000],[-60,-20])
+
+ax2.plot(ex.time, smallSpotVRib2, label='no inh.')
+ax2.plot(ex.time, bigSpotVRib2, label='with inh.')
+ax2.plot([500,500],[-60,-20])
+ax2.plot([1000,1000],[-60,-20])
+
 plt.legend()
+
+plt.plot([500,500],[-60,-20])
+plt.plot([1000,1000],[-60,-20])
 plt.show()
+
+
 
 # #%%
 # base = 1e-5
