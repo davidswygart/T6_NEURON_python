@@ -65,6 +65,7 @@ class Experiment():
     
         numLoops = len(inhLists)
         numRibs = len(self.model.ribbons.sec)
+        numInh = len(self.model.inhSyns.seg)
           
         ribbonV = np.zeros((numLoops, numRibs))
         
@@ -77,7 +78,7 @@ class Experiment():
                 
             #turn on select ihibitory synapses
             for ind in loopInhInds:
-                self.model.inhSyns.con[ind].weight[0] = self.model.settings.inhSyn.gMax
+                self.model.inhSyns.con[ind].weight[0] = self.model.settings.inhSyn.gMax * numInh / len(loopInhInds)
 
             
             self.run()

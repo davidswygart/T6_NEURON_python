@@ -13,13 +13,16 @@ Created on Mon Jan 23 14:33:51 2023
 """
 
 
+#%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Only make the model once. NEURON can do weird things if you remake it
+#%% Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
+
+##%% set active conductances
 T6.settings.Cav_L_gpeak = 1.62
 T6.settings.Kv1_2_gpeak = 12
 T6.settings.hcn2_gpeak = .78
@@ -28,6 +31,7 @@ T6.settings.hcn2_gpeak = .78
 ex = Experiment(T6)
 ex.tstop = 1500
 
+#%%################ Set Exc and Inhibition ################################## 
 #%% small spot (-45 mV -> -30 mV)
 T6.settings.excDark.frequency = 70
 T6.settings.excSyn.frequency = 500
@@ -43,9 +47,11 @@ ex.run()
 smallSpotVRib1 = np.array(ex.rec.ribV[0])
 smallSpotVRib2 = np.array(ex.rec.ribV[24])
 ex.makePlot(ex.time,smallSpotVRib1 ,  xmin = 100)
-ex.averageRibVoltage(startTimeMs=300, endTimeMs =500) #preTime average
-a=ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
+preTimeV = ex.averageRibVoltage(startTimeMs=300, endTimeMs =500) #preTime average
+stimTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
 
+plt.hist(stimTimeV - preTimeV)
+plt.title('depolarization')
 #%% large spot (all inhibitory activated) (-39.1 mV == CSR 1.1)
 T6.settings.inhSyn.frequency = 79
 
@@ -59,7 +65,18 @@ bigSpotVRib2 = np.array(ex.rec.ribV[24])
 ex.makePlot(ex.time, bigSpotVRib1,  xmin = 100)
 ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
 
-#%% large spot (but only 2 inhibitory synapses activated) (far left example inh = inh #9 & 11 on section axon[83])
+plt.hist(ribV - stimTimeV)
+plt.title('hyperpolarization')
+plt.show()
+
+#%% compare depolarization to hyperpolarization
+plt.scatter(stimTimeV - preTimeV,ribV - stimTimeV)
+plt.xlabel('depolarization')
+plt.ylabel('hyperpolarization')
+plt.show()
+#%% ####### Figure 6b, example traces when activating 2 inh. synapses ######
+#%% large spot (but only 2 inhibitory synapses activated)
+#(far left example inh = inh #9 & 11 on section axon[83])
 T6.settings.inhSyn.frequency = 79
 
 T6.settings.inhSyn.gMax = 1e-5
@@ -97,29 +114,35 @@ plt.plot([1000,1000],[-60,-20])
 plt.show()
 
 
-# #%%
-# base = 1e-5
-# n=1
-# inds = T6.nNearestInh(n)
-# T6.settings.inhSyn.gMax = base * 120 / n
-# T6.update()
-# inhV = ex.loopThroughInhibitorySynapses(inds)
+#%% ########### Figure 1C, turn on each inhbitory synapse individually ############## 
+ex.tstop = 1001 # No need to run experiment past stimulus time since I'm not using those datapoints
 
-# #%%
-# inds = T6.nNearestInh(100)
+n=1
+inds = T6.nNearestInh(n)
+inhV = ex.loopThroughInhibitorySynapses(inds)
 
-# T6.settings.inhSyn.gMax = 0
-# T6.update()
-# excV = ex.loopThroughInhibitorySynapses([[0]])
+#%% calculate suppression
+excDelta = stimTimeV - preTimeV
+inhDelta = inhV - preTimeV
+suppression = (1-inhDelta/excDelta)*100
 
-# #%%
-# delta = excV - inhV
-# delta = np.sort(delta, axis = 1)# sort by low to high hyperpolarization for each trial
+plt.hist(suppression[0,:]) #example histogram
 
-# nRibbons = len(T6.ribbons.sec)
-# quartileN = round(nRibbons/4)
+#%% sort suppression and split into quartiles
+sortedSuppression = np.sort(suppression, axis = 1)# sort by low to high suppression
 
-# quartile1 = np.mean(delta[:, 0 : quartileN], axis = 1)
-# quartile4 = np.mean(delta[:, quartileN*3-1 : ], axis = 1)
+quartileN = round(len(sortedSuppression[1,:])/4)
 
-# q1Toq4Decay = 1 - quartile1 / quartile4
+Q1Avg = np.mean(sortedSuppression[:, 0 : quartileN], axis = 1)
+Q4Avg = np.mean(sortedSuppression[:, quartileN*3-1 : ], axis = 1)
+
+suppressionDifference = Q4Avg-Q1Avg
+plt.hist(suppressionDifference)
+plt.xlabel('Q4-Q1 suppression (%)')
+
+#%% calculate CSR
+excDelta = stimTimeV - preTimeV
+inhDelta = stimTimeV - inhV
+CSR = excDelta / inhDelta
+
+plt.hist(CSR[119,:]) #example histogram
