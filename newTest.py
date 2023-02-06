@@ -49,6 +49,14 @@ bigSpotV = np.array(ex.rec.ribV[0])
 ex.makePlot(ex.time, bigSpotV,  xmin = 100)
 ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000)
 
+
+#%% plot large and small simultaneously
+plt.figure()
+plt.plot(ex.time, smallSpotV, label='no inh.')
+plt.plot(ex.time, bigSpotV, label='with inh.')
+plt.legend()
+plt.show()
+
 # #%%
 # base = 1e-5
 # n=1
