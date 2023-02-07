@@ -127,10 +127,32 @@ T6.settings.inhSyn.gMax = 3.1e-5
 
 n=1
 inds = T6.nNearestInh(n)
-inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
+#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
+inhV = ex.loopThroughInhibitorySynapses(inds) 
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
+
+#%%
+T6.settings.inhSyn.gMax = 2.7e-5
+
+n=2
+inds = T6.nNearestInh(n)
+inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
+    
+CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
+print(np.mean(Q4Avg))
+
+#%%
+T6.settings.inhSyn.gMax = 2.7e-5
+
+n=3
+inds = T6.nNearestInh(n)
+inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
+    
+CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
+print(np.mean(Q4Avg))
+
 
 #%%
 T6.settings.inhSyn.gMax = 2.5e-5
@@ -143,7 +165,7 @@ CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
 #%%
-T6.settings.inhSyn.gMax = 2.1e-5
+T6.settings.inhSyn.gMax = 1.95e-5
 
 n=15
 inds = T6.nNearestInh(n)
@@ -153,7 +175,7 @@ CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
 #%%
-T6.settings.inhSyn.gMax = 2e-5
+T6.settings.inhSyn.gMax = 1.85e-5
 
 n=21
 inds = T6.nNearestInh(n)
@@ -163,7 +185,7 @@ CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
 #%%
-T6.settings.inhSyn.gMax = 2e-5
+T6.settings.inhSyn.gMax = 1.8e-5
 
 n=30
 inds = T6.nNearestInh(n)
@@ -173,7 +195,7 @@ CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
 #%%
-T6.settings.inhSyn.gMax = 1.9e-5
+T6.settings.inhSyn.gMax = 1.75e-5
 
 n=60
 inds = T6.nNearestInh(n)
@@ -183,7 +205,7 @@ CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
 #%%
-T6.settings.inhSyn.gMax = 2e-5
+T6.settings.inhSyn.gMax = 1.75e-5
 
 n=90
 inds = T6.nNearestInh(n)
