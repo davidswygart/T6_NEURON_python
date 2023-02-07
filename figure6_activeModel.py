@@ -105,20 +105,18 @@ bigSpotVRib2 = np.array(ex.rec.ribV[24])
 #%% plot large and small simultaneously for both examples
 f, (ax1, ax2)  = plt.subplots(nrows = 2)
 
-ax1.plot(ex.time, smallSpotVRib1, label='no inh.')
-ax1.plot(ex.time, bigSpotVRib1, label='with inh.')
-ax1.plot([500,500],[-60,-20])
-ax1.plot([1500,1500],[-60,-20])
+t = ex.time/1000 - .5 #convert to seconds with 0 == stim start
+ax1.plot(t, smallSpotVRib1, label='no inh.')
+ax1.plot(t, bigSpotVRib1, label='with inh.')
+ax1.plot([0,0],[-60,-20])
+ax1.plot([1,1],[-60,-20])
 
-ax2.plot(ex.time, smallSpotVRib2, label='no inh.')
-ax2.plot(ex.time, bigSpotVRib2, label='with inh.')
-ax2.plot([500,500],[-60,-20])
-ax2.plot([1500,1500],[-60,-20])
+ax2.plot(t, smallSpotVRib2, label='no inh.')
+ax2.plot(t, bigSpotVRib2, label='with inh.')
+ax2.plot([0,0],[-60,-20])
+ax2.plot([1,1],[-60,-20])
 
 plt.legend()
-
-plt.plot([500,500],[-60,-20])
-plt.plot([1500,1500],[-60,-20])
 plt.show()
 
 #%% ########### Figure 1C, turn on each inhbitory synapse individually ############## 
