@@ -20,7 +20,7 @@ class Settings ():
         ############ Excitatory Synapses (on dendrites) ############
         self.excSyn = namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
         self.excSyn.start = 500
-        self.excSyn.stop = 1000
+        self.excSyn.stop = 1500
         self.excSyn.frequency = 2000
         self.excSyn.tauRise = 10
         self.excSyn.tauDecay = 100
@@ -40,7 +40,7 @@ class Settings ():
         ############ Inhibitory Synapses (on axonal arbors) ############        
         self.inhSyn= namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
         self.inhSyn.start = 500
-        self.inhSyn.stop = 1000
+        self.inhSyn.stop = 1500
         self.inhSyn.frequency = 20
         self.inhSyn.tauRise = 1.8
         self.inhSyn.tauDecay = 100

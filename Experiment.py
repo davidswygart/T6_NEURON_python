@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Experiment():
-    def __init__(self, model, tstop=1500, temp=32, v_init=-45):
+    def __init__(self, model, tstop=2000, temp=32, v_init=-45):
         self.model = model
         self.rec = self._setRecordingVectors(model.secList)
         self.time = []
@@ -219,7 +219,7 @@ class Experiment():
         plt.xlim(xmin, xmax)
         plt.show()
     
-    def averageRibVoltage(self, startTimeMs = 500, endTimeMs = 1000):
+    def averageRibVoltage(self, startTimeMs = 500, endTimeMs = 1500):
         """ Average voltage of ribbons between two time points"""
         
         startInd = np.argmin(np.abs(self.time - startTimeMs))

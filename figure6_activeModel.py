@@ -38,7 +38,7 @@ T6.settings.hcn2_gpeak = .78
 
 #%% create experiment object
 ex = Experiment(T6)
-ex.tstop = 1500
+ex.tstop = 2000
 
 #%%################ Set Exc ################################## (-45 mV -> -30 mV)
 T6.settings.excDark.frequency = 70
@@ -55,7 +55,7 @@ smallSpotVRib1 = np.array(ex.rec.ribV[0])
 smallSpotVRib2 = np.array(ex.rec.ribV[24])
 ex.makePlot(ex.time,smallSpotVRib1 ,  xmin = 100)
 preTimeV = ex.averageRibVoltage(startTimeMs=300, endTimeMs =500) #preTime average
-stimTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
+stimTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1500) #postTime average
 excDelta = stimTimeV - preTimeV
 
 plt.hist(stimTimeV - preTimeV)
@@ -72,7 +72,7 @@ bigSpotVRib1 = np.array(ex.rec.ribV[0])
 bigSpotVRib2 = np.array(ex.rec.ribV[24])
 
 ex.makePlot(ex.time, bigSpotVRib1,  xmin = 100)
-ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1000) #postTime average
+ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1500) #postTime average
 
 plt.hist(ribV - stimTimeV)
 plt.title('hyperpolarization')
@@ -88,7 +88,7 @@ plt.show()
 #(far left example inh = inh #9 & 11 on section axon[83])
 T6.settings.inhSyn.frequency = 79
 
-T6.settings.inhSyn.gMax = 1e-5
+T6.settings.inhSyn.gMax = 2.7e-5
 T6.update()
 
 for con in T6.inhSyns.con: #turn off all ihibitory synapses
@@ -108,21 +108,21 @@ f, (ax1, ax2)  = plt.subplots(nrows = 2)
 ax1.plot(ex.time, smallSpotVRib1, label='no inh.')
 ax1.plot(ex.time, bigSpotVRib1, label='with inh.')
 ax1.plot([500,500],[-60,-20])
-ax1.plot([1000,1000],[-60,-20])
+ax1.plot([1500,1500],[-60,-20])
 
 ax2.plot(ex.time, smallSpotVRib2, label='no inh.')
 ax2.plot(ex.time, bigSpotVRib2, label='with inh.')
 ax2.plot([500,500],[-60,-20])
-ax2.plot([1000,1000],[-60,-20])
+ax2.plot([1500,1500],[-60,-20])
 
 plt.legend()
 
 plt.plot([500,500],[-60,-20])
-plt.plot([1000,1000],[-60,-20])
+plt.plot([1500,1500],[-60,-20])
 plt.show()
 
 #%% ########### Figure 1C, turn on each inhbitory synapse individually ############## 
-ex.tstop = 1001 # No need to run experiment past stimulus time since I'm not using those datapoints
+ex.tstop = 1501 # No need to run experiment past stimulus time since I'm not using those datapoints
 ns = []
 CSRs = []
 diffs = []
@@ -131,8 +131,8 @@ T6.settings.inhSyn.gMax = 3.1e-5
 
 n=1
 inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-inhV = ex.loopThroughInhibitorySynapses(inds) 
+inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
+#inhV = ex.loopThroughInhibitorySynapses(inds) 
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
