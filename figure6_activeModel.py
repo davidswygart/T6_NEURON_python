@@ -123,6 +123,10 @@ plt.show()
 
 #%% ########### Figure 1C, turn on each inhbitory synapse individually ############## 
 ex.tstop = 1001 # No need to run experiment past stimulus time since I'm not using those datapoints
+ns = []
+CSRs = []
+diffs = []
+#%%
 T6.settings.inhSyn.gMax = 3.1e-5
 
 n=1
@@ -133,6 +137,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 2.7e-5
 
@@ -144,6 +151,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 2.7e-5
 
@@ -155,7 +165,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
-
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 2.5e-5
 
@@ -167,6 +179,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 1.95e-5
 
@@ -178,6 +193,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 1.85e-5
 
@@ -189,6 +207,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 1.8e-5
 
@@ -200,6 +221,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 1.75e-5
 
@@ -211,6 +235,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 1.75e-5
 
@@ -222,6 +249,9 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
 
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 1.75e-5
 
@@ -232,6 +262,11 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.mean(Q4Avg))
+
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
+
 
 #np.argmin(abs(Q4Avg-np.median(Q4Avg))) == 86
 
