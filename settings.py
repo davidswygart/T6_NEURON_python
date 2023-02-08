@@ -19,19 +19,19 @@ class Settings ():
 
         ############ Excitatory Synapses (on dendrites) ############
         self.excSyn = namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
-        self.excSyn.start = 500
-        self.excSyn.stop = 1500
-        self.excSyn.frequency = 2000
+        self.excSyn.start = 1000
+        self.excSyn.stop = 2000
+        self.excSyn.frequency = 500
         self.excSyn.tauRise = 10
         self.excSyn.tauDecay = 100
         self.excSyn.reversalPotential = 10.1
-        self.excSyn.gMax = 5e-6
+        self.excSyn.gMax = 1.12e-5
         
         ############ Dark current ############
         self.excDark = namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
         self.excDark.start = 0
         self.excDark.stop = 1e9
-        self.excDark.frequency = 600
+        self.excDark.frequency = 70
         self.excDark.tauRise = self.excSyn.tauRise
         self.excDark.tauDecay = self.excSyn.tauDecay
         self.excDark.reversalPotential = self.excSyn.reversalPotential
@@ -39,8 +39,8 @@ class Settings ():
         
         ############ Inhibitory Synapses (on axonal arbors) ############        
         self.inhSyn= namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
-        self.inhSyn.start = 500
-        self.inhSyn.stop = 1500
+        self.inhSyn.start = 1000
+        self.inhSyn.stop = 2000
         self.inhSyn.frequency = 20
         self.inhSyn.tauRise = 1.8
         self.inhSyn.tauDecay = 100

@@ -38,14 +38,14 @@ T6.settings.hcn2_gpeak = .78
 
 #%% create experiment object
 ex = Experiment(T6)
-ex.tstop = 2000
+ex.tstop = 2500
 
 #%%################ Set Exc ################################## (-45 mV -> -30 mV)
 T6.settings.excDark.frequency = 70
 T6.settings.excSyn.frequency = 500
 
 
-T6.settings.excSyn.gMax = 1.12e-5
+T6.settings.excSyn.gMax = 1e-5
 T6.settings.excDark.gMax = T6.settings.excSyn.gMax
 T6.settings.inhSyn.gMax = 0
 T6.update()
@@ -53,36 +53,10 @@ ex.run()
 
 smallSpotVRib1 = np.array(ex.rec.ribV[0])
 smallSpotVRib2 = np.array(ex.rec.ribV[24])
-ex.makePlot(ex.time,smallSpotVRib1 ,  xmin = 100)
-preTimeV = ex.averageRibVoltage(startTimeMs=300, endTimeMs =500) #preTime average
-stimTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1500) #postTime average
-excDelta = stimTimeV - preTimeV
+ex.makePlot(ex.time,smallSpotVRib1)
+preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
+stimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
 
-plt.hist(stimTimeV - preTimeV)
-plt.title('depolarization')
-
-#%%########### l (all inhibitory activated) (-39.1 mV == CSR 1.1)
-T6.settings.inhSyn.frequency = 79
-
-T6.settings.inhSyn.gMax = 1e-5
-
-T6.update()
-ex.run()
-bigSpotVRib1 = np.array(ex.rec.ribV[0])
-bigSpotVRib2 = np.array(ex.rec.ribV[24])
-
-ex.makePlot(ex.time, bigSpotVRib1,  xmin = 100)
-ribV = ex.averageRibVoltage(startTimeMs=500, endTimeMs=1500) #postTime average
-
-plt.hist(ribV - stimTimeV)
-plt.title('hyperpolarization')
-plt.show()
-
-#%% compare depolarization to hyperpolarization
-plt.scatter(stimTimeV - preTimeV,ribV - stimTimeV)
-plt.xlabel('depolarization')
-plt.ylabel('hyperpolarization')
-plt.show()
 #%% ####### Figure 6b, example traces when activating 2 inh. synapses ######
 #%% large spot (but only 2 inhibitory synapses activated)
 #(far left example inh = inh #9 & 11 on section axon[83])
