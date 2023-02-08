@@ -79,7 +79,7 @@ bigSpotVRib2 = np.array(ex.rec.ribV[24])
 #%% plot large and small simultaneously for both examples
 f, (ax1, ax2)  = plt.subplots(nrows = 2)
 
-t = ex.time/1000 - .5 #convert to seconds with 0 == stim start
+t = ex.time/1000 - 1 #convert to seconds with 0 == stim start
 ax1.plot(t, smallSpotVRib1, label='no inh.')
 ax1.plot(t, bigSpotVRib1, label='with inh.')
 ax1.plot([0,0],[-60,-20])
@@ -94,7 +94,7 @@ plt.legend()
 plt.show()
 
 #%% ########### Figure 1C, turn on each inhbitory synapse individually ############## 
-ex.tstop = 1501 # No need to run experiment past stimulus time since I'm not using those datapoints
+ex.tstop = 2001 # No need to run experiment past stimulus time since I'm not using those datapoints
 ns = []
 CSRs = []
 diffs = []
