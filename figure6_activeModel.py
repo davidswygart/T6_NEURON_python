@@ -16,8 +16,8 @@ def calcCSR(stimTimeV, preTimeV, inhV):
     
     quartileN = round(len(CSR[0,:])/4)
     
-    Q4Avg = np.mean(sortedCSR[:, 0 : quartileN], axis = 1)
-    Q1Avg = np.mean(sortedCSR[:, quartileN*3-1 : ], axis = 1)
+    Q1Avg = np.mean(sortedCSR[:, 0 : quartileN], axis = 1)
+    Q4Avg = np.mean(sortedCSR[:, quartileN*3-1 : ], axis = 1)
     diffQ4toQ1 = Q4Avg-Q1Avg
     
     return CSR, Q1Avg, Q4Avg, diffQ4toQ1
@@ -131,15 +131,15 @@ T6.settings.inhSyn.gMax = 2.95e-5
 
 n=1
 inds = T6.nNearestInh(n)
-inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-#inhV = ex.loopThroughInhibitorySynapses(inds) 
+#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
+inhV = ex.loopThroughInhibitorySynapses(inds) 
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.median(Q4Avg))
 
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+#ns.append(n)
+#CSRs.append(CSR)
+#diffs.append(diffQ4toQ1)
 #%%
 T6.settings.inhSyn.gMax = 2.7e-5
 
@@ -272,17 +272,26 @@ diffs.append(diffQ4toQ1)
 
 
 
+#%% Figure 6f
+stackedDiffs = np.stack(diffs, axis=1)
+med = np.median(stackedDiffs, axis=0)
+maxDif = np.max(stackedDiffs, axis=0)
+minDif = np.min(stackedDiffs, axis=0)
 
 
 
+#%% Figure 6c
+exampleInhInd = np.argmin(np.mean(abs((stackedDiffs - med)), axis=1)) #use inhibition with values closest to median for example histograms
 
+plt.hist(CSRs[0][exampleInhInd])
 
+plt.hist(CSRs[7][exampleInhInd])
+plt.hist(CSRs[9][exampleInhInd])
+#%%
+hist, edges = np.histogram(CSRs[0][exampleInhInd], bins=26, range=(.9, 2.2))
 
+#%%
+hist, edges = np.histogram(CSRs[7][exampleInhInd], bins=26, range=(.9, 2.2))
 
-
-
-
-
-
-
-
+#%%
+hist, edges = np.histogram(CSRs[9][exampleInhInd], bins=26, range=(.9, 2.2))
