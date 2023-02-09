@@ -40,20 +40,3 @@ ex.vClampSineWave(frequency=100, baselineV=-38, amplitudeV=7)
 
 
 
-# driving stimulus
-#t = T6.h.Vector(np.linspace(0, 2* np.pi, 4000))
-#y = T6.h.Vector(np.sin(t))*10000
-#t = t*20
-
-#b =  y.play(T6.inhSyns.seg[0]._ref_v, t, True)
-#b =  y.play(ex.vClamp._ref_vc, t, True)
-
-#T6.h.finitialize(-60)
-#T6.h.continuerun(200)
-#plt.plot(ex.rec.ribV[0])
-#plt.plot(y/10)
-#ex.run()
-#ex.makePlot(ex.time, np.array(ex.rec.ribV[0]))
-
-
-
