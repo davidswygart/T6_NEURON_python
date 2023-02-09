@@ -62,7 +62,7 @@ stimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime ave
 #(far left example inh = inh #9 & 11 on section axon[83])
 T6.settings.inhSyn.frequency = 79
 
-T6.settings.inhSyn.gMax = 2e-6
+T6.settings.inhSyn.gMax = 3.15e-6
 T6.update()
 
 for con in T6.inhSyns.con: #turn off all ihibitory synapses
@@ -101,7 +101,7 @@ ns = []
 CSRs = []
 diffs = []
 #%%
-T6.settings.inhSyn.gMax = 2.95e-5
+T6.settings.inhSyn.gMax = 3.3e-6
 
 n=1
 inds = T6.nNearestInh(n)
@@ -111,11 +111,11 @@ inhV = ex.loopThroughInhibitorySynapses(inds)
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.median(Q4Avg))
 
-#ns.append(n)
-#CSRs.append(CSR)
-#diffs.append(diffQ4toQ1)
+ns.append(n)
+CSRs.append(CSR)
+diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 2.7e-5
+T6.settings.inhSyn.gMax = 3.15e-6
 
 n=2
 inds = T6.nNearestInh(n)
@@ -129,7 +129,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 2.6e-5
+T6.settings.inhSyn.gMax = 3.15e-6
 
 n=3
 inds = T6.nNearestInh(n)
@@ -143,7 +143,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 2.5e-5
+T6.settings.inhSyn.gMax = 3.08e-6
 
 n=6
 inds = T6.nNearestInh(n)
@@ -157,7 +157,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.8e-5
+T6.settings.inhSyn.gMax = 2.85e-6
 
 n=15
 inds = T6.nNearestInh(n)
@@ -171,7 +171,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.65e-5
+T6.settings.inhSyn.gMax = 2.83e-6
 
 n=21
 inds = T6.nNearestInh(n)
@@ -185,7 +185,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.62e-5
+T6.settings.inhSyn.gMax = 2.8e-6
 
 n=30
 inds = T6.nNearestInh(n)
@@ -199,7 +199,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.62e-5
+T6.settings.inhSyn.gMax =  2.6e-6
 
 n=60
 inds = T6.nNearestInh(n)
@@ -213,7 +213,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.73e-5
+T6.settings.inhSyn.gMax = 2.48e-6
 
 n=90
 inds = T6.nNearestInh(n)
@@ -227,7 +227,7 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.7e-5
+T6.settings.inhSyn.gMax =  2.42e-6
 
 n=120
 inds = T6.nNearestInh(n)
