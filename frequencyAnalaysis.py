@@ -20,23 +20,20 @@ T6.settings.Kv1_2_gpeak = 12
 T6.settings.hcn2_gpeak = .78
 
 T6.settings.excSyn.gMax = 0
+T6.settings.excDark.gMax = 0
 T6.settings.inhSyn.gMax = 0
+T6.update()
 
 
 #%% create experiment object
 ex = Experiment(T6)
 ex.tstop = 500
+ex.placeCurrentClamp(T6.soma.seg)
 
 
-#%%################ Set Exc ################################## (-45 mV -> -30 mV)
-ex.placeVoltageClamp(-38, 1e15, -38)
-vclamp = ex.vClamp
+
 #%%
-#vclamp =T6.h.SEClamp(T6.inhSyns.seg[0])
-#vclamp.dur1 = 1e9
-#%%
-ex.tstop = 1000
-ex.vClampSineWave(frequency=100, baselineV=-38, amplitudeV=7)
-
+ex.tstop = 500
+ex.iClampSineWave(frequency=4, baselineI=.1, amplitudeI=.05)
 
 
