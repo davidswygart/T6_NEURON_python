@@ -211,6 +211,14 @@ class Experiment():
         self.v_init = hold1
         self.vClampRec = h.Vector().record(self.vClamp._ref_i)
         
+    def placeCurrentClamp(self, seg):
+        """Put a current clamp at specified location"""
+        print('....adding a current clamp electrode')
+        h=self.model.h
+        self.iClamp = h.IClamp(seg) 
+        self.iClamp.delay = 0
+        self.iClamp.dur  = 1e15 #make it super long
+        
     def makePlot(self, x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = 'calc', xmin = 'calc', xmax = 'calc'):
         """Create a plot X and Y"""
         fig, ax = plt.subplots()
