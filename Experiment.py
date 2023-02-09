@@ -182,6 +182,7 @@ class Experiment():
 
         plt.xlim(xmin, xmax)
         plt.show()
+        
                 
     def placeVoltageClamp(self, hold1, duration, hold2):
         """Put a voltage clamp at soma"""

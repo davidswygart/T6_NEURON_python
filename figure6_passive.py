@@ -247,6 +247,11 @@ diffs.append(diffQ4toQ1)
 
 
 #%% Figure 6f
+stackedCSR = np.stack(CSRs, axis=2)
+
+stackedCSR.tofile('passiveCSRs.csv', sep=',')
+#%%
+
 stackedDiffs = np.stack(diffs, axis=1)
 med = np.median(stackedDiffs, axis=0)
 maxDif = np.max(stackedDiffs, axis=0)
