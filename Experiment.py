@@ -87,6 +87,20 @@ class Experiment():
             self.makePlot(self.time, self.rec.ribV[90], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
 
         return ribbonV
+    
+    def vClampSineWave(self, frequency = 1, baselineV = -38, amplitudeV = 7):
+
+        t = np.linspace(0,self.tstop, round(self.tstop/self.model.h.dt))
+        sin = np.sin(frequency * t * 2* np.pi / 1000) * amplitudeV + baselineV
+        sin = self.model.h.Vector(sin)
+
+        sin.play(self.vClamp._ref_amp1, self.model.h.dt)       
+        
+        self.run()
+
+        sin.play_remove()
+        plt.plot(self.time, self.rec.ribV[0])
+        
         
         
     def LoopThoughInhibitorySynapses2(self, folder='no save', inhLists='all'):

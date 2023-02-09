@@ -29,32 +29,16 @@ ex.tstop = 500
 
 
 #%%################ Set Exc ################################## (-45 mV -> -30 mV)
-ex.placeVoltageClamp(-60, 1e15, -60)
-#ex.vClamp.dur1 = 1e15
+ex.placeVoltageClamp(-38, 1e15, -38)
 vclamp = ex.vClamp
 #%%
 #vclamp =T6.h.SEClamp(T6.inhSyns.seg[0])
 #vclamp.dur1 = 1e9
 #%%
+ex.tstop = 1000
+ex.vClampSineWave(frequency=100, baselineV=-38, amplitudeV=7)
 
-endTime = 2000
-frequency = 4
-baseVolts = -38
-amplitude = 7
 
-ex.tstop = endTime
-t = np.linspace(0,endTime, round(endTime/T6.h.dt))
-sin = np.sin(frequency * t * 2* np.pi / 1000) * amplitude + baseVolts
-sin = T6.h.Vector(sin)
-
-sin.play(vclamp._ref_amp1, T6.h.dt)       
-     
-
-#T6.h.run()
-ex.run()
-
-sin.play_remove()
-plt.plot(ex.time, ex.rec.ribV[0])
 
 # driving stimulus
 #t = T6.h.Vector(np.linspace(0, 2* np.pi, 4000))
