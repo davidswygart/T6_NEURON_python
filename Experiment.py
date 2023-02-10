@@ -113,7 +113,8 @@ class Experiment():
         self.run()
 
         sin.play_remove()
-        plt.plot(self.time, self.rec.ribV[0])
+        plt.plot(self.time, self.iClampRec)
+        plt.title('Iclamp')
         
         
         
@@ -232,6 +233,7 @@ class Experiment():
         self.iClamp = h.IClamp(seg) 
         self.iClamp.delay = 0
         self.iClamp.dur  = 1e15 #make it super long
+        self.iClampRec = h.Vector().record(seg._ref_v)
         
     def makePlot(self, x, y, title = '', ylabel = '', xlabel = '', ymin = 'calc', ymax = 'calc', xmin = 'calc', xmax = 'calc'):
         """Create a plot X and Y"""

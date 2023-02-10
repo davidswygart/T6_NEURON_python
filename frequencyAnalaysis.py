@@ -32,8 +32,19 @@ ex.placeCurrentClamp(T6.soma.seg)
 
 
 
+#%% 
+ex.tstop = 1000
+ex.iClampSineWave(frequency=100, baselineI=.1, amplitudeI=.02)
+
 #%%
-ex.tstop = 500
-ex.iClampSineWave(frequency=4, baselineI=.1, amplitudeI=.05)
+startTime = 500
+startInd = np.argmin(abs(ex.time-startTime))
+
+data = np.array(ex.iClampRec)
+data = data[startInd:]
+print(np.sqrt(np.mean((data - np.mean(data))**2)))
 
 
+data = np.array(ex.rec.ribV[0])
+data = data[startInd:]
+print(np.sqrt(np.mean((data - np.mean(data))**2)))
