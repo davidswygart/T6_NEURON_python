@@ -142,6 +142,15 @@ ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%%
+frequency = 50
+ex.tstop = 5*1000/frequency + 500 ## get 5 cycles after 500 ms adaptation
+
+ex.iClampSineWave(frequency=frequency, baselineI=.075, amplitudeI=.046)
+ribFracs, a,b= analyzeFrequency(startTime = 500)
+ribbonRatios.append(ribFracs)
+frequencies.append(frequency)
+
+#%%
 frequency = 80
 ex.tstop = 5*1000/frequency + 500 ## get 5 cycles after 500 ms adaptation
 
@@ -169,6 +178,15 @@ ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%%
+frequency =500
+ex.tstop = 5*1000/frequency + 500 ## get 5 cycles after 500 ms adaptation
+
+ex.iClampSineWave(frequency=frequency, baselineI=.075, amplitudeI=.3)
+ribFracs, a,b= analyzeFrequency(startTime = 500)
+ribbonRatios.append(ribFracs)
+frequencies.append(frequency)
+
+#%%
 frequency =1000
 ex.tstop = 5*1000/frequency + 500 ## get 5 cycles after 500 ms adaptation
 
@@ -178,8 +196,16 @@ ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 
-#%%
-distances = T6.calcDistances([T6.soma.seg], T6.ribbons.seg)
+#%% Decibels of each ribbon
+rat = np.stack(ribbonRatios, axis=1)
+decibels = np.log10(rat) * 10
+avg_decibels = np.mean(decibels, axis=0)
+std_decibels = np.std(decibels, axis=0)
 
+#%% length constant of each ribbon
+distances = T6.calcDistances([T6.soma.seg], T6.ribbons.seg)
+lengthConstants = -1*distances / np.log(rat)
 
 plt.scatter(distances,ribbonRatios[0])
+
+
