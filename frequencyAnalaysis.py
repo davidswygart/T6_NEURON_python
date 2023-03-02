@@ -204,8 +204,16 @@ std_decibels = np.std(decibels, axis=0)
 
 #%% length constant of each ribbon
 distances = T6.calcDistances([T6.soma.seg], T6.ribbons.seg)
-lengthConstants = -1*distances / np.log(rat)
+
+lengthConstants = -1*distances / np.transpose(np.log(rat))
 
 plt.scatter(distances,ribbonRatios[0])
+plt.show()
+
+avgLambda = np.mean(lengthConstants, axis=1)
+stdLambda = np.std(lengthConstants, axis=1)
+
+plt.plot(frequencies, avgLambda)
+plt.show()
 
 

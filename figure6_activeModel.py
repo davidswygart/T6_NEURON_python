@@ -104,7 +104,9 @@ T6.settings.inhSyn.gMax = 2.95e-5
 n=1
 inds = T6.nNearestInh(n)
 #inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-inhV = ex.loopThroughInhibitorySynapses(inds) 
+#inhV = ex.loopThroughInhibitorySynapses(inds) 
+
+inhV = ex.loopThroughInhibitorySynapses(inds[[9]])   
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.median(Q4Avg))
@@ -202,7 +204,8 @@ T6.settings.inhSyn.gMax = 1.62e-5
 n=60
 inds = T6.nNearestInh(n)
 #inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-inhV = ex.loopThroughInhibitorySynapses(inds) 
+#inhV = ex.loopThroughInhibitorySynapses(inds) 
+inhV = ex.loopThroughInhibitorySynapses([inds[9]]) 
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.median(Q4Avg))
@@ -225,15 +228,15 @@ ns.append(n)
 CSRs.append(CSR)
 diffs.append(diffQ4toQ1)
 #%%
-T6.settings.inhSyn.gMax = 1.7e-5
+T6.settings.inhSyn.gMax = 1.62e-5
 
 n=120
 inds = T6.nNearestInh(n)
 #inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
-inhV = ex.loopThroughInhibitorySynapses(inds) 
+inhV = ex.loopThroughInhibitorySynapses([inds[9]]) 
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q4Avg))
+print(np.median(Q1Avg))
 
 ns.append(n)
 CSRs.append(CSR)
@@ -242,7 +245,41 @@ diffs.append(diffQ4toQ1)
 
 #np.argmin(abs(Q4Avg-np.median(Q4Avg))) == 86
 
+#%%
+soma2RibbonDistance = T6.calcDistances([T6.soma.seg], T6.ribbons.seg)[0]
 
+plt.scatter(soma2RibbonDistance, CSR[0,:])
+plt.xlabel('soma to ribbon distance (um)')
+plt.ylabel('ribbon CSR')
+plt.show()
+
+
+ribbon2InhDistance = T6.calcDistances(T6.ribbons.seg, T6.inhSyns.seg)
+ribbon2InhDistance = ribbon2InhDistance[:,inds[9]]
+ribbon2InhMinDistance = np.min(ribbon2InhDistance, axis = 1)
+
+plt.scatter(ribbon2InhMinDistance, CSR[0,:])
+plt.xlabel('min distance to Inh (um)')
+plt.ylabel('ribbon CSR')
+plt.show()
+
+avg_ribbon2InhDistance = np.mean(ribbon2InhDistance, axis=1)
+
+plt.scatter(avg_ribbon2InhDistance, CSR[0,:])
+plt.xlabel('avg distance to Inh (um)')
+plt.ylabel('ribbon CSR')
+plt.show()
+
+
+ribbonSecDiameter = []
+for seg in T6.ribbons.seg:
+    ribbonSecDiameter.append(seg.diam)
+
+
+plt.scatter(ribbonSecDiameter, CSR[0,:])
+plt.xlabel('ribbon diameter (um)')
+plt.ylabel('ribbon CSR')
+plt.show()
 
 #%% Figure 6f
 stackedDiffs = np.stack(diffs, axis=1)

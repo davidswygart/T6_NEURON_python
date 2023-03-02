@@ -5,26 +5,44 @@ Created on Wed Jan 18 14:46:09 2023
 @author: david
 """
 
+#%% For calculating CSR
+def calcCSR(stimTimeV, preTimeV, inhV):
+    excDelta = stimTimeV - preTimeV
+    inhDelta = stimTimeV - inhV
+    CSR = excDelta / inhDelta
+
+    # sort CSR and split into quartiles
+    sortedCSR = np.sort(CSR, axis = 1)# sort by low to high suppression
+    
+    quartileN = round(len(CSR[0,:])/4)
+    
+    Q1Avg = np.mean(sortedCSR[:, 0 : quartileN], axis = 1)
+    Q4Avg = np.mean(sortedCSR[:, quartileN*3-1 : ], axis = 1)
+    diffQ4toQ1 = Q4Avg-Q1Avg
+    
+    return CSR, Q1Avg, Q4Avg, diffQ4toQ1
+
+#%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Only make the model once. NEURON can do weird things if you remake it
+
+
+#%% Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
+
+##%% set active conductances
+T6.settings.Cav_L_gpeak = 1.62
+T6.settings.Kv1_2_gpeak = 12
+T6.settings.hcn2_gpeak = .78
 
 #%% create experiment object
 ex = Experiment(T6)
+ex.tstop = 2500
 
-T6.settings.excSyn['start'] = 200
-T6.settings.inhSyn['start'] = 400
-ex.tstop = 600
-
-#%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
-
-T6.settings.hcn2_gpeak = .78
-T6.settings.Kv1_2_gpeak = 12
-T6.settings.Cav_L_gpeak = 1.62
+#%%################ Set Exc ################################## (-45 mV -> -30 mV)
 
 
 # set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
