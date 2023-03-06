@@ -1,5 +1,6 @@
 class Settings ():
     """A class to store settings and parameters for the simulation"""
+    #These settings are correct for active model with 120 inhibitory synapses activated
 
     def __init__(self):
         # passive properties
@@ -9,9 +10,9 @@ class Settings ():
         self.g_pas =  3.91e-5       # passive leak conductance (S/cm2)                         
         
         # active conductances
-        self.hcn2_gpeak =  0        # max channel conductance (restricted to axon arbors) (pS/um2)
-        self.Kv1_2_gpeak = 0        # max channel conductance (accross entire cell) (pS/um2)
-        self.Cav_L_gpeak = 0        # max channel conductance (restricted to axon arbors) (pS/um2)
+        self.hcn2_gpeak =  .78        # max channel conductance (restricted to axon arbors) (pS/um2)
+        self.Kv1_2_gpeak = 12        # max channel conductance (accross entire cell) (pS/um2)
+        self.Cav_L_gpeak = 1.62        # max channel conductance (restricted to axon arbors) (pS/um2)
         
         
         #### Structure for synapse settings
@@ -25,7 +26,7 @@ class Settings ():
         self.excSyn.tauRise = 10
         self.excSyn.tauDecay = 100
         self.excSyn.reversalPotential = 10.1
-        self.excSyn.gMax = 1.12e-5
+        self.excSyn.gMax = 1e-5
         
         ############ Dark current ############
         self.excDark = namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
@@ -41,8 +42,8 @@ class Settings ():
         self.inhSyn= namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
         self.inhSyn.start = 1000
         self.inhSyn.stop = 2000
-        self.inhSyn.frequency = 20
+        self.inhSyn.frequency = 79
         self.inhSyn.tauRise = 1.8
         self.inhSyn.tauDecay = 100
         self.inhSyn.reversalPotential = -50.4
-        self.inhSyn.gMax = 0#.00001
+        self.inhSyn.gMax = 1.62e-5
