@@ -101,18 +101,28 @@ class Experiment():
         sin.play_remove()
         plt.plot(self.time, self.rec.ribV[0])
         
+    def iClampSineWave(self, frequency = 1, baselineI = 0, amplitudeI = 0, start = 1000):
+        sinDuration = self.tstop - start
+        numSinPoints = round(sinDuration / self.model.h.dt)
+        t = np.linspace(0, sinDuration/1000, numSinPoints) # time in seconds
+        sin = np.sin(frequency * t * 2* np.pi) * amplitudeI + baselineI
         
-    def iClampSineWave(self, frequency = 1, baselineI = -38, amplitudeI = 7):
+        
+        
+        trace = np.zeros(round(self.tstop/self.model.h.dt))
+        trace[len(trace)-len(sin) : len(trace)] = sin
+        
+        plt.plot(np.linspace(0,self.tstop,len(trace)), trace)
+        plt.title("played current trace")
+        plt.show()
+        
+        trace = self.model.h.Vector(trace)
 
-        t = np.linspace(0,self.tstop, round(self.tstop/self.model.h.dt))
-        sin = np.sin(frequency * t * 2* np.pi / 1000) * amplitudeI + baselineI
-        sin = self.model.h.Vector(sin)
-
-        sin.play(self.iClamp._ref_amp, self.model.h.dt)       
+        trace.play(self.iClamp._ref_amp, self.model.h.dt)       
         
         self.run()
 
-        sin.play_remove()
+        trace.play_remove()
         plt.plot(self.time, self.iClampRec)
         plt.title('Iclamp')
         

@@ -44,10 +44,9 @@ T6 = Type6_Model()
 ex = Experiment(T6)
 ex.placeCurrentClamp(T6.soma.seg)
 ex.tstop = 6000
-T6.settings.excSyn.start = 0
-T6.settings.excSyn.stop = 1e6
-T6.settings.inhSyn.start = 0
-T6.settings.inhSyn.stop = 1e6
+T6.settings.excSyn.gMax = 0
+T6.settings.inhSyn.gMax = 0
+T6.settings.excDark.gMax = 0
 startTime = 1000
 T6.update()
 
@@ -57,105 +56,105 @@ frequencies = []
 
 #%% mean == -38 RMS = 5.5
 frequency = .25
-ex.iClampSineWave(frequency=frequency, amplitudeI=0.15,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.043,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = .5
-ex.iClampSineWave(frequency=frequency, amplitudeI=0.15,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.043,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 1
-ex.iClampSineWave(frequency=frequency, amplitudeI=0.143,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.041,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 2
-ex.iClampSineWave(frequency=frequency, amplitudeI=0.146,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.037,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 3
-ex.iClampSineWave(frequency=frequency, amplitudeI=0.138,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.033,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 5
-ex.iClampSineWave(frequency=frequency, amplitudeI=.129,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.026,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 10
-ex.iClampSineWave(frequency=frequency, amplitudeI=.122,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.0193,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 20
-ex.iClampSineWave(frequency=frequency, amplitudeI=.119,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.0245,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 35
-ex.iClampSineWave(frequency=frequency, amplitudeI=.119,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.0354,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 50
-ex.iClampSineWave(frequency=frequency, amplitudeI=.121,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.046,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 65
-ex.iClampSineWave(frequency=frequency, amplitudeI=.123,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.057,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 80
-ex.iClampSineWave(frequency=frequency, amplitudeI=.126,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.068,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 100
-ex.iClampSineWave(frequency=frequency, amplitudeI=.131,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.082,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 250
-ex.iClampSineWave(frequency=frequency, amplitudeI=.185,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.178,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
 
 #%% mean == -38 RMS = 5.5
 frequency = 500
-ex.iClampSineWave(frequency=frequency, amplitudeI=.298,start=startTime)
+ex.iClampSineWave(frequency=frequency, amplitudeI=.30,start=startTime, baselineI=.069)
 ribFracs, a,b= analyzeFrequency(startTime = startTime + 1000) # give 1 second of sine wave to adapt
 ribbonRatios.append(ribFracs)
 frequencies.append(frequency)
