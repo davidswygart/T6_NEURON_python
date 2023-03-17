@@ -49,7 +49,9 @@ plt.show()
 
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhStimTimeV)
 print('Q1 = ', Q1Avg)
-hist, edges = np.histogram(CSR[0], bins=26, range=(.9, 2.2))
+hist, edges = np.histogram(CSR[0], bins=100, range=(1, 2))
+midpoints = edges - (edges[0]-edges[1])/2
+midpoints = midpoints[0:-1]
 plt.hist(CSR[0])
 plt.title("CSR with exc/inh")
 plt.show()
@@ -149,11 +151,12 @@ plt.show()
  
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhStimTimeV)
 print('Q1 = ', Q1Avg)
-hist, edges = np.histogram(CSR[0], bins=26, range=(.9, 2.2))
+hist, edges = np.histogram(CSR[0], bins=100, range=(1, 2))
+midpoints = edges - (edges[0]-edges[1])/2
+midpoints = midpoints[0:-1]
 plt.hist(CSR[0])
 plt.title("CSR with exc/inh")
 plt.show()
-
 
 #%%%%%%%%%%%%%%%%%% increase leak conductance specific to each segment %%%%%%%%%%%%%%%%%%%%%%%%
 # no active conductances
@@ -211,8 +214,9 @@ plt.show()
  
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhStimTimeV)
 print('Q1 = ', Q1Avg)
-hist, edges = np.histogram(CSR[0], bins=26, range=(.9, 2.2))
+hist, edges = np.histogram(CSR[0], bins=100, range=(1, 2))
+midpoints = edges - (edges[0]-edges[1])/2
+midpoints = midpoints[0:-1]
 plt.hist(CSR[0])
 plt.title("CSR with exc/inh")
 plt.show()
-

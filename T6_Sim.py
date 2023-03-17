@@ -224,4 +224,13 @@ class Type6_Model():
         #inds = list(inds) # convert back into a list of lists
         #inds = [list(i) for i in inds]  # convert back into a list of lists        
         return inds
+    
+    def getTotalConductanceFor3dPoints(self):
+        
+        for sec in self.h.allsec():
+            ls = []
+            for i in range(sec.n3d()):
+                l = (i+1)/(sec.n3d()+1)
+                g = sec(l).Kv1_2.gKv1_2
+                print(g)
         

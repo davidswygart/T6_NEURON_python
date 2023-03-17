@@ -232,7 +232,8 @@ T6.settings.inhSyn.gMax =  2.42e-6
 n=120
 inds = T6.nNearestInh(n)
 #inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
-inhV = ex.loopThroughInhibitorySynapses(inds) 
+#inhV = ex.loopThroughInhibitorySynapses(inds) 
+inhV = ex.loopThroughInhibitorySynapses(inds[[14]]) 
     
 CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
 print(np.median(Q4Avg))
