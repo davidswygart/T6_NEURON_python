@@ -32,11 +32,10 @@ class Experiment():
             rec.inhV.append(vVec)
 
             
-        for sec in h.allsec():
-            for seg in sec:
-                rec.gKv1_2.append(h.Vector().record(seg.Kv1_2._ref_gKv1_2))
-                rec.gHCN2.append(h.Vector().record(seg.hcn2._ref_gHCN2))
-                rec.gCa.append(h.Vector().record(seg.Ca._ref_gCa))
+        for seg in self.model.segList:
+            rec.gKv1_2.append(h.Vector().record(seg.Kv1_2._ref_gKv1_2))
+            rec.gHCN2.append(h.Vector().record(seg.hcn2._ref_gHCN2))
+            rec.gCa.append(h.Vector().record(seg.Ca._ref_gCa))
                 
         for syn in self.model.inhSyns.syn:
             rec.gInh.append( h.Vector().record(syn._ref_g) )

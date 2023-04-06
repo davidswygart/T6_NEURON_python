@@ -89,11 +89,70 @@ gLeakTotal = np.sum(gLeakSiemen, axis=0)
 gInhTotal = np.sum(gInh, axis=0)
 gExcTotal = np.sum(gExc, axis = 0)
 
-# plot all the conductances
+#%% plot conductance at soma
+i = 131
+ca = gCaSiemenPerCm2[i,:]*1e6
+kv = gKvSiemenPerCm2[i,:]*1e6
+HCN2 = gHCN2SiemenPerCm2[i,:]*1e6
+leak = gLeakSiemenPerCm2[i,:]*1e6
+total = ca + kv + HCN2 + leak
+
+plt.plot(ex.time, ca, label='Ca')
+plt.plot(ex.time, kv, label='Kv')
+plt.plot(ex.time, HCN2, label='HCN2')
+plt.plot(ex.time, leak, label = 'Leak')
+plt.plot(ex.time, total, label = 'total')
+plt.title('soma conductance')
+plt.ylabel("uS/cm2")
+plt.xlabel('ms')
+plt.legend()
+plt.show()
+
+#%% plot conducane at axon start
+i = 0
+ca = gCaSiemenPerCm2[i,:]*1e6
+kv = gKvSiemenPerCm2[i,:]*1e6
+HCN2 = gHCN2SiemenPerCm2[i,:]*1e6
+leak = gLeakSiemenPerCm2[i,:]*1e6
+total = ca + kv + HCN2 + leak
+
+plt.plot(ex.time, ca, label='Ca')
+plt.plot(ex.time, kv, label='Kv')
+plt.plot(ex.time, HCN2, label='HCN2')
+plt.plot(ex.time, leak, label = 'Leak')
+plt.plot(ex.time, total, label = 'total')
+plt.title('axon start')
+plt.ylabel("uS/cm2")
+plt.xlabel('ms')
+plt.legend()
+plt.show()
+
+#%% plot conductance at terminal branch (on right)
+i = 50
+ca = gCaSiemenPerCm2[i,:]*1e6
+kv = gKvSiemenPerCm2[i,:]*1e6
+HCN2 = gHCN2SiemenPerCm2[i,:]*1e6
+leak = gLeakSiemenPerCm2[i,:]*1e6
+total = ca + kv + HCN2 + leak
+
+plt.plot(ex.time, ca, label='Ca')
+plt.plot(ex.time, kv, label='Kv')
+plt.plot(ex.time, HCN2, label='HCN2')
+plt.plot(ex.time, leak, label = 'Leak')
+plt.plot(ex.time, total, label = 'total')
+plt.title('axon terminal')
+plt.ylabel("uS/cm2")
+plt.xlabel('ms')
+plt.legend()
+plt.show()
+
+#%% plot total conducances accross all segments
 plt.plot(ex.time, gCaTotal, label='Ca')
 plt.plot(ex.time, gKvTotal, label='Kv')
 plt.plot(ex.time, gHCN2Total, label='HCN2')
 plt.plot(ex.time, gLeakTotal, label = 'Leak')
+total = gCaTotal + gKvTotal + gHCN2Total + gLeakTotal 
+plt.plot(ex.time, total, label='total')
 #plt.plot(ex.time, gInhTotal, label='Inh.')
 #plt.plot(ex.time, gExcTotal, label='Exc.')
 plt.title('total conductances')
@@ -104,6 +163,7 @@ plt.show()
 
 cellConductance = gCaTotal + gKvTotal + gHCN2Total + gLeakTotal                        
 
+#%% plot total effective cell resistance
 plt.plot(ex.time, 1/cellConductance/1e9, label='active')
 plt.plot(ex.time, 1/gLeakTotal/1e9, label='passive')
 plt.title('effective membrane resistance')
@@ -163,10 +223,6 @@ plt.show()
 T6.settings.hcn2_gpeak = 0
 T6.settings.Kv1_2_gpeak = 0
 T6.settings.Cav_L_gpeak = 0
-
-totalMembraneAreaUm2 = np.sum(segArea)
-newPassiveConductance = cellConductance[int(1500 / T6.h.dt)] / totalMembraneAreaUm2 * 1e8 # chose a timepoint in the middle of the light step, and convert to cm2
-T6.settings.g_pas = newPassiveConductance
 
 totalSegmentConductance = gCaSiemens + gKvSiemens + gHCN2Siemens + gLeakSiemen
 totalSegmentConductance = totalSegmentConductance[:, int(1500 / T6.h.dt)] # chose a timepoint in the middle of the light step

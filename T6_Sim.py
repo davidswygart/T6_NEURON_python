@@ -15,8 +15,9 @@ class Type6_Model():
         self.h = h
         self.settings = Settings()
         
-        [secList, p3d] = self._loadMorphology()
+        [secList, segList, p3d] = self._loadMorphology()
         self.secList = secList
+        self.segList = segList
         self.pnt3D = p3d
         
         self.inhSyns = self._addSynapses("morphology/InhSynLocations.txt")
@@ -111,6 +112,10 @@ class Type6_Model():
         h.dend[0].connect(h.axon[0], 0, 0) #connect the dendrites and the axons together
         
         secList = list(h.allsec())
+        segList = []
+        for sec in h.allsec():
+            for seg in sec:
+                segList.append(seg)
         
         morphPoints3D = namedtuple("morphPoints3D", "XYZ diam secNum secDist") #create a datastructure to hold xyz data
         p3d = morphPoints3D([], [], [], []) # create an instance of this data structure with empty lists
@@ -128,7 +133,7 @@ class Type6_Model():
                 
                 dist = sec.arc3d(i) / sec.L
                 p3d.secDist.append(dist)
-        return [secList, p3d]
+        return [secList, segList, p3d]
 
     def _biophys(self):
         """Insert active channels and set cell biophysics"""
