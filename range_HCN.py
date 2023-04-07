@@ -1,82 +1,94 @@
-# -*- coding: utf-8 -*-
-# Test model over a range of HCN conductances
+def calcCSR(stimTimeV, preTimeV, inhV):
+    excDelta = stimTimeV - preTimeV
+    inhDelta = stimTimeV - inhV
+    CSR = excDelta / inhDelta
 
+    # sort CSR and split into quartiles
+    sortedCSR = np.sort(CSR, axis = 1)# sort by low to high suppression
+    
+    quartileN = round(len(CSR[0,:])/4)
+    
+    Q1Avg = np.mean(sortedCSR[:, 0 : quartileN], axis = 1)
+    Q4Avg = np.mean(sortedCSR[:, quartileN*3-1 : ], axis = 1)
+    diffQ4toQ1 = Q4Avg-Q1Avg
+    
+    return CSR, Q1Avg, Q4Avg, diffQ4toQ1
+
+#%%
+def runNewHCN(hcnG = .78 , inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
+    #Run the model excitation only  (-45 mV -> -30 mV)
+    T6.settings.hcn2_gpeak = hcnG
+    T6.settings.excDark.frequency = darkFreq
+    T6.settings.excSyn.frequency = stimFreq
+    T6.settings.inhSyn.gMax = 0
+    T6.update()
+    ex.run()
+    preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
+    excStimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
+    
+    # run with inhibition only
+    T6.settings.inhSyn.gMax = inhG
+    inhV = ex.loopThroughInhibitorySynapses(inds)   
+    CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
+    print('Q1 = ', np.median(Q1Avg))
+    return diffQ4toQ1
+    
+    
+#%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
 import numpy as np
+import matplotlib.pyplot as plt
 
-#%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
+#%% Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
-T6.settings.Cav_L_gpeak = 1.62
-T6.settings.Kv1_2_gpeak = 12
-
 ex = Experiment(T6)
+ex.tstop = 2001
 
-T6.settings.excSyn['start'] = 200
-T6.settings.inhSyn['start'] = 400
-T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
-ex.tstop = 600
+#%% start with simulating all inhibitory synapses
+n=120
+inds = T6.nNearestInh(n)
 
-#%%%%%%%%%%%%%%%%%% HCN conductance = 0 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 0
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 0.25 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 0.25
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0p25_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 0.5 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 0.5
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0p5_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 0.75 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 0.75
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x0p75');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance = normal %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x1_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 1.25 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 1.25
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x1p25_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 1.5 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 1.5
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x1p5_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 1.75 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 1.75
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x1p75_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-#%%%%%%%%%%%%%%%%%% HCN conductance * 2 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.hcn2_gpeak = .78 * 2
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\HCN\\x2_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+diffs120 = [];
+#%%
+diffs120.append(runNewHCN(hcnG = 0, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewHCN(hcnG = 0.4, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewHCN(hcnG = .78 , inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewHCN(hcnG = 1.2, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewHCN(hcnG = 1.6, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+
+#%%
+n=1
+inds = T6.nNearestInh(n)
+
+diffs1 = [];
+diffs1.append(runNewHCN(hcnG = 0, inhG=3.3e-5, stimFreq=650, darkFreq=100, inds=inds))
+diffs1.append(runNewHCN(hcnG = 0.4, inhG=3.12e-5, stimFreq=575, darkFreq=85, inds=inds))
+diffs1.append(runNewHCN(hcnG = 0.78, inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds))
+diffs1.append(runNewHCN(hcnG = 1.2, inhG=2.71e-5, stimFreq=460, darkFreq=58, inds=inds))
+diffs1.append(runNewHCN(hcnG = 1.6, inhG=2.56e-5, stimFreq=400, darkFreq=46, inds=inds))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
