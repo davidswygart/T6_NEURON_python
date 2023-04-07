@@ -71,7 +71,7 @@ class Experiment():
         ribbonV = np.zeros((numLoops, numRibs))
         
         for i, loopInhInds in enumerate(inhLists):
-            print('running ', i , ' of ', numLoops, ', inh Syn #', loopInhInds)
+            print('running ', i , ' of ', numLoops) #, ', inh Syn #', loopInhInds)
             
             #turn off all ihibitory synapses
             for con in self.model.inhSyns.con:
