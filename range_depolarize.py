@@ -24,13 +24,12 @@ def runNewExc(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
     preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
     excStimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
     
-    # run with inhibition only
-    # T6.settings.inhSyn.gMax = inhG
-    # inhV = ex.loopThroughInhibitorySynapses(inds)   
-    # CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
-    # print('Q1 = ', np.median(Q1Avg))
-    # return diffQ4toQ1
-    return 1
+    #run with inhibition only
+    T6.settings.inhSyn.gMax = inhG
+    inhV = ex.loopThroughInhibitorySynapses(inds)   
+    CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
+    print('Q1 = ', np.median(Q1Avg))
+    return diffQ4toQ1
     
     
 #%%############# Create Model and Experiment #########################
