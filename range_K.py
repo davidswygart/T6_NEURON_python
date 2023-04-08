@@ -1,101 +1,94 @@
-# -*- coding: utf-8 -*-
-# Test model over a range of K+ conductances
+def calcCSR(stimTimeV, preTimeV, inhV):
+    excDelta = stimTimeV - preTimeV
+    inhDelta = stimTimeV - inhV
+    CSR = excDelta / inhDelta
 
+    # sort CSR and split into quartiles
+    sortedCSR = np.sort(CSR, axis = 1)# sort by low to high suppression
+    
+    quartileN = round(len(CSR[0,:])/4)
+    
+    Q1Avg = np.mean(sortedCSR[:, 0 : quartileN], axis = 1)
+    Q4Avg = np.mean(sortedCSR[:, quartileN*3-1 : ], axis = 1)
+    diffQ4toQ1 = Q4Avg-Q1Avg
+    
+    return CSR, Q1Avg, Q4Avg, diffQ4toQ1
+
+#%%
+def runNewK(kG = .78 , inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
+    #Run the model excitation only  (-45 mV -> -30 mV)
+    T6.settings.Kv1_2_gpeak = kG
+    T6.settings.excDark.frequency = darkFreq
+    T6.settings.excSyn.frequency = stimFreq
+    T6.settings.inhSyn.gMax = 0
+    T6.update()
+    ex.run()
+    preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
+    excStimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
+    
+    #run with inhibition only
+    T6.settings.inhSyn.gMax = inhG
+    inhV = ex.loopThroughInhibitorySynapses(inds)   
+    CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
+    print('Q1 = ', np.median(Q1Avg))
+    return diffQ4toQ1
+    
+    
+#%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
 import numpy as np
+import matplotlib.pyplot as plt
 
-#%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
+#%% Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
-
-T6.settings.hcn2_gpeak = .78
-
-T6.settings.Cav_L_gpeak = 1.62
-
 ex = Experiment(T6)
+ex.tstop = 2001
 
-T6.settings.excSyn['start'] = 200
-T6.settings.inhSyn['start'] = 400
-ex.tstop = 600
+#%% start with simulating all inhibitory synapses
+n=120
+inds = T6.nNearestInh(n)
 
-#%%%%%%%%%%%%%%%%%% K conductance = normal %%%%%%%%%%%%%%%%%%%%%%%%
+diffs120 = [];
+#%%
+diffs120.append(runNewK(kG = 2, inhG=0.33e-5, stimFreq=52, darkFreq=2.9, inds=inds[[0]]))
+diffs120.append(runNewK(kG = 4, inhG=0.65e-5, stimFreq=115, darkFreq=17, inds=inds[[0]]))
+diffs120.append(runNewK(kG = 8, inhG=1.2e-5, stimFreq=280, darkFreq=44, inds=inds[[0]]))
+diffs120.append(runNewK(kG = 12 , inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewK(kG = 18, inhG=2.1e-5, stimFreq=1000, darkFreq=112, inds=inds[[0]]))
+diffs120.append(runNewK(kG = 24, inhG=2.5e-5, stimFreq=1900, darkFreq=160, inds=inds[[0]]))
 
-T6.settings.Kv1_2_gpeak = 12
+#%%
+n=1
+inds = T6.nNearestInh(n)
 
-# set excitation so that average ribbon is -35 mV, and inh that drops to -45 mV
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-
-T6.update()
-
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x1_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-
-#%%%%%%%%%%%%%%%%%% K conductance = 0 %%%%%%%%%%%%%%%%%%%%%%%%
-# Doesn't work because without any K+ to counteract calcium, there is a runaway depolarization
-#%%%%%%%%%%%%%%%%%% K conductance * 0.1 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * .1
-T6.settings.excSyn['gmax'] = 65 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 650  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x0p1_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+diffs1 = [];
+diffs1.append(runNewK(kG = 2, inhG=0.41e-5, stimFreq=52, darkFreq=2.9, inds=inds))
+diffs1.append(runNewK(kG = 4, inhG=0.9e-5, stimFreq=115, darkFreq=17, inds=inds))#perfect
+diffs1.append(runNewK(kG = 8, inhG=1.95e-5, stimFreq=280, darkFreq=44, inds=inds))#good
+diffs1.append(runNewK(kG = 12 , inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds)) #good
+diffs1.append(runNewK(kG = 18, inhG=4.5e-5, stimFreq=1000, darkFreq=112, inds=inds))#good
+diffs1.append(runNewK(kG = 24, inhG=6e-5, stimFreq=1900, darkFreq=160, inds=inds))#good
 
 
-#%%%%%%%%%%%%%%%%%% K conductance * 0.25 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 0.25
-T6.settings.excSyn['gmax'] = 410 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 2550  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x0p25_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
-#%%%%%%%%%%%%%%%%%% K conductance * 0.5 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 0.5
-T6.settings.excSyn['gmax'] = 1050 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 5000  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x0p5_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
-#%%%%%%%%%%%%%%%%%% K conductance * 0.75 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 0.75
-T6.settings.excSyn['gmax'] = 1790 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 6700  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x0p75_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
-#%%%%%%%%%%%%%%%%%% K conductance * 1.25 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 1.25
-T6.settings.excSyn['gmax'] = 3600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8800  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x1p25_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
-#%%%%%%%%%%%%%%%%%% K conductance * 1.5 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 1.5
-T6.settings.excSyn['gmax'] = 4700 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 9500  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x1p5_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
-#%%%%%%%%%%%%%%%%%% K conductance * 1.75 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 1.75
-T6.settings.excSyn['gmax'] = 6050 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 10200  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x1p75_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
 
-#%%%%%%%%%%%%%%%%%% K conductance * 2 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.Kv1_2_gpeak = 12 * 2
-T6.settings.excSyn['gmax'] = 7500 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 10500  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\K\\x2_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
