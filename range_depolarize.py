@@ -68,18 +68,18 @@ inds = T6.nNearestInh(n)
 
 diffs1 = [];
 
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=50, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=100, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=200, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=300, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=400, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=600, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=800, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=1000, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=1400, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=1800, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=3600, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=50, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=100, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=200, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=300, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=400, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=600, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=800, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=1000, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=1400, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=1800, darkFreq=70, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=3600, darkFreq=70, inds=inds))
 
 
 
