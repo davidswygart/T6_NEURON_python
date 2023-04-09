@@ -11,9 +11,7 @@ def calcCSR(stimTimeV, preTimeV, inhV):
     return CSR, Q1Avg, Q4Avg, diffQ4toQ1
 
 #%%
-def runNewInh(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
-    T6.settings.excSyn.frequency = stimFreq
-    T6.settings.excDark.frequency = darkFreq
+def runNewInh(inhG=1.62e-5, inds=[]):
     T6.settings.inhSyn.gMax = 0
     T6.update()
     ex.run()
@@ -25,14 +23,13 @@ def runNewInh(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
     inhV = ex.loopThroughInhibitorySynapses(inds)   
     CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
     print('Q1 = ', np.median(Q1Avg))
-    return diffQ4toQ1
+    return diffQ4toQ1, np.average(inhV)
     
     
 #%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
 import numpy as np
-import matplotlib.pyplot as plt
 
 #%% Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
@@ -44,39 +41,37 @@ n=120
 inds = T6.nNearestInh(n)
 
 diffs120 = [];
-#%% 
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=50, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=100, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=200, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=300, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=400, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=600, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=800, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=1000, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=1400, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=1800, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=3600, darkFreq=70, inds=inds[[0]]))
+#%%
+diffs120.append(runNewInh(inhG=0.29e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=0.38e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=0.52e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=0.68e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=0.91e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=1.22e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=1.62e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=2.43e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=3.65e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=5.47e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=8.2e-5,inds=inds[[0]]))
+diffs120.append(runNewInh(inhG=12.3e-5,inds=inds[[0]]))
+
 
 #%%
 n=1
 inds = T6.nNearestInh(n)
 
 diffs1 = [];
-
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=50, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=100, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=200, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=300, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=400, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=600, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=800, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=1000, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=1400, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=1800, darkFreq=70, inds=inds))
-diffs1.append(runNewExc(inhG=1.62e-5, stimFreq=3600, darkFreq=70, inds=inds))
-
+diffs1.append(runNewInh(inhG=0.52e-5, inds=inds))
+diffs1.append(runNewInh(inhG=0.7e-5, inds=inds))
+diffs1.append(runNewInh(inhG=0.93e-5, inds=inds))
+diffs1.append(runNewInh(inhG=1.24e-5, inds=inds))
+diffs1.append(runNewInh(inhG=1.66e-5, inds=inds))
+diffs1.append(runNewInh(inhG=2.2e-5, inds=inds))
+diffs1.append(runNewInh(inhG=2.95e-5, inds=inds))
+diffs1.append(runNewInh(inhG=4.43e-5, inds=inds))
+diffs1.append(runNewInh(inhG=6.4e-5, inds=inds))
+diffs1.append(runNewInh(inhG=9.6e-5, inds=inds))
+diffs1.append(runNewInh(inhG=15e-5, inds=inds))
 
 
 
