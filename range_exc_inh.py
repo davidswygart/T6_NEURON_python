@@ -15,22 +15,21 @@ def calcCSR(stimTimeV, preTimeV, inhV):
     return CSR, Q1Avg, Q4Avg, diffQ4toQ1
 
 #%%
-def runNewExc(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
+def runNewExc(inhG=1.62e-5, stimFreq=500, inds=[]):
     T6.settings.excSyn.frequency = stimFreq
-    T6.settings.excDark.frequency = darkFreq
     T6.settings.inhSyn.gMax = 0
     T6.update()
     ex.run()
     preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
     excStimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
     
-    # #run with inhibition only
-    # T6.settings.inhSyn.gMax = inhG
-    # inhV = ex.loopThroughInhibitorySynapses(inds)   
-    # CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
-    # print('Q1 = ', np.median(Q1Avg))
-    # return diffQ4toQ1
-    return excStimTimeV
+    #run with inhibition only
+    T6.settings.inhSyn.gMax = inhG
+    inhV = ex.loopThroughInhibitorySynapses(inds)   
+    CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
+    print('Q1 = ', np.median(Q1Avg))
+    return diffQ4toQ1, np.mean(excStimTimeV)
+    #return excStimTimeV
     
     
 #%%############# Create Model and Experiment #########################
@@ -50,48 +49,43 @@ inds = T6.nNearestInh(n)
 
 diffs120 = [];
 
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=50, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=100, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=200, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=300, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=400, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=600, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=800, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=1000, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=1400, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=1800, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=3600, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=0.352e-5, stimFreq=60, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=0.64e-5, stimFreq=125, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=1.06e-5, stimFreq=250, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=1.62e-5, stimFreq=500, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=2.24e-5, stimFreq=1000, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=2.88e-5, stimFreq=2000, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=3.42e-5, stimFreq=4000, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=4e-5, stimFreq=10000, inds=inds[[0]]))
+diffs120.append(runNewExc(inhG=4.4e-5, stimFreq=30000, inds=inds[[0]]))
 
 #%%
 n=1
 inds = T6.nNearestInh(n)
 
 diffs1 = [];
-
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=50, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=100, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=200, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=300, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=400, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=600, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=800, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=1000, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=1400, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=1800, darkFreq=70, inds=inds[[0]]))
-diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=3600, darkFreq=70, inds=inds[[0]]))
-
-
+#%%
+diffs1.append(runNewExc(inhG=0.425e-5, stimFreq=60, inds=inds))
+diffs1.append(runNewExc(inhG=0.84e-5, stimFreq=125, inds=inds))
+diffs1.append(runNewExc(inhG=1.6e-5, stimFreq=250, inds=inds))
+diffs1.append(runNewExc(inhG=2.95e-5, stimFreq=500, inds=inds))#1.087
+diffs1.append(runNewExc(inhG=8.64e-5, stimFreq=2000, inds=inds))
+diffs1.append(runNewExc(inhG=22e-5, stimFreq=10000, inds=inds))
+diffs1.append(runNewExc(inhG=32e-5, stimFreq=30000, inds=inds))
 
 #%%
-copy = []
-for d in diffs120:
-    copy.append(np.mean(d))
+difMax = []
+difMed = []
+difMin = []
+exc = []
+for diff, excV in diffs1:
+    exc.append(excV+45)
+    difMax.append(np.max(diff))
+    difMed.append(np.median(diff))
+    difMin.append(np.min(diff))
+    
 
 
-
-copy = np.array(copy) + 45
 
 
 
