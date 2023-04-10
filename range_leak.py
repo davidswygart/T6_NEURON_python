@@ -1,107 +1,86 @@
-# -*- coding: utf-8 -*-
-# Test model over a range of passive conductances
+def calcCSR(stimTimeV, preTimeV, inhV):
+    excDelta = stimTimeV - preTimeV
+    inhDelta = stimTimeV - inhV
+    CSR = excDelta / inhDelta
 
+    # sort CSR and split into quartiles
+    sortedCSR = np.sort(CSR, axis = 1)# sort by low to high suppression
+    
+    quartileN = round(len(CSR[0,:])/4)
+    
+    Q1Avg = np.mean(sortedCSR[:, 0 : quartileN], axis = 1)
+    Q4Avg = np.mean(sortedCSR[:, quartileN*3-1 : ], axis = 1)
+    diffQ4toQ1 = Q4Avg-Q1Avg
+    
+    return CSR, Q1Avg, Q4Avg, diffQ4toQ1
+
+def runNewLeak(leakG = 3.91e-5, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
+    #Run the model excitation only  (-45 mV -> -30 mV)
+    T6.settings.g_pas = leakG
+    T6.settings.excDark.frequency = darkFreq
+    T6.settings.excSyn.frequency = stimFreq
+    T6.settings.inhSyn.gMax = 0
+    T6.update()
+    ex.run()
+    preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
+    excStimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
+    
+    # run with inhibition only
+    T6.settings.inhSyn.gMax = inhG
+    inhV = ex.loopThroughInhibitorySynapses(inds)   
+    CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
+    print('Q1 = ', np.median(Q1Avg))
+    return diffQ4toQ1
+    
+    
+#%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
 import numpy as np
 
-#%%%%%%%%%%%%%%%%%% Active Model %%%%%%%%%%%%%%%%%%%%%%%%
+# Only make the model once. NEURON can do weird things if you remake it
 T6 = Type6_Model()
-T6.settings.Cav_L_gpeak = 1.62
-T6.settings.Kv1_2_gpeak = 12
-T6.settings.hcn2_gpeak = .78 * 0
-
 ex = Experiment(T6)
+ex.tstop = 2001
 
-T6.settings.excSyn['start'] = 200
-T6.settings.inhSyn['start'] = 400
-T6.settings.excSyn['darkProp'] = 0.2 # proportion that is dark current
-ex.tstop = 600
+#%% start with simulating all inhibitory synapses
+n=120
+inds = T6.nNearestInh(n)
 
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 0 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 0
-T6.settings.excSyn['gmax'] = 2150 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 7500  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\zero_');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+diffs120 = [];
+diffs120.append(runNewLeak(leakG = 0, inhG=1.53e-5, stimFreq=430, darkFreq=52.5, inds=inds[[0]]))
+diffs120.append(runNewLeak(leakG = 1.5e-5, inhG=1.56e-5, stimFreq=460, darkFreq=59, inds=inds[[0]]))
+diffs120.append(runNewLeak(leakG = 3e-5, inhG=1.59e-5, stimFreq=490, darkFreq=65, inds=inds[[0]]))
+diffs120.append(runNewLeak(leakG = 3.91e-5, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+diffs120.append(runNewLeak(leakG = 6e-5, inhG=1.68e-5, stimFreq=540, darkFreq=80, inds=inds[[0]]))
+diffs120.append(runNewLeak(leakG = 9e-5, inhG=1.74e-5, stimFreq=610, darkFreq=92, inds=inds[[0]]))
 
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 0.1 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 0.1
-T6.settings.excSyn['gmax'] = 2200 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 7600  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x0p1');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+#%%
+n=1
+inds = T6.nNearestInh(n)
 
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 0.25 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 0.25
-T6.settings.excSyn['gmax'] = 2270 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 7700  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x0p25');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 0.5 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 0.5
-T6.settings.excSyn['gmax'] = 2390 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 7800  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x0p5');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 0.75 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 0.75
-T6.settings.excSyn['gmax'] = 2510 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 7900  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x0p75');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance normal %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 10
-
-T6.settings.excSyn['gmax'] = 2600 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8000  #conductance at single inhibitory synapse
-T6.update()
-
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x1');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 1.25 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 1.25
-T6.settings.excSyn['gmax'] = 2760 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8100  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x1p25');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 1.5 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 1.5
-T6.settings.excSyn['gmax'] = 2890 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8180  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x1p5');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 1.75 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 1.75
-T6.settings.excSyn['gmax'] = 3010 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8260  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x1p75');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
-
-#%%%%%%%%%%%%%%%%%% passive leak conductance * 2 %%%%%%%%%%%%%%%%%%%%%%%%
-T6.settings.g_pas =  3.91e-5 * 2
-T6.settings.excSyn['gmax'] = 3140 / 8 # conductance at each excitatory input synapse (8 total)
-T6.settings.inhSyn['gmax'] = 8320  #conductance at single inhibitory synapse
-T6.update()
-data = ex.LoopThoughInhibitorySynapses(folder = 'results\\range\\leak\\x2');
-#data = ex.LoopThoughInhibitorySynapses(inhInds=[16]);
+diffs1 = [];
+diffs1.append(runNewLeak(leakG = 0, inhG=2.72e-5, stimFreq=430, darkFreq=52.5, inds=inds))
+#diffs1.append(runNewLeak(leakG = 1.5e-5, inhG=2.95e-5, stimFreq=460, darkFreq=59, inds=inds))
+diffs1.append(runNewLeak(leakG = 3e-5, inhG=2.85e-5, stimFreq=490, darkFreq=65, inds=inds))
+diffs1.append(runNewLeak(leakG = 3.91e-5, inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds)) #1.087
+diffs1.append(runNewLeak(leakG = 6e-5, inhG=3.1e-5, stimFreq=540, darkFreq=80, inds=inds))
+diffs1.append(runNewLeak(leakG = 9e-5, inhG=3.3e-5, stimFreq=610, darkFreq=92, inds=inds))
 
 
 
+
+
+#%%
+med = []
+maxx = []
+minn = []
+
+for d in diffs120:
+    med.append(np.median(d))
+    maxx.append(np.max(d))
+    minn.append(np.min(d))
+    
 
 
 
