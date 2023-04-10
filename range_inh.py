@@ -73,24 +73,20 @@ diffs1.append(runNewInh(inhG=6.4e-5, inds=inds))
 diffs1.append(runNewInh(inhG=9.6e-5, inds=inds))
 diffs1.append(runNewInh(inhG=15e-5, inds=inds))
 
+#%%
+med = []
+minn = []
+maxx = []
+hyper = []
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for diff, inhV in diffs120:
+    med.append(np.median(diff))
+    minn.append(np.min(diff))
+    maxx.append(np.max(diff))
+    hyper.append(inhV)
+    
+    
+hyper = -30 - np.array(hyper)
 
 
 

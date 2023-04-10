@@ -71,7 +71,11 @@ diffs1.append(runNewCaG(caG = 3, inhG=2.56e-5, stimFreq=400, darkFreq=46, inds=i
 
 
 
-
+#%%
+copy = []
+for d in diffs120:
+    copy.append(np.min(d))
+    
 
 
 

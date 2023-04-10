@@ -72,7 +72,11 @@ diffs1.append(runNewK(kG = 24, inhG=6e-5, stimFreq=1900, darkFreq=160, inds=inds
 
 
 
-
+#%%
+copy = []
+for d in diffs1:
+    copy.append(np.max(d))
+    
 
 
 

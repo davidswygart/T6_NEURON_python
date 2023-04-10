@@ -68,8 +68,10 @@ diffs1.append(runNewHCN(hcnG = 0.78, inhG=2.95e-5, stimFreq=500, darkFreq=70, in
 diffs1.append(runNewHCN(hcnG = 1.2, inhG=2.71e-5, stimFreq=460, darkFreq=58, inds=inds))
 diffs1.append(runNewHCN(hcnG = 1.6, inhG=2.56e-5, stimFreq=400, darkFreq=46, inds=inds))
 
-
-
+#%%
+copy = []
+for d in diffs120:
+    copy.append(np.median(d))
 
 
 
