@@ -42,7 +42,6 @@ n=120
 inds = T6.nNearestInh(n)
 
 diffs120 = [];
-#%%
 diffs120.append(runRa(ra = 1, inhG=2.5e-5, stimFreq=330, darkFreq=65, inds=inds[[0]]))
 diffs120.append(runRa(ra = 60, inhG=2e-5, stimFreq=406, darkFreq=67, inds=inds[[0]]))
 diffs120.append(runRa(ra = 132, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
@@ -54,14 +53,11 @@ n=1
 inds = T6.nNearestInh(n)
 
 diffs1 = [];
-#%%
 diffs1.append(runRa(ra = 1, inhG=2.85e-5, stimFreq=330, darkFreq=65, inds=inds[[18,56]]))
 diffs1.append(runRa(ra = 60, inhG=2.95e-5, stimFreq=406, darkFreq=67, inds=inds[[18,56]]))
 diffs1.append(runRa(ra = 132, inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds[[18,56]])) #1.087
 diffs1.append(runRa(ra = 264, inhG=2.95e-5, stimFreq=820, darkFreq=76, inds=inds[[18,56]]))
 diffs1.append(runRa(ra = 528, inhG=3.1e-5, stimFreq=4000, darkFreq=86, inds=inds[[18,56]]))
-
-
 
 #%%
 med = []
@@ -73,22 +69,4 @@ for d in diffs120:
     maxx.append(np.max(d))
     minn.append(np.min(d))
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
