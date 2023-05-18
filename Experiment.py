@@ -85,7 +85,7 @@ class Experiment():
             self.run()
             ribbonV[i,:] = self.averageRibVoltage()
             
-            self.makePlot(self.time, self.rec.ribV[90], title='ribbon 90',xlabel='time (ms)', ylabel='mV')
+            self.makePlot(self.time, self.rec.ribV[0], title='ribbon 0',xlabel='time (ms)', ylabel='mV')
 
         return ribbonV
     

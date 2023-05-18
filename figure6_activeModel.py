@@ -15,6 +15,22 @@ def calcCSR(stimTimeV, preTimeV, inhV):
     
     return CSR, Q1Avg, Q4Avg, diffQ4toQ1
 
+def runInhSet(n,inhG):
+    T6.settings.inhSyn.gMax = inhG
+    inds = T6.nNearestInh(n)
+    inhV = ex.loopThroughInhibitorySynapses(inds[[11]]) 
+    #inhV = ex.loopThroughInhibitorySynapses(inds[[45]])    
+    #inhV = ex.loopThroughInhibitorySynapses(inds) 
+     
+    CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
+    print(np.median(Q1Avg))
+
+    ns.append(n)
+    CSRs.append(CSR)
+    diffs.append(diffQ4toQ1)
+    return CSR
+    
+
 #%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
@@ -28,46 +44,45 @@ ex = Experiment(T6)
 #%%################ Exc only ################################## (-45 mV -> -30 mV)
 ex.tstop = 2500
 T6.settings.inhSyn.gMax = 0
+T6.settings.excDark.frequency = 70
+T6.settings.excSyn.frequency = 515
 T6.update()
 ex.run()
 
-smallSpotVRib1 = np.array(ex.rec.ribV[0])
-smallSpotVRib2 = np.array(ex.rec.ribV[24])
+rib1 = 27
+rib2 = 83
+
+smallSpotVRib1 = np.array(ex.rec.ribV[rib1])
+smallSpotVRib2 = np.array(ex.rec.ribV[rib2])
 ex.makePlot(ex.time,smallSpotVRib1)
 preTimeV = ex.averageRibVoltage(startTimeMs=500, endTimeMs =999) #preTime average
 stimTimeV = ex.averageRibVoltage(startTimeMs=1000, endTimeMs=2000) #postTime average
 
 #%% ####### Figure 6b, example traces when activating 2 inh. synapses ######
-#%% large spot (but only 2 inhibitory synapses activated)
+# large spot (but only 2 inhibitory synapses activated)
 ex.tstop = 2500
-T6.settings.inhSyn.gMax = 2.7e-5
+T6.settings.inhSyn.gMax = 2.38e-5
 T6.update()
 
-for con in T6.inhSyns.con: #turn off all ihibitory synapses
+for con in T6.inhSyns.con: #turn off all inhibitory synapses
     con.weight[0] = 0
 
-inds = [9,11] # example pair of inh synapses
+inds = [11,12] # example pair of inh synapses
 for i in inds: #turn on select ihibitory synapses
     T6.inhSyns.con[i].weight[0] = T6.settings.inhSyn.gMax * 120 / 2 # inhibition normalized by number activated
 
 ex.run()
-bigSpotVRib1 = np.array(ex.rec.ribV[0])
-bigSpotVRib2 = np.array(ex.rec.ribV[24])
+bigSpotVRib1 = np.array(ex.rec.ribV[rib1])
+bigSpotVRib2 = np.array(ex.rec.ribV[rib2])
 
-#%% plot large and small simultaneously for both examples
+# plot large and small simultaneously for both examples
 f, (ax1, ax2)  = plt.subplots(nrows = 2)
 
 t = ex.time/1000 - 1 #convert to seconds with 0 == stim start
 ax1.plot(t, smallSpotVRib1, label='no inh.')
 ax1.plot(t, bigSpotVRib1, label='with inh.')
-ax1.plot([0,0],[-60,-20])
-ax1.plot([1,1],[-60,-20])
-
 ax2.plot(t, smallSpotVRib2, label='no inh.')
 ax2.plot(t, bigSpotVRib2, label='with inh.')
-ax2.plot([0,0],[-60,-20])
-ax2.plot([1,1],[-60,-20])
-
 plt.legend()
 plt.show()
 
@@ -76,153 +91,43 @@ ex.tstop = 2001 # No need to run experiment past stimulus time since I'm not usi
 ns = []
 CSRs = []
 diffs = []
+
 #%%
-T6.settings.inhSyn.gMax = 2.95e-5
-
-n=1
-inds = T6.nNearestInh(n)
-inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-#inhV = ex.loopThroughInhibitorySynapses(inds) 
-
-#inhV = ex.loopThroughInhibitorySynapses(inds[[9]])   
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-#ns.append(n)
-#CSRs.append(CSR)
-#diffs.append(diffQ4toQ1)
+CSR = runInhSet(1, 2.45e-5)
 #%%
-T6.settings.inhSyn.gMax = 2.7e-5
-
-n=2
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]]) 
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(2, 2.38e-5)
 #%%
-T6.settings.inhSyn.gMax = 2.6e-5
-
-n=3
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(3, 2.2e-5)
 #%%
-T6.settings.inhSyn.gMax = 2.5e-5
-
-n=6
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(5, 2.2e-5)
 #%%
-T6.settings.inhSyn.gMax = 1.8e-5
-
-n=15
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])     
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(10, 2e-5)
 #%%
-T6.settings.inhSyn.gMax = 1.65e-5
-
-n=21
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(15, 1.9e-5)
 #%%
-T6.settings.inhSyn.gMax = 1.62e-5
-
-n=30
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(18, 1.89e-5)
 #%%
-T6.settings.inhSyn.gMax = 1.62e-5
-
-n=60
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])    
-#inhV = ex.loopThroughInhibitorySynapses(inds) 
-inhV = ex.loopThroughInhibitorySynapses([inds[9]]) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(21, 1.8e-5)
 #%%
-T6.settings.inhSyn.gMax = 1.73e-5
-
-n=90
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])     
-inhV = ex.loopThroughInhibitorySynapses(inds) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
+CSR = runInhSet(30,  1.73e-5)
 #%%
-T6.settings.inhSyn.gMax = 1.62e-5
-
-n=120
-inds = T6.nNearestInh(n)
-#inhV = ex.loopThroughInhibitorySynapses(inds[[14,18,56,119]])   
-inhV = ex.loopThroughInhibitorySynapses([inds[9]]) 
-    
-CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(stimTimeV, preTimeV, inhV)
-print(np.median(Q1Avg))
-
-ns.append(n)
-CSRs.append(CSR)
-diffs.append(diffQ4toQ1)
-
-
-#np.argmin(abs(Q4Avg-np.median(Q4Avg))) == 86
-
+CSR = runInhSet(40,  1.73e-5)
+#%%
+CSR = runInhSet(50,  1.73e-5)
+#%%
+CSR = runInhSet(60,  1.73e-5)
+#%%
+CSR = runInhSet(70,  1.73e-5)
+#%%
+CSR = runInhSet(80,  1.78e-5)
+#%%
+CSR = runInhSet(90, 1.85e-5)
+#%%
+CSR = runInhSet(100,  1.85e-5)
+#%%
+CSR = runInhSet(110,  1.72e-5)
+#%%
+CSR = runInhSet(120,  1.64e-5)
 #%%
 soma2RibbonDistance = T6.calcDistances([T6.soma.seg], T6.ribbons.seg)[0]
 
@@ -265,20 +170,8 @@ med = np.median(stackedDiffs, axis=0)
 maxDif = np.max(stackedDiffs, axis=0)
 minDif = np.min(stackedDiffs, axis=0)
 
-
-
-#%% Figure 6c
-exampleInhInd = np.argmin(np.mean(abs((stackedDiffs - med)), axis=1)) #use inhibition with values closest to median for example histograms
-
-plt.hist(CSRs[0][exampleInhInd])
-
-plt.hist(CSRs[7][exampleInhInd])
-plt.hist(CSRs[9][exampleInhInd])
 #%%
-hist, edges = np.histogram(CSRs[0][exampleInhInd], bins=26, range=(.9, 2.2))
+exampleInhInd = 11
+plt.hist(CSR[exampleInhInd,])
+hist, edges = np.histogram(CSR[exampleInhInd,], bins=42, range=(.85, 2.35))
 
-#%%
-hist, edges = np.histogram(CSRs[7][exampleInhInd], bins=26, range=(.9, 2.2))
-
-#%%
-hist, edges = np.histogram(CSRs[9][exampleInhInd], bins=26, range=(.9, 2.2))
