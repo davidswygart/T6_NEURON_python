@@ -22,7 +22,7 @@ class Settings ():
         self.excSyn = namedtuple("SynapseSettings", "start stop frequency baselineFrequency tauRise tauDecay reversalPotential gMax") #create a datastructure to hold synapse info
         self.excSyn.start = 1000
         self.excSyn.stop = 2000
-        self.excSyn.frequency = 500
+        self.excSyn.frequency = 515
         self.excSyn.tauRise = 10
         self.excSyn.tauDecay = 100
         self.excSyn.reversalPotential = 10.1
@@ -46,4 +46,4 @@ class Settings ():
         self.inhSyn.tauRise = 1.8
         self.inhSyn.tauDecay = 100
         self.inhSyn.reversalPotential = -50.4
-        self.inhSyn.gMax = 1.62e-5
+        self.inhSyn.gMax = 1.73e-5

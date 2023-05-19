@@ -26,7 +26,7 @@ def runRa(ra = 132, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]):
     CSR, Q1Avg, Q4Avg, diffQ4toQ1 = calcCSR(excStimTimeV, preTimeV, inhV)
     print('Q1 = ', np.median(Q1Avg))
     return diffQ4toQ1
-    
+
 #%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
@@ -38,35 +38,21 @@ ex = Experiment(T6)
 ex.tstop = 2001
 
 #%% start with simulating all inhibitory synapses
-n=120
+n=60
 inds = T6.nNearestInh(n)
+#inds = inds[[45]]
 
-diffs120 = [];
-diffs120.append(runRa(ra = 1, inhG=2.5e-5, stimFreq=330, darkFreq=65, inds=inds[[0]]))
-diffs120.append(runRa(ra = 60, inhG=2e-5, stimFreq=406, darkFreq=67, inds=inds[[0]]))
-diffs120.append(runRa(ra = 132, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runRa(ra = 264, inhG=1.22e-5, stimFreq=820, darkFreq=76, inds=inds[[0]]))
-diffs120.append(runRa(ra = 528, inhG=0.88e-5, stimFreq=4000, darkFreq=86, inds=inds[[0]]))
-
+diffs60 = [];
 #%%
-n=1
-inds = T6.nNearestInh(n)
-
-diffs1 = [];
-diffs1.append(runRa(ra = 1, inhG=2.85e-5, stimFreq=330, darkFreq=65, inds=inds[[18,56]]))
-diffs1.append(runRa(ra = 60, inhG=2.95e-5, stimFreq=406, darkFreq=67, inds=inds[[18,56]]))
-diffs1.append(runRa(ra = 132, inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds[[18,56]])) #1.087
-diffs1.append(runRa(ra = 264, inhG=2.95e-5, stimFreq=820, darkFreq=76, inds=inds[[18,56]]))
-diffs1.append(runRa(ra = 528, inhG=3.1e-5, stimFreq=4000, darkFreq=86, inds=inds[[18,56]]))
-
+diffs60.append(runRa(ra = 1, inhG=2.54e-5, stimFreq=330, darkFreq=64.5, inds=inds))
 #%%
-med = []
-maxx = []
-minn = []
+diffs60.append(runRa(ra = 60, inhG=2.1e-5, stimFreq=404, darkFreq=67, inds=inds))
+#%%
+diffs60.append(runRa(ra = 132, inhG=1.73e-5,stimFreq=515, darkFreq=70, inds=inds))
+#%%
+diffs60.append(runRa(ra = 264, inhG=1.3e-5, stimFreq=870, darkFreq=76, inds=inds))
+#%%
+diffs60.append(runRa(ra = 528, inhG=0.9e-5, stimFreq=5500, darkFreq=87, inds=inds))
 
-for d in diffs120:
-    med.append(np.median(d))
-    maxx.append(np.max(d))
-    minn.append(np.min(d))
     
 

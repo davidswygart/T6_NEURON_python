@@ -50,43 +50,25 @@ n=120
 inds = T6.nNearestInh(n)
 
 diffs120 = [];
-#%%
-diffs120.append(runNewHCN(hcnG = 0, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewHCN(hcnG = 0.4, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewHCN(hcnG = .78 , inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewHCN(hcnG = 1.2, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewHCN(hcnG = 1.6, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+# #%%
+# diffs120.append(runNewHCN(hcnG = 0, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+# diffs120.append(runNewHCN(hcnG = 0.4, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+# diffs120.append(runNewHCN(hcnG = .78 , inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+# diffs120.append(runNewHCN(hcnG = 1.2, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
+# diffs120.append(runNewHCN(hcnG = 1.6, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
 
 #%%
-n=1
+n=60
 inds = T6.nNearestInh(n)
+#inds = inds[[45]]
 
 diffs1 = [];
-diffs1.append(runNewHCN(hcnG = 0, inhG=3.3e-5, stimFreq=650, darkFreq=100, inds=inds))
-diffs1.append(runNewHCN(hcnG = 0.4, inhG=3.12e-5, stimFreq=575, darkFreq=85, inds=inds))
-diffs1.append(runNewHCN(hcnG = 0.78, inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds))
-diffs1.append(runNewHCN(hcnG = 1.2, inhG=2.71e-5, stimFreq=460, darkFreq=58, inds=inds))
-diffs1.append(runNewHCN(hcnG = 1.6, inhG=2.56e-5, stimFreq=400, darkFreq=46, inds=inds))
-
 #%%
-copy = []
-for d in diffs120:
-    copy.append(np.median(d))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+diffs1.append(runNewHCN(hcnG = 0, inhG=1.71e-5, stimFreq=510, darkFreq=70, inds=inds))
+diffs1.append(runNewHCN(hcnG = 0.4, inhG=1.71e-5, stimFreq=510, darkFreq=70, inds=inds))
+diffs1.append(runNewHCN(hcnG = 0.78, inhG=1.71e-5, stimFreq=510, darkFreq=70, inds=inds))
+diffs1.append(runNewHCN(hcnG = 1.2, inhG=1.71e-5, stimFreq=510, darkFreq=70, inds=inds))
+diffs1.append(runNewHCN(hcnG = 1.6, inhG=1.71e-5, stimFreq=510, darkFreq=70, inds=inds))
 
 
 

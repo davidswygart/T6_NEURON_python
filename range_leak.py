@@ -32,7 +32,6 @@ def runNewLeak(leakG = 3.91e-5, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=[]
     print('Q1 = ', np.median(Q1Avg))
     return diffQ4toQ1
     
-    
 #%%############# Create Model and Experiment #########################
 from T6_Sim import Type6_Model
 from Experiment import Experiment
@@ -43,44 +42,22 @@ T6 = Type6_Model()
 ex = Experiment(T6)
 ex.tstop = 2001
 
-#%% start with simulating all inhibitory synapses
-n=120
-inds = T6.nNearestInh(n)
-
-diffs120 = [];
-diffs120.append(runNewLeak(leakG = 0, inhG=1.53e-5, stimFreq=430, darkFreq=52.5, inds=inds[[0]]))
-diffs120.append(runNewLeak(leakG = 1.5e-5, inhG=1.56e-5, stimFreq=460, darkFreq=59, inds=inds[[0]]))
-diffs120.append(runNewLeak(leakG = 3e-5, inhG=1.59e-5, stimFreq=490, darkFreq=65, inds=inds[[0]]))
-diffs120.append(runNewLeak(leakG = 3.91e-5, inhG=1.62e-5, stimFreq=500, darkFreq=70, inds=inds[[0]]))
-diffs120.append(runNewLeak(leakG = 6e-5, inhG=1.68e-5, stimFreq=540, darkFreq=80, inds=inds[[0]]))
-diffs120.append(runNewLeak(leakG = 9e-5, inhG=1.74e-5, stimFreq=610, darkFreq=92, inds=inds[[0]]))
-
 #%%
-n=1
+n=60
 inds = T6.nNearestInh(n)
+#inds = inds[[45]]
 
-diffs1 = [];
-diffs1.append(runNewLeak(leakG = 0, inhG=2.72e-5, stimFreq=430, darkFreq=52.5, inds=inds))
-#diffs1.append(runNewLeak(leakG = 1.5e-5, inhG=2.95e-5, stimFreq=460, darkFreq=59, inds=inds))
-diffs1.append(runNewLeak(leakG = 3e-5, inhG=2.85e-5, stimFreq=490, darkFreq=65, inds=inds))
-diffs1.append(runNewLeak(leakG = 3.91e-5, inhG=2.95e-5, stimFreq=500, darkFreq=70, inds=inds)) #1.087
-diffs1.append(runNewLeak(leakG = 6e-5, inhG=3.1e-5, stimFreq=540, darkFreq=80, inds=inds))
-diffs1.append(runNewLeak(leakG = 9e-5, inhG=3.3e-5, stimFreq=610, darkFreq=92, inds=inds))
-
-
-
-
-
+diffs60 = [];
 #%%
-med = []
-maxx = []
-minn = []
-
-for d in diffs120:
-    med.append(np.median(d))
-    maxx.append(np.max(d))
-    minn.append(np.min(d))
-    
+diffs60.append(runNewLeak(leakG = 0, inhG=1.63e-5, stimFreq=440, darkFreq=52.5, inds=inds))
+#%%
+diffs60.append(runNewLeak(leakG = 3e-5, inhG=1.7e-5, stimFreq=500, darkFreq=65, inds=inds))
+#%%
+diffs60.append(runNewLeak(leakG = 3.91e-5, inhG=1.73e-5,stimFreq=515, darkFreq=70, inds=inds))
+#%%
+diffs60.append(runNewLeak(leakG = 6e-5, inhG=1.78e-5, stimFreq=550, darkFreq=80, inds=inds))
+#%%
+diffs60.append(runNewLeak(leakG = 9e-5, inhG=1.82e-5, stimFreq=620, darkFreq=93, inds=inds))
 
 
 
