@@ -54,16 +54,16 @@ for i in range(len(ribbonDistanceMatrix)):
 
 #%%
 inds = T6.nNearestInh(1)
-q1Inds, q4Inds = run(inhG=2.95e-5, inds=inds)
+q1Inds, q4Inds = run(inhG=2.45e-5, inds=inds)
 n1Distances = getDistances(q1Inds,q4Inds)
 #%%
 inds = T6.nNearestInh(60)
-q1Inds, q4Inds = run(inhG=1.62e-5, inds=inds)
+q1Inds, q4Inds = run(inhG=1.73e-5, inds=inds)
 n60Distances = getDistances(q1Inds,q4Inds)
 
 #%%
 inds = T6.nNearestInh(120)
-q1Inds, q4Inds = run(inhG=1.62e-5, inds=inds[[0]])
+q1Inds, q4Inds = run(inhG=1.64e-5, inds=inds[[0]])
 n120Distances = getDistances(q1Inds,q4Inds)
 
 

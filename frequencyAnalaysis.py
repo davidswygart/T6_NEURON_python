@@ -44,6 +44,9 @@ T6 = Type6_Model()
 ex = Experiment(T6)
 ex.placeCurrentClamp(T6.soma.seg)
 ex.tstop = 6000
+T6.settings.excDark.frequency = 70
+T6.settings.excSyn.frequency = 515
+T6.settings.inhSyn.gMax = 1.64e-5
 T6.settings.excSyn.start = 0
 T6.settings.excSyn.stop = 1e6
 T6.settings.inhSyn.start = 0
